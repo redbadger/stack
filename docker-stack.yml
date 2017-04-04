@@ -1,8 +1,23 @@
 version: "3"
 
 services:
+  registry:
+    restart: always
+    image: registry:2
+    ports:
+      - 5000:5000
+    volumes:
+      - /registry:/var/lib/registry
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
   web:
-    image: stuartharris/web
+    image: 192.168.99.100:5000/web
     ports:
       - 3000:3000
     deploy:
