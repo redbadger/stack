@@ -4,7 +4,5 @@
   "main": "index.js",
   "author": "Stuart Harris <stuart.harris@red-badger.com>",
   "license": "MIT",
-  "devDependencies": {
-    "create-react-app": "^1.3.0"
-  }
+  "devDependencies": {}
 }
