@@ -14,8 +14,10 @@ services:
       restart_policy:
         condition: on-failure
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - node.role == manager
   web:
+    build: web
     image: 192.168.99.100:5000/web
     ports:
       - 80:3000
@@ -27,7 +29,8 @@ services:
       restart_policy:
         condition: on-failure
       placement:
-        constraints: [node.role == worker]
+        constraints:
+          - node.role == worker
   visualizer:
     image: dockersamples/visualizer:stable
     ports:
@@ -37,4 +40,5 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     deploy:
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - node.role == manager
