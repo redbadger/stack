@@ -1,21 +1,11 @@
+import Layout from '../components/layout';
+
 const Page = ({ host }) => (
-  <div>
+  <Layout title="home" host={host}>
     <p>
-      (rendered by {host})
-      <style jsx>
-        {
-          `
-        p {
-          color: red;
-        }
-      `
-        }
-      </style>
+      About us ...
     </p>
-    <p>
-      Welcome to About!
-    </p>
-  </div>
+  </Layout>
 );
 
 Page.getInitialProps = ({ req }) => ({
