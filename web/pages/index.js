@@ -7,7 +7,18 @@ const Page = ({ host }) => (
       <title>Hey</title>
       <meta name="viewport" content="initial-scale=1.0, width=device-width" />
     </Head>
-    <p>Hey! (from {host})</p>
+    <p>
+      (rendered by {host})
+      <style jsx>
+        {
+          `
+        p {
+          color: red;
+        }
+      `
+        }
+      </style>
+    </p>
     <div>Click <Link href="/about"><a>here</a></Link> to read more</div>
   </div>
 );
