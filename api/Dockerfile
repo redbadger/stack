@@ -1,5 +1,4 @@
 FROM node:6-alpine
-MAINTAINER stuart.harris@red-badger.com
 
 RUN apk add --update tini
 ENTRYPOINT ["/sbin/tini", "--"]

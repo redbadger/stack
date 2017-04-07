@@ -8,16 +8,17 @@ const Page = ({ host, data }) => (
     </p>
     <p>
       from api:
+    </p>
+    <p>
       {JSON.stringify(data)}
     </p>
   </Layout>
 );
 
-const query = { query: 'query {server}', variables: null };
 Page.getInitialProps = async ({ req }) => {
   const response = await fetch('http://api:4000/graphql', {
     method: 'POST',
-    body: JSON.stringify(query),
+    body: JSON.stringify({ query: 'query {server}', variables: null }),
     headers: { 'Content-Type': 'application/json' },
   });
   const data = await response.json();
