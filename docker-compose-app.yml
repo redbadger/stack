@@ -1,4 +1,4 @@
-version: "3"
+version: "3.1"
 
 services:
   web:
@@ -9,7 +9,7 @@ services:
       replicas: 3
       update_config:
         parallelism: 1
-        delay: 2s
+        delay: 5s
       restart_policy:
         condition: on-failure
       placement:
@@ -23,40 +23,14 @@ services:
       replicas: 3
       update_config:
         parallelism: 1
-        delay: 2s
+        delay: 5s
       restart_policy:
         condition: on-failure
       placement:
         constraints:
           - node.role == worker
-  # couchbase-master:
-  #   image: registry.service:5000/couchbase
-  #   ports:
-  #     - 8091:8091
-  #   networks:
-  #     couchbase:
-  #       aliases:
-  #         - master.couchbase
-  #   environment:
-  #     TYPE: MASTER
-  #   deploy:
-  #     replicas: 1
-  #     placement:
-  #       constraints:
-  #         - node.role == worker
-  # couchbase-worker:
-  #   image: registry.service:5000/couchbase
-  #   networks:
-  #     - couchbase
-  #   environment:
-  #     TYPE: WORKER
-  #     COUCHBASE_MASTER: master.couchbase
-  #     AUTO_REBALANCE: "false"
-  #   deploy:
-  #     replicas: 1
-  #     placement:
-  #       constraints:
-  #         - node.role == worker
-  #
-# networks:
-#   couchbase:
+    secrets:
+      - my_secret
+secrets:
+  my_secret:
+    external: true

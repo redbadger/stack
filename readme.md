@@ -78,6 +78,12 @@ There are 2 compose files, one for a private Docker registry and swarm visualise
     done
     ```
 
+1.  Create a secret that the `api` service will use (note we use `printf` instead of `echo` to prevent a new-line being added)
+
+    ```sh
+    printf 'sssshhhh!' | docker secret create my_secret -
+    ```
+
 1.  Deploy the app stack
 
     ```sh

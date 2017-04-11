@@ -1,5 +1,5 @@
-import Layout from '../components/layout';
 import fetch from 'node-fetch';
+import Layout from '../components/layout';
 
 const Page = ({ host, data }) => (
   <Layout title="home" host={host}>
@@ -18,7 +18,7 @@ const Page = ({ host, data }) => (
 Page.getInitialProps = async ({ req }) => {
   const response = await fetch('http://api:4000/graphql', {
     method: 'POST',
-    body: JSON.stringify({ query: 'query {server}', variables: null }),
+    body: JSON.stringify({ query: 'query {server, secret}', variables: null }),
     headers: { 'Content-Type': 'application/json' },
   });
   const data = await response.json();

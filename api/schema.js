@@ -1,3 +1,4 @@
+import fs from 'fs';
 import {
   graphql,
   GraphQLSchema,
@@ -13,6 +14,17 @@ export default new GraphQLSchema({
         type: GraphQLString,
         resolve() {
           return process.env['HOSTNAME'] || 'localhost';
+        },
+      },
+      secret: {
+        type: GraphQLString,
+        resolve() {
+          return new Promise((resolve, reject) => {
+            fs.readFile(
+              '/run/secrets/my_secret',
+              (e, a) => e != null ? reject(e) : resolve(a),
+            );
+          });
         },
       },
     },
