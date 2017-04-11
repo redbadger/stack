@@ -94,3 +94,9 @@ There are 2 compose files, one for a private Docker registry and swarm visualise
     n6pm2oq5jlv8  services_visualizer  replicated  1/1       dockersamples/visualizer:stable
     pcmj953eucx5  app_api              replicated  3/3       registry:5000/api:latest
     ```
+
+## Cleaning up
+
+```sh
+docker-machine rm -f mgr1 wkr1 wkr2 wkr3
+```
