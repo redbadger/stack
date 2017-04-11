@@ -27,13 +27,13 @@ There are 2 compose files, one for a private Docker registry and swarm visualise
 1.  Point local Docker to the manager node:
 
     ```sh
-    eval (docker-machine env mgr1)
+    eval $(docker-machine env mgr1)
     ```
 
 1.  Create a swarm:
 
     ```sh
-    docker swarm init --advertise-addr (docker-machine ip mgr1)
+    docker swarm init --advertise-addr $(docker-machine ip mgr1)
     ```
 
 1.  Join the workers to the swarm:
@@ -41,7 +41,7 @@ There are 2 compose files, one for a private Docker registry and swarm visualise
     ```bash
     for node in wkr1 wkr2 wkr3
     do
-      docker --host=tcp://(docker-machine ip $node):2376 swarm join --token (docker swarm join-token worker --quiet) (docker-machine ip mgr1):2377
+      docker --host=tcp://$(docker-machine ip $node):2376 swarm join --token $(docker swarm join-token worker --quiet) $(docker-machine ip mgr1):2377
     done
     ```
 
