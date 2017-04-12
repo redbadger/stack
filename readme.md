@@ -27,7 +27,7 @@ There are 2 compose files, one for a private Docker registry and swarm visualise
 1.  Point local Docker to the manager node:
 
     ```sh
-    eval $(docker-machine env mgr1)
+    eval $(docker-machine env --shell=bash mgr1)
     ```
 
 1.  Create a swarm:
