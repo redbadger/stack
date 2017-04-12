@@ -111,16 +111,23 @@ docker-machine rm -f mgr1 wkr1 wkr2 wkr3
 
 ## Using nginx as load balancer
 
-1.  If your local docker is pointing to the swarm manager you can use the reset script to unset the docker env variables in order to point back to your local xhyve instance in Docker for Mac.
+1.  If your local docker is pointing to the swarm manager you can use the `point-to-local` script to unset the docker env variables in order to point back to your local xhyve instance in Docker for Mac.
 
     ```bash
-    sh reset.sh
+    source ./point-to-local.sh
     ```
 
 1.  We are going to run nginx in a container locally (i.e. not in the swarm) in order to load balance requests between the nodes in the swarm. This is also needed so that when calling the web ui in this example project, the browser can also access the api without using CORS etc.
 
-    The `start.sh` script injects the swarm nodes' ip addresses into the upstream section of the nginx config and starts nginx with that config in a local container:
+    The `start.sh` script injects the swarm nodes' ip addresses into the upstream section of the nginx config and starts nginx with that config in a local container. You should run this from the repo root.
 
     ```bash
     sh nginx/start.sh
+    ```
+
+1.  To cleanup you should stop and remove the `load-balancer` containers
+
+    ```bash
+    docker stop load-balancer
+    docker rm load-balancer
     ```

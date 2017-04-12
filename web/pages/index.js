@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch from 'isomorphic-fetch';
 import Layout from '../components/layout';
 
 const Page = ({ host, data }) => (
@@ -16,7 +16,8 @@ const Page = ({ host, data }) => (
 );
 
 Page.getInitialProps = async ({ req }) => {
-  const response = await fetch('http://api:4000/graphql', {
+  const endpoint = req ? 'http://api:4000/graphql' : '/api/graphql';
+  const response = await fetch(endpoint, {
     method: 'POST',
     body: JSON.stringify({ query: 'query {server, secret}', variables: null }),
     headers: { 'Content-Type': 'application/json' },
