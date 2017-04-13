@@ -1,6 +1,7 @@
 FROM node:6-alpine
 
-RUN apk add --update tini curl
+RUN apk add --update tini curl \
+  && rm -r /var/cache
 ENTRYPOINT ["/sbin/tini", "--"]
 
 WORKDIR /home/node/app
