@@ -1,8 +1,7 @@
 FROM node:6-alpine
 
-RUN apk add --update tini
+RUN apk add --update tini curl
 ENTRYPOINT ["/sbin/tini", "--"]
-EXPOSE 3000
 
 WORKDIR /home/node/app
 ENV NODE_ENV production
@@ -15,7 +14,10 @@ RUN yarn run build \
   && npm prune --production --silent \
   && chown -R node:node .
 
-USER node
+EXPOSE 3000
+HEALTHCHECK --interval=5s --timeout=3s \
+  CMD curl --fail http://localhost:3000/health || exit 1
 
+USER node
 # Run under Tini
 CMD ["./node_modules/.bin/next", "start"]
