@@ -1,8 +1,10 @@
 This repo is a noddy web ui and api with `version 3` compose files that are designed to be deployed into a "Docker in swarm mode" cluster.
 
-There are 2 compose files, one for a private Docker registry and swarm visualiser (available on the swarm's port 8080). The other is for the web and api containers.
+There are 2 compose files. One for a private Docker registry and swarm visualiser (available on the swarm's port 8080). The other is for the web and api containers.
 
-## To set up a cluster
+Incoming requests can hit any node of the swarm and will be routed by the swarm's load balancer. However, in AWS you would have an ELB/ALB pointing at the autoscaling group(s) to protect against losing a node. To simulate this, you can use nginx as a load balancer for the nodes in the swarm. See the [section below](#using-nginx-as-load-balancer).
+
+## To set up the cluster
 1.  Install VirtualBox and Docker for Mac
 
 1.  Create 4 VMs using `docker-machine`. We're turning on experimental features so that we can do things like `docker service logs`. Also we're allowing the docker engine to talk to an insecure private registry on the cluster (can't really be bothered to set up SSL for this).
@@ -27,7 +29,7 @@ There are 2 compose files, one for a private Docker registry and swarm visualise
 1.  Point local Docker to the manager node:
 
     ```sh
-    eval $(docker-machine env mgr1)
+    eval $(docker-machine env --shell=bash mgr1)
     ```
 
 1.  Create a swarm:
@@ -106,3 +108,26 @@ There are 2 compose files, one for a private Docker registry and swarm visualise
 ```sh
 docker-machine rm -f mgr1 wkr1 wkr2 wkr3
 ```
+
+## Using nginx as load balancer
+
+1.  If your local docker is pointing to the swarm manager you can use the `point-to-local` script to unset the docker env variables in order to point back to your local xhyve instance in Docker for Mac.
+
+    ```bash
+    source ./point-to-local.sh
+    ```
+
+1.  We are going to run nginx in a container locally (i.e. not in the swarm) in order to load balance requests between the nodes in the swarm. This is also needed so that when calling the web ui in this example project, the browser can also access the api without using CORS etc.
+
+    The `start.sh` script injects the swarm nodes' ip addresses into the upstream section of the nginx config and starts nginx with that config in a local container. You should run this from the repo root.
+
+    ```bash
+    sh nginx/start.sh
+    ```
+
+1.  To cleanup you should stop and remove the `load-balancer` containers
+
+    ```bash
+    docker stop load-balancer
+    docker rm load-balancer
+    ```

@@ -1,10 +1,16 @@
 import fs from 'fs';
+import Path from 'path';
+import Promise from 'bluebird';
 import {
   graphql,
   GraphQLSchema,
   GraphQLObjectType,
+  GraphQLList,
   GraphQLString,
 } from 'graphql';
+
+const readdir = Promise.promisify(fs.readdir);
+const readFile = Promise.promisify(fs.readFile);
 
 export default new GraphQLSchema({
   query: new GraphQLObjectType({
@@ -16,15 +22,23 @@ export default new GraphQLSchema({
           return process.env['HOSTNAME'] || 'localhost';
         },
       },
-      secret: {
-        type: GraphQLString,
-        resolve() {
-          return new Promise((resolve, reject) => {
-            fs.readFile(
-              '/run/secrets/my_secret',
-              (e, a) => e != null ? reject(e) : resolve(a),
-            );
-          });
+      secrets: {
+        type: new GraphQLList(
+          new GraphQLObjectType({
+            name: 'Secret',
+            fields: {
+              name: { type: GraphQLString },
+              value: { type: GraphQLString },
+            },
+          }),
+        ),
+        async resolve() {
+          const path = '/run/secrets';
+          const files = await readdir(path);
+          return files.map(async file => ({
+            name: file,
+            value: await readFile(Path.resolve(path, file), 'utf8'),
+          }));
         },
       },
     },
