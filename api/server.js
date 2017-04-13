@@ -12,6 +12,8 @@ app.use(
   }),
 );
 
+app.get('/health', (req, res) => res.end());
+
 app.listen(4000);
 
 export default app;
