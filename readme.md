@@ -73,11 +73,8 @@ Incoming requests can hit any node of the swarm and will be routed by the swarm'
 1.  Build and push images
 
     ```sh
-    for i in web api
-    do
-      docker build -t registry:5000/$i $i
-      docker push registry:5000/$i
-    done
+    docker-compose -f docker-compose-app.yml build
+    docker-compose -f docker-compose-app.yml push
     ```
 
 1.  Create a secret that the `api` service will use (note we use `printf` instead of `echo` to prevent a new-line being added)
