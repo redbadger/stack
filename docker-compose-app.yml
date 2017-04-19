@@ -16,6 +16,21 @@ services:
       placement:
         constraints:
           - node.role == worker
+  proxy:
+    image: registry:5000/proxy
+    build: proxy
+    ports:
+      - 82:8080
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 5s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == worker
   api:
     image: registry:5000/api
     build: api

@@ -20,13 +20,11 @@ export default ({ host, children, title = '!!!' }) => (
     <footer>
       (rendered by {host})
       <style jsx>
-        {
-          `
+        {`
         footer {
           color: red;
         }
-      `
-        }
+      `}
       </style>
     </footer>
   </div>
