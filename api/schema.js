@@ -41,6 +41,12 @@ export default new GraphQLSchema({
           }));
         },
       },
+      token: {
+        type: GraphQLString,
+        resolve: (obj, args, req) => {
+          return req.headers['x-extra'];
+        },
+      },
     },
   }),
 });

@@ -1,4 +1,4 @@
-This repo is a noddy web ui and api with `version 3` compose files that are designed to be deployed into a "Docker in swarm mode" cluster.
+This repo is a noddy web ui and proxied api (on a private network) with `version 3` compose files that are designed to be deployed into a "Docker in swarm mode" cluster.
 
 There are 2 compose files. One for a private Docker registry and swarm visualiser (available on the swarm's port 8080). The other is for the web and api containers.
 
