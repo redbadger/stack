@@ -6,6 +6,8 @@ services:
     build: web
     ports:
       - 80:3000
+    networks:
+      - default
     deploy:
       replicas: 3
       update_config:
@@ -20,7 +22,10 @@ services:
     image: registry:5000/proxy
     build: proxy
     ports:
-      - 82:8080
+      - 81:8080
+    networks:
+      - default
+      - private
     deploy:
       replicas: 3
       update_config:
@@ -34,8 +39,8 @@ services:
   api:
     image: registry:5000/api
     build: api
-    ports:
-      - 81:4000
+    networks:
+      - private
     deploy:
       replicas: 3
       update_config:
@@ -51,3 +56,5 @@ services:
 secrets:
   my_secret:
     external: true
+networks:
+  private:
