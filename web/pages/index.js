@@ -16,11 +16,11 @@ const Page = ({ host, data }) => (
 );
 
 Page.getInitialProps = async ({ req }) => {
-  const endpoint = req ? 'http://api:4000/graphql' : '/api/graphql';
+  const endpoint = req ? 'http://proxy:8080/graphql' : '/api/graphql';
   const response = await fetch(endpoint, {
     method: 'POST',
     body: JSON.stringify({
-      query: 'query {server, secrets { name, value }}',
+      query: 'query {server, secrets { name, value }, token}',
       variables: null,
     }),
     headers: { 'Content-Type': 'application/json' },
