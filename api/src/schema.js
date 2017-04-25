@@ -1,7 +1,8 @@
-import { buildSchema } from 'graphql';
+import { makeExecutableSchema } from 'graphql-tools';
 
-export default buildSchema(
-  `
+import resolvers from './resolvers';
+
+const typeDefs = `
 type Secret {
   name: String
   value: String
@@ -11,5 +12,10 @@ type Query {
   secrets: [Secret]
   token: String
 }
-`,
-);
+schema {
+  query: Query
+}
+`;
+
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+export default schema;
