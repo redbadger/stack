@@ -1,7 +1,4 @@
-import { buildSchema } from 'graphql';
-
-export default buildSchema(
-  `
+export default `
 type Secret {
   name: String
   value: String
@@ -11,5 +8,7 @@ type Query {
   secrets: [Secret]
   token: String
 }
-`,
-);
+schema {
+  query: Query
+}
+`;
