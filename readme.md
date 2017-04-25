@@ -58,7 +58,7 @@ Incoming requests can hit any node of the swarm and will be routed by the swarm'
     z7b3qp771b2258gh3js9f6t7r    wkr1      Ready   Active
     ```
 
-1.  Create a folder on the manager for the registry data
+1.  Create a folder on the manager for the registry data (you will need to do this again if the `mgr1` node's vm is restarted because only `/var/lib/docker` and `/var/lib/boot2docker` are persisted between restarts)
 
     ```sh
     docker-machine ssh mgr1 sudo mkdir /var/lib/registry
