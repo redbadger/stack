@@ -17,7 +17,7 @@ RUN yarn run build \
 
 EXPOSE 3000
 HEALTHCHECK --interval=5s --timeout=3s \
-  CMD curl --fail http://localhost:3000/health || exit 1
+  CMD curl --fail http://localhost:3000/_health || exit 1
 
 USER node
 # Run under Tini

@@ -13,7 +13,7 @@ app.use(
   }),
 );
 
-app.get('/health', (req, res) => res.end());
+app.get('/_health', (req, res) => res.end());
 
 app.listen(4000, () => {
   console.log('listening on port 4000');

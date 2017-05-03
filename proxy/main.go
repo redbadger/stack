@@ -43,7 +43,7 @@ func CreateProxy(target *url.URL) *httputil.ReverseProxy {
 func main() {
 	proxy := CreateProxy(&url.URL{Scheme: "http", Host: "api:4000"})
 	mux := http.NewServeMux()
-	mux.HandleFunc("/health", handler)
+	mux.HandleFunc("/_health", handler)
 	mux.Handle("/", proxy)
 	http.ListenAndServe(":8080", mux)
 }
