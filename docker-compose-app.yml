@@ -2,7 +2,7 @@ version: "3.1"
 
 services:
   web:
-    image: registry:5000/web
+    image: localhost:5000/web
     build: web
     ports:
       - 80:3000
@@ -19,7 +19,7 @@ services:
         constraints:
           - node.role == worker
   proxy:
-    image: registry:5000/proxy
+    image: localhost:5000/proxy
     build: proxy
     ports:
       - 81:8080
@@ -37,7 +37,7 @@ services:
         constraints:
           - node.role == worker
   api:
-    image: registry:5000/api
+    image: localhost:5000/api
     build: api
     networks:
       - private

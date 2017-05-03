@@ -12,8 +12,7 @@ Incoming requests can hit any node of the swarm and will be routed by the swarm'
     ```bash
     for node in mgr1 wkr1 wkr2 wkr3
     do
-      docker-machine create --driver=virtualbox --engine-opt experimental=true --engine-insecure-registry registry:5000 $node
-      docker-machine ssh $node "sudo sh -c 'echo \"$(docker-machine ip mgr1) registry\" >> /etc/hosts'"
+      docker-machine create --driver=virtualbox --engine-opt experimental=true --engine-insecure-registry localhost:5000 $node
     done
     ```
     You should be able to see four machines:
@@ -94,10 +93,10 @@ Incoming requests can hit any node of the swarm and will be routed by the swarm'
     ```sh
     docker service ls
     ID            NAME                 MODE        REPLICAS  IMAGE
-    kipckpfkq5by  app_web              replicated  3/3       registry:5000/web:latest
+    kipckpfkq5by  app_web              replicated  3/3       localhost:5000/web:latest
     mrn49lbgchxf  services_registry    replicated  1/1       registry:2
     n6pm2oq5jlv8  services_visualizer  replicated  1/1       dockersamples/visualizer:stable
-    pcmj953eucx5  app_api              replicated  3/3       registry:5000/api:latest
+    pcmj953eucx5  app_api              replicated  3/3       localhost:5000/api:latest
     ```
 
 ## Cleaning up
