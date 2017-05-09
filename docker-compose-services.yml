@@ -17,9 +17,11 @@ services:
         constraints:
           - node.role == manager
   visualizer:
-    image: dockersamples/visualizer:stable
+    image: charypar/swarm-dashboard
     ports:
       - "8080:8080"
+    environment:
+      PORT: 8080
     stop_grace_period: 1m30s
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
