@@ -1,0 +1,21 @@
+#cloud-config
+
+rancher:
+  docker:
+    insecure_registry:
+      - 'localhost:5000'
+
+write_files:
+  - path: /etc/rc.local
+    permissions: "0755"
+    owner: "root"
+    content: |
+      #!/bin/sh
+
+      touch /home/docker/the-script-has-run
+
+      export MANAGER_IP='${MANAGER_IP}'
+      export JOIN_TOKEN='${JOIN_TOKEN}'
+
+      wait-for-docker
+      docker swarm join --token $JOIN_TOKEN $MANAGER_IP:2377
