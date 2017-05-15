@@ -7,7 +7,7 @@ services:
     ports:
       - 80:3000
     networks:
-      - default
+      - front
     deploy:
       replicas: 3
       update_config:
@@ -24,8 +24,8 @@ services:
     ports:
       - 81:8080
     networks:
-      - default
-      - private
+      - front
+      - back
     deploy:
       replicas: 3
       update_config:
@@ -40,7 +40,7 @@ services:
     image: localhost:5000/api
     build: api
     networks:
-      - private
+      - back
     deploy:
       replicas: 3
       update_config:
@@ -57,8 +57,13 @@ secrets:
   my_secret:
     external: true
 networks:
-  private:
+  front:
     ipam:
       driver: default
       config:
         - subnet: 192.168.31.0/24
+  back:
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.32.0/24
