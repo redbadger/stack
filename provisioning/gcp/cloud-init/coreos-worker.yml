@@ -1,0 +1,41 @@
+#cloud-config
+
+coreos:
+  units:
+    - name: "docker.service"
+      drop-ins:
+        - name: "50-insecure-registry.conf"
+          content: |
+            [Service]
+            Environment=DOCKER_OPTS='--insecure-registry="localhost:5000'
+
+    - name: "swarm.service"
+      enable: true
+      command: start
+      content: |
+        [Unit]
+        Description="Swarm initialisation"
+        After=docker.service
+        Requires=docker.service
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/sh /home/core/swarm-init.sh
+
+        [Install]
+        WantedBy=multi-user.target
+
+write_files:
+  - path: /home/core/swarm-init.sh
+    permissions: "0755"
+    owner: "core"
+    content: |
+      #!/bin/sh
+
+      touch /home/core/the-script-has-run
+
+      export MANAGER_IP='${MANAGER_IP}'
+      export JOIN_TOKEN='${JOIN_TOKEN}'
+
+      docker swarm join --token $JOIN_TOKEN $MANAGER_IP:2377
