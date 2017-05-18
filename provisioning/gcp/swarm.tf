@@ -1,8 +1,33 @@
 provider "google" {
   project     = "${var.project_name}"
   region      = "europe-west1"
-  credentials = "${file("credentials.json")}"
+  credentials = "${file("./credentials.json")}"
 }
+
+# Access control
+
+resource "google_service_account" "swarm_state_reader" {
+  account_id   = "swarm-state-reader"
+  display_name = "Swarm state reader"
+}
+
+# Swarm state storage bucket
+
+resource "google_storage_bucket" "swarm_state" {
+  name          = "swarm-state"
+  location      = "europe-west1"
+  storage_class = "REGIONAL"
+}
+
+resource "google_storage_bucket_acl" "swarm_state_acl" {
+  bucket = "${google_storage_bucket.swarm_state.name}"
+
+  role_entity = [
+    "READER:user-${google_service_account.swarm_state_reader.email}",
+  ]
+}
+
+# Worker autoscaling group
 
 resource "google_compute_autoscaler" "swarm_workers" {
   # TODO do this for each zone
@@ -37,6 +62,11 @@ resource "google_compute_instance_template" "swarm_worker" {
   machine_type   = "g1-small"
   can_ip_forward = false
   region         = "europe-west1"
+
+  service_account {
+    email  = "${google_service_account.swarm_state_reader.email}"
+    scopes = []
+  }
 
   metadata {
     # user-data doesn't work on RancherOS on GCE
