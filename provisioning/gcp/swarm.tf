@@ -6,8 +6,8 @@ provider "google" {
 
 # Access control
 
-resource "google_service_account" "swarm_state_reader" {
-  account_id   = "swarm-state-reader"
+resource "google_service_account" "swarm_state" {
+  account_id   = "swarm-state"
   display_name = "Swarm state reader"
 }
 
@@ -23,7 +23,7 @@ resource "google_storage_bucket_acl" "swarm_state_acl" {
   bucket = "${google_storage_bucket.swarm_state.name}"
 
   role_entity = [
-    "READER:user-${google_service_account.swarm_state_reader.email}",
+    "READER:user-${google_service_account.swarm_state.email}",
   ]
 }
 
@@ -64,8 +64,8 @@ resource "google_compute_instance_template" "swarm_worker" {
   region         = "europe-west1"
 
   service_account {
-    email  = "${google_service_account.swarm_state_reader.email}"
-    scopes = []
+    email  = "${google_service_account.swarm_state.email}"
+    scopes = ["https://www.googleapis.com/auth/devstorage.read_only"]
   }
 
   metadata {
@@ -99,7 +99,6 @@ data "template_file" "metadata_worker" {
   template = "${file("cloud-init/coreos-worker.yml")}"
 
   vars {
-    MANAGER_IP = "${var.manager_ip}"
-    JOIN_TOKEN = "${var.worker_token}"
+    BUCKET_NAME = "${google_storage_bucket.swarm_state.name}"
   }
 }
