@@ -2,6 +2,7 @@ resource "google_storage_bucket" "swarm_state" {
   name          = "swarm-state"
   location      = "europe-west1"
   storage_class = "REGIONAL"
+  force_destroy = true
 }
 
 resource "google_storage_bucket_acl" "swarm_state_acl" {

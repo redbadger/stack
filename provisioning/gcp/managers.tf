@@ -5,7 +5,7 @@ resource "google_compute_instance_group_manager" "swarm_managers" {
   instance_template  = "${google_compute_instance_template.swarm_manager.self_link}"
   target_pools       = []
   base_instance_name = "swarm-manager"
-  target_size        = 2                                                             # TODO up to 3
+  target_size        = 3
 
   depends_on = ["google_compute_instance_template.swarm_manager"]
 }

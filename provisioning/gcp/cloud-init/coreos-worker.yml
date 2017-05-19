@@ -37,8 +37,11 @@ write_files:
 
       ACCESS_TOKEN=$(wget -qO - --header 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' | jq -r '.access_token')
 
-      JOIN_TOKEN=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/download/storage/v1/b/${BUCKET_NAME}/o/worker-token?alt=media')
-      MANAGER_IPS=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/storage/v1/b/${BUCKET_NAME}/o?prefix=manager-ips/' | jq -r '.items[].name' | grep -o '[0-9.]*')
+      MANAGER_IPS=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/storage/v1/b/${BUCKET_NAME}/o?prefix=manager-ips/' | jq -r '.items[].name' 2>/dev/null | grep -o '[0-9.]*')
+
+      while [ -z $JOIN_TOKEN ]; do
+        JOIN_TOKEN=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/download/storage/v1/b/${BUCKET_NAME}/o/worker-token?alt=media')
+      done
 
       for IP in $MANAGER_IPS; do
         echo "Trying to join a swarm managed by $IP..."
