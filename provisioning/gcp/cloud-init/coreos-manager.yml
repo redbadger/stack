@@ -40,6 +40,16 @@ write_files:
       JOIN_TOKEN=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/download/storage/v1/b/${BUCKET_NAME}/o/manager-token?alt=media')
       MANAGER_IPS=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/storage/v1/b/${BUCKET_NAME}/o?prefix=manager-ips/' | jq -r '.items[].name' | grep -o '[0-9.]*')
 
+      MY_IP=$(wget -qO - --header 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip')
+
+      echo "Adding $MY_IP into the managers list"
+      wget -q \
+        --header "Authorization: Bearer $ACCESS_TOKEN" \
+        --header 'Content-Type: binary/octet-stream' \
+        --header 'Content-Length: 0' \
+        --post-data '' \
+        "https://www.googleapis.com/upload/storage/v1/b/${BUCKET_NAME}/o?uploadType=media&name=manager-ips/$MY_IP"
+
       for IP in $MANAGER_IPS; do
         echo "Trying to join a swarm managed by $IP..."
         if wget -q --spider -t 1 --connect-timeout 3 $IP:2377; then
