@@ -41,6 +41,7 @@ write_files:
 
       while [ -z $JOIN_TOKEN ]; do
         JOIN_TOKEN=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/download/storage/v1/b/${BUCKET_NAME}/o/worker-token?alt=media')
+        sleep 10
       done
 
       for IP in $MANAGER_IPS; do
