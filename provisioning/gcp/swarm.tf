@@ -27,24 +27,40 @@ resource "google_storage_bucket_acl" "swarm_state_acl" {
   ]
 }
 
-# Manager autoscaling group
+# Firewall rules to enable internal swarm traffic
 
-resource "google_compute_autoscaler" "swarm_managers" {
-  # TODO do this for each zone
-  name   = "swarm-managers"
-  zone   = "europe-west1-c"
-  target = "${google_compute_instance_group_manager.swarm_managers.self_link}"
+resource "google_compute_firewall" "swarm_nodes" {
+  name        = "docker-swarm-node"
+  network     = "${var.network}"
+  target_tags = ["swarm-node"]
 
-  autoscaling_policy {
-    min_replicas    = 3
-    max_replicas    = 3
-    cooldown_period = 30
+  source_tags = ["swarm-node"]
 
-    cpu_utilization {
-      target = 0.5
-    }
+  allow {
+    protocol = "tcp"
+    ports    = ["7946"]
+  }
+
+  allow {
+    protocol = "udp"
+    ports    = ["4789", "7946"]
   }
 }
+
+resource "google_compute_firewall" "swarm_manager" {
+  name        = "docker-swarm-manager"
+  network     = "${var.network}"
+  target_tags = ["swarm-manager"]
+
+  source_tags = ["swarm-node"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["2377"]
+  }
+}
+
+# Manager group
 
 resource "google_compute_instance_group_manager" "swarm_managers" {
   name = "swarm-managers"
@@ -53,6 +69,7 @@ resource "google_compute_instance_group_manager" "swarm_managers" {
   instance_template  = "${google_compute_instance_template.swarm_manager.self_link}"
   target_pools       = []
   base_instance_name = "swarm-manager"
+  target_size        = 2                                                             # TODO up to 3
 
   depends_on = ["google_compute_instance_template.swarm_manager"]
 }
@@ -63,7 +80,7 @@ resource "google_compute_instance_template" "swarm_manager" {
   can_ip_forward = false
   region         = "europe-west1"
 
-  tags = ["docker-swarm-manager"]
+  tags = ["swarm-node", "swarm-manager"]
 
   service_account {
     email  = "${google_service_account.swarm_state.email}"
@@ -135,6 +152,8 @@ resource "google_compute_instance_template" "swarm_worker" {
   machine_type   = "g1-small"
   can_ip_forward = false
   region         = "europe-west1"
+
+  tags = ["swarm-node"]
 
   service_account {
     email  = "${google_service_account.swarm_state.email}"
