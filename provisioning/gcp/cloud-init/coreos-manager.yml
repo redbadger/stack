@@ -38,6 +38,13 @@ write_files:
       ACCESS_TOKEN=$(wget -qO - --header 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' | jq -r '.access_token')
 
       JOIN_TOKEN=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/download/storage/v1/b/${BUCKET_NAME}/o/manager-token?alt=media')
-      MANAGER_IP=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/storage/v1/b/${BUCKET_NAME}/o?prefix=manager-ips/' | jq -r '.items[].name' | grep -o '[0-9.]*')
+      MANAGER_IPS=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/storage/v1/b/${BUCKET_NAME}/o?prefix=manager-ips/' | jq -r '.items[].name' | grep -o '[0-9.]*')
 
-      docker swarm join --token $JOIN_TOKEN $MANAGER_IP:2377
+      for IP in $MANAGER_IPS; do
+        echo "Trying to join a swarm managed by $IP..."
+        if wget -q --spider -t 1 --connect-timeout 3 $IP:2377; then
+          docker swarm join --token $JOIN_TOKEN $IP:2377
+          break
+        fi
+        echo "...Timeout"
+      done
