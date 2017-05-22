@@ -14,7 +14,6 @@ services:
       WEB_HOST: web:3000
       API_HOST: gateway:3000
     networks:
-      - public
       - dmz
     deploy:
       replicas: 3
@@ -86,18 +85,13 @@ secrets:
   my_secret:
     external: true
 networks:
-  public:
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.31.0/24
   dmz:
     ipam:
       driver: default
       config:
-        - subnet: 192.168.32.0/24
+        - subnet: 192.168.31.0/24
   private:
     ipam:
       driver: default
       config:
-        - subnet: 192.168.33.0/24
+        - subnet: 192.168.32.0/24
