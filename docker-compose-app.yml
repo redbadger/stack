@@ -1,36 +1,63 @@
 version: "3.1"
 
 services:
-  web:
-    image: localhost:5000/web
-    build: web
+  rproxy:
+    image: localhost:5000/app_rproxy
+    build:
+      context: rproxy
+      args:
+        - "config=app"
     ports:
       - 80:3000
+    environment:
+      PORT: 3000
+      WEB_HOST: web:3000
+      API_HOST: gateway:3000
     networks:
-      - front
+      - public
+      - dmz
     deploy:
       replicas: 3
       update_config:
         parallelism: 1
-        delay: 5s
+        delay: 2s
       restart_policy:
         condition: on-failure
       placement:
         constraints:
           - node.role == worker
-  proxy:
-    image: localhost:5000/proxy
-    build: proxy
-    ports:
-      - 81:8080
+  web:
+    image: localhost:5000/web
+    build: web
+    environment:
+      PORT: 3000
+      API_HOST: gateway:3000
     networks:
-      - front
-      - back
+      - dmz
     deploy:
       replicas: 3
       update_config:
         parallelism: 1
-        delay: 5s
+        delay: 2s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == worker
+  gateway:
+    image: localhost:5000/proxy
+    build: proxy
+    environment:
+      PORT: 3000
+      API_HOST: api:3000
+    networks:
+      - dmz
+      - private
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 2s
       restart_policy:
         condition: on-failure
       placement:
@@ -39,8 +66,10 @@ services:
   api:
     image: localhost:5000/api
     build: api
+    environment:
+      PORT: 3000
     networks:
-      - back
+      - private
     deploy:
       replicas: 3
       update_config:
@@ -57,13 +86,18 @@ secrets:
   my_secret:
     external: true
 networks:
-  front:
+  public:
     ipam:
       driver: default
       config:
         - subnet: 192.168.31.0/24
-  back:
+  dmz:
     ipam:
       driver: default
       config:
         - subnet: 192.168.32.0/24
+  private:
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.33.0/24

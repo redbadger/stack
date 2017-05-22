@@ -16,19 +16,20 @@ const Page = ({ host, data }) => (
 );
 
 Page.getInitialProps = async ({ req }) => {
-  const endpoint = req ? 'http://proxy:8080/graphql' : '/api/graphql';
+  const apiHost = process.env.API_HOST;
+  const endpoint = req ? `http://${apiHost}/graphql` : '/api/graphql';
   const response = await fetch(endpoint, {
     method: 'POST',
     body: JSON.stringify({
       query: 'query {server, secrets { name, value }, token}',
-      variables: null,
+      variables: null
     }),
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' }
   });
   const data = await response.json();
   return {
     host: process.env['HOSTNAME'] || (req ? 'localhost' : 'client'),
-    data,
+    data
   };
 };
 

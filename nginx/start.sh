@@ -11,18 +11,18 @@ do
 done
 echo $str
 
-sed '/upstream web/ a\
+sed '/upstream app/ a\
 '"$str"'\
 ' < nginx/default.conf > /tmp/default.conf
 
 str=''
 for node in $nodes
 do
-  str="$str  server $node:81;"
+  str="$str  server $node:8080;"
 done
 echo $str
 
-sed '/upstream api/ a\
+sed '/upstream services/ a\
 '"$str"'\
 ' < /tmp/default.conf > nginx/new.conf
 
