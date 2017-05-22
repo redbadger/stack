@@ -6,9 +6,13 @@ services:
     build:
       context: rproxy
       args:
-        - "config=app.conf"
+        - "config=app"
     ports:
       - 80:3000
+    environment:
+      PORT: 3000
+      WEB_HOST: web:3000
+      API_HOST: gateway:3000
     networks:
       - public
       - dmz

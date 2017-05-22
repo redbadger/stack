@@ -6,7 +6,11 @@ services:
     build:
       context: rproxy
       args:
-        - "config=services.conf"
+        - "config=services"
+    environment:
+      PORT: 3000
+      WEB_HOST: web:3000
+      VISUALIZER_HOST: visualizer:3000
     ports:
       - 8080:3000
     deploy:
