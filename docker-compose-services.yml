@@ -1,6 +1,21 @@
-version: "3"
+version: "3.1"
 
 services:
+  rproxy:
+    image: localhost:5000/services_rproxy
+    build:
+      context: rproxy
+      args:
+        - "config=services.conf"
+    ports:
+      - 8080:3000
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
   registry:
     image: registry:2
     ports:
@@ -17,11 +32,9 @@ services:
         constraints:
           - node.role == manager
   visualizer:
-    image: charypar/swarm-dashboard
-    ports:
-      - "8080:8080"
+    image: charypar/swarm-dashboard:latest
     environment:
-      PORT: 8080
+      PORT: 3000
     stop_grace_period: 1m30s
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"

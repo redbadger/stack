@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+  "os"
 	"strings"
 )
 
@@ -41,9 +42,12 @@ func CreateProxy(target *url.URL) *httputil.ReverseProxy {
 }
 
 func main() {
-	proxy := CreateProxy(&url.URL{Scheme: "http", Host: "api:4000"})
+  port := os.Getenv("PORT")
+  apiHost := os.Getenv("API_HOST")
+
+	proxy := CreateProxy(&url.URL{Scheme: "http", Host: apiHost})
 	mux := http.NewServeMux()
 	mux.HandleFunc("/_health", handler)
 	mux.Handle("/", proxy)
-	http.ListenAndServe(":8080", mux)
+	http.ListenAndServe(":" + port, mux)
 }

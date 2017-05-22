@@ -15,9 +15,8 @@ RUN chown -R node:node .
 
 USER node
 
-EXPOSE 4000
 HEALTHCHECK --interval=5s --timeout=3s \
-  CMD curl --fail http://localhost:4000/_health || exit 1
+  CMD curl --fail http://localhost:$PORT/_health || exit 1
 
 # Run under Tini
 CMD ["node", "index.js"]

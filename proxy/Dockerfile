@@ -11,9 +11,8 @@ COPY . /go/src/app
 RUN go-wrapper download
 RUN go-wrapper install
 
-EXPOSE 8080
 HEALTHCHECK --interval=5s --timeout=3s \
-  CMD curl --fail http://localhost:8080/_health || exit 1
+  CMD curl --fail http://localhost:$PORT/_health || exit 1
 
 # Run under Tini
 CMD ["go-wrapper", "run", "main.go"]

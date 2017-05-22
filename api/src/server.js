@@ -3,6 +3,7 @@ import graphqlHTTP from 'express-graphql';
 
 import schema from './schema';
 
+const port = process.env.PORT;
 const app = express();
 
 app.use(
@@ -10,13 +11,13 @@ app.use(
   graphqlHTTP({
     schema,
     graphiql: true,
-  }),
+  })
 );
 
 app.get('/_health', (req, res) => res.end());
 
-app.listen(4000, () => {
-  console.log('listening on port 4000');
+app.listen(port, () => {
+  console.log(`listening on port ${port}`);
 });
 
 export default app;
