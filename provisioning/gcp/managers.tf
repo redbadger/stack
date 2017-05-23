@@ -1,11 +1,12 @@
 resource "google_compute_instance_group_manager" "swarm_managers" {
-  name = "swarm-managers"
-  zone = "europe-west1-c" # TODO do this for each zone
+  name  = "swarm-managers-${element(keys(var.zones), count.index)}"
+  zone  = "${lookup(var.zones, element(keys(var.zones), count.index))}"
+  count = "${length(keys(var.zones))}"
 
   instance_template  = "${google_compute_instance_template.swarm_manager.self_link}"
   target_pools       = []
   base_instance_name = "swarm-manager"
-  target_size        = 3
+  target_size        = 1
 
   depends_on = ["google_compute_instance_template.swarm_manager"]
 }
@@ -14,7 +15,7 @@ resource "google_compute_instance_template" "swarm_manager" {
   name_prefix    = "swarm-manager-"
   machine_type   = "g1-small"
   can_ip_forward = false
-  region         = "europe-west1"
+  region         = "${var.region}"
 
   tags = ["swarm-node", "swarm-manager"]
 

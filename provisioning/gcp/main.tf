@@ -1,6 +1,6 @@
 provider "google" {
   project     = "${var.project_name}"
-  region      = "europe-west1"
+  region      = "${var.region}"
   credentials = "${file("./credentials.json")}"
 }
 

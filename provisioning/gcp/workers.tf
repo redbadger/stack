@@ -1,6 +1,7 @@
 resource "google_compute_instance_group_manager" "swarm_workers" {
-  name = "swarm-workers"
-  zone = "europe-west1-c" # TODO do this for each zone
+  name  = "swarm-workers-${element(keys(var.zones), count.index)}"
+  zone  = "${lookup(var.zones, element(keys(var.zones), count.index))}"
+  count = "${length(keys(var.zones))}"
 
   instance_template  = "${google_compute_instance_template.swarm_worker.self_link}"
   target_pools       = ["${google_compute_target_pool.swarm_workers.self_link}"]
@@ -13,7 +14,7 @@ resource "google_compute_instance_template" "swarm_worker" {
   name_prefix    = "swarm-worker-"
   machine_type   = "g1-small"
   can_ip_forward = false
-  region         = "europe-west1"
+  region         = "${var.region}"
 
   tags = ["swarm-node"]
 
@@ -53,14 +54,14 @@ data "template_file" "metadata_worker" {
 }
 
 resource "google_compute_autoscaler" "swarm_workers" {
-  # TODO do this for each zone
-  name   = "swarm-workers"
-  zone   = "europe-west1-c"
-  target = "${google_compute_instance_group_manager.swarm_workers.self_link}"
+  name   = "swarm-workers-${element(keys(var.zones), count.index)}"
+  zone   = "${lookup(var.zones, element(keys(var.zones), count.index))}"
+  target = "${element(google_compute_instance_group_manager.swarm_workers.*.self_link, count.index)}"
+  count  = "${length(keys(var.zones))}"
 
   autoscaling_policy {
-    min_replicas    = 3
-    max_replicas    = 6
+    min_replicas    = 1
+    max_replicas    = 2
     cooldown_period = 30
 
     cpu_utilization {

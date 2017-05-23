@@ -1,6 +1,6 @@
 resource "google_storage_bucket" "swarm_state" {
   name          = "swarm-state"
-  location      = "europe-west1"
+  location      = "${var.region}"
   storage_class = "REGIONAL"
   force_destroy = true
 }
