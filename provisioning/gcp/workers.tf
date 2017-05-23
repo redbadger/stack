@@ -24,8 +24,8 @@ resource "google_compute_instance_template" "swarm_worker" {
   }
 
   metadata {
-    # user-data doesn't work on RancherOS on GCE
-    user-data = "${data.template_file.metadata_worker.rendered}"
+    user-data              = "${data.template_file.metadata_worker.rendered}"
+    block-project-ssh-keys = "TRUE"
   }
 
   disk {
@@ -34,10 +34,6 @@ resource "google_compute_instance_template" "swarm_worker" {
 
   network_interface {
     subnetwork = "${var.subnetwork}"
-
-    access_config {
-      // Ephemeral IP
-    }
   }
 
   lifecycle {

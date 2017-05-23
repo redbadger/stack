@@ -25,7 +25,6 @@ resource "google_compute_instance_template" "swarm_manager" {
   }
 
   metadata {
-    # user-data doesn't work on RancherOS on GCE
     user-data = "${data.template_file.metadata_manager.rendered}"
   }
 

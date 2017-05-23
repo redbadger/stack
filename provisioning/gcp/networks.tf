@@ -28,3 +28,16 @@ resource "google_compute_firewall" "swarm_managers" {
     ports    = ["2377"]
   }
 }
+
+resource "google_compute_firewall" "swarm_managers_ssh" {
+  name        = "docker-swarm-manager-ssh"
+  network     = "${var.network}"
+  target_tags = ["swarm-manager"]
+
+  source_ranges = ["0.0.0.0/0"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+}

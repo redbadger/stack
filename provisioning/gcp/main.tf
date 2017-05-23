@@ -10,5 +10,6 @@ resource "google_service_account" "swarm_state" {
 }
 
 resource "google_compute_target_pool" "swarm_workers" {
-  name = "swarm-workers"
+  name             = "swarm-workers"
+  session_affinity = "NONE"
 }
