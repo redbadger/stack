@@ -2,6 +2,8 @@ This repo is a noddy web ui and proxied api (on a private network) with `version
 
 There are 2 compose files. One for a private Docker registry and swarm visualiser (available on the swarm's port 8080). The other is for the web and api containers.
 
+![Swarm Visualizer](doc/visualizer.png)
+
 Incoming requests can hit any node of the swarm and will be routed by the swarm's load balancer. However, in AWS you would have an ELB/ALB pointing at the autoscaling group(s) to protect against losing a node. To simulate this, you can use nginx as a load balancer for the nodes in the swarm. See the [section below](#using-nginx-as-load-balancer).
 
 ## To set up the cluster

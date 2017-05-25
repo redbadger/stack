@@ -1,0 +1,94 @@
+#cloud-config
+
+coreos:
+  units:
+    - name: "docker.service"
+      drop-ins:
+        - name: "50-insecure-registry.conf"
+          content: |
+            [Service]
+            Environment=DOCKER_OPTS='--insecure-registry="localhost:5000'
+
+    - name: "swarm.service"
+      enable: true
+      command: start
+      content: |
+        [Unit]
+        Description="Swarm initialisation"
+        After=docker.service
+        Requires=docker.service
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/sh /home/core/swarm-init.sh
+
+        [Install]
+        WantedBy=multi-user.target
+
+write_files:
+  - path: /home/core/swarm-init.sh
+    permissions: "0755"
+    owner: "core"
+    content: |
+      #!/bin/sh
+
+      touch /home/core/the-script-has-run
+
+      ACCESS_TOKEN=$(wget -qO - --header 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' | jq -r '.access_token')
+      MY_IP=$(wget -qO - --header 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip')
+
+      MANAGER_IPS=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/storage/v1/b/${BUCKET_NAME}/o?prefix=manager-ips/' | jq -r '.items[].name' 2>/dev/null | grep -o '[0-9.]*')
+
+      # We're a manager, write our IP into Storage
+
+      echo "Adding $MY_IP into the managers list"
+      wget -q \
+        --header "Authorization: Bearer $ACCESS_TOKEN" \
+        --header 'Content-Type: binary/octet-stream' \
+        --header 'Content-Length: 0' \
+        --post-data '' \
+        "https://www.googleapis.com/upload/storage/v1/b/${BUCKET_NAME}/o?uploadType=media&name=manager-ips/$MY_IP"
+
+
+      if [ -z $MANAGER_IPS ]; then
+        # Initialize a new swarm
+
+        echo "Swarm does not exist yet, initializing..."
+        docker swarm init --advertise-addr $MY_IP > /dev/null
+
+        MANAGER_TOKEN=$(docker swarm join-token -q manager)
+        WORKER_TOKEN=$(docker swarm join-token -q worker)
+
+        echo "Writing manager join token"
+        wget -q \
+          --header "Authorization: Bearer $ACCESS_TOKEN" \
+          --header 'Content-Type: binary/octet-stream' \
+          --header "Content-Length: $(printf $MANAGER_TOKEN | wc -c)" \
+          --post-data $MANAGER_TOKEN \
+          "https://www.googleapis.com/upload/storage/v1/b/${BUCKET_NAME}/o?uploadType=media&name=manager-token"
+
+        echo "Writing worker join token"
+        wget -q \
+          --header "Authorization: Bearer $ACCESS_TOKEN" \
+          --header 'Content-Type: binary/octet-stream' \
+          --header "Content-Length: $(printf $WORKER_TOKEN | wc -c)" \
+          --post-data $WORKER_TOKEN \
+          "https://www.googleapis.com/upload/storage/v1/b/${BUCKET_NAME}/o?uploadType=media&name=worker-token"
+      else
+        # Join an existing swarm
+
+        while [ -z $JOIN_TOKEN ]; do
+          JOIN_TOKEN=$(wget -qO - --header "Authorization: Bearer $ACCESS_TOKEN" 'https://www.googleapis.com/download/storage/v1/b/${BUCKET_NAME}/o/manager-token?alt=media')
+          sleep 10
+        done
+
+        for IP in $MANAGER_IPS; do
+          echo "Trying to join a swarm managed by $IP..."
+          if wget -q --spider -t 1 --connect-timeout 3 $IP:2377; then
+            docker swarm join --token $JOIN_TOKEN $IP:2377
+            break
+          fi
+          echo "...Timeout"
+        done
+      fi
