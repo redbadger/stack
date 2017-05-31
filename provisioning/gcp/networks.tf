@@ -16,6 +16,18 @@ resource "google_compute_firewall" "swarm_nodes" {
   }
 }
 
+resource "google_compute_firewall" "web_servers" {
+  name          = "docker-swarm-web-servers"
+  network       = "${var.network}"
+  target_tags   = ["swarm-manager"]
+  source_ranges = ["0.0.0.0/0"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "8080"]
+  }
+}
+
 resource "google_compute_firewall" "swarm_managers" {
   name        = "docker-swarm-manager"
   network     = "${var.network}"

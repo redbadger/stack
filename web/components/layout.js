@@ -22,7 +22,7 @@ export default ({ host, children, title = '!!!' }) => (
       <style jsx>
         {`
         footer {
-          color: red;
+          color: blue;
         }
       `}
       </style>
