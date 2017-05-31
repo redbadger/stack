@@ -1,3 +1,13 @@
+terraform {
+  backend "gcs" {
+    project = "microplatform-demo"
+    bucket  = "microplatform-tf-state"
+
+    # path should be provided by running init e.g.:
+    # terraform init --backend-config="path=dev.state"
+  }
+}
+
 variable "project_name" {
   default = "microplatform-demo"
 }
