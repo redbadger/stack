@@ -58,10 +58,10 @@ resource "google_compute_autoscaler" "swarm_workers" {
   autoscaling_policy {
     min_replicas    = 1
     max_replicas    = 2
-    cooldown_period = 30
+    cooldown_period = 60 # 60 is default
 
     cpu_utilization {
-      target = 0.5
+      target = 0.9
     }
   }
 }
