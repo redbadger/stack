@@ -2,7 +2,7 @@ version: "3.1"
 
 services:
   rproxy:
-    image: registry:5000/app_rproxy
+    image: ${registry}/app_rproxy
     build:
       context: rproxy
       args:
@@ -26,7 +26,7 @@ services:
         constraints:
           - node.role == worker
   web:
-    image: registry:5000/web
+    image: ${registry}/web
     build: web
     environment:
       PORT: 3000
@@ -44,7 +44,7 @@ services:
         constraints:
           - node.role == worker
   gateway:
-    image: registry:5000/proxy
+    image: ${registry}/proxy
     build: proxy
     environment:
       PORT: 3000
@@ -63,7 +63,7 @@ services:
         constraints:
           - node.role == worker
   api:
-    image: registry:5000/api
+    image: ${registry}/api
     build: api
     environment:
       PORT: 3000
