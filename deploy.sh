@@ -2,4 +2,4 @@
 
 docker-compose -f docker-compose-app.yml build && \
   docker-compose -f docker-compose-app.yml push && \
-  docker stack deploy --compose-file=docker-compose-app.yml app
+  docker stack deploy --compose-file=docker-compose-app.yml --with-registry-auth app

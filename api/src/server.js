@@ -11,7 +11,7 @@ app.use(
   graphqlHTTP({
     schema,
     graphiql: true,
-  })
+  }),
 );
 
 app.get('/_health', (req, res) => res.end());

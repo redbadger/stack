@@ -21,15 +21,15 @@ Page.getInitialProps = async ({ req }) => {
   const response = await fetch(endpoint, {
     method: 'POST',
     body: JSON.stringify({
-      query: 'query {server, secrets { name, value }, token}',
-      variables: null
+      query: 'query {server, secrets { name, value }, headers}',
+      variables: null,
     }),
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   });
   const data = await response.json();
   return {
     host: process.env['HOSTNAME'] || (req ? 'localhost' : 'client'),
-    data
+    data,
   };
 };
 
