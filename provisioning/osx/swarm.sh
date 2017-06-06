@@ -2,6 +2,10 @@
 
 set -ex
 
+scriptDir=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd )
+
+cd "$scriptDir"
+
 createMachine () { # name
   docker-machine rm -f $1 2> /dev/null
   docker-machine create \
@@ -32,7 +36,7 @@ do
   createMachine $node
 done
 
-. ./point-to-swarm.sh
+source point-to-swarm.sh
 
 MGR=$(docker-machine ip mgr1)
 initSwarm $MGR

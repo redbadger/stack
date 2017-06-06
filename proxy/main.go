@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-  "os"
+	"os"
 	"strings"
 )
 
@@ -35,19 +35,20 @@ func CreateProxy(target *url.URL) *httputil.ReverseProxy {
 		} else {
 			req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
 		}
-		// set the x-extra custom header
+		// set custom headers
+		req.Header.Set("X-Hostname", os.Getenv("HOSTNAME"))
 		req.Header.Set("X-Extra", "hello")
 	}
 	return &httputil.ReverseProxy{Director: director}
 }
 
 func main() {
-  port := os.Getenv("PORT")
-  apiHost := os.Getenv("API_HOST")
+	port := os.Getenv("PORT")
+	apiHost := os.Getenv("API_HOST")
 
 	proxy := CreateProxy(&url.URL{Scheme: "http", Host: apiHost})
 	mux := http.NewServeMux()
 	mux.HandleFunc("/_health", handler)
 	mux.Handle("/", proxy)
-	http.ListenAndServe(":" + port, mux)
+	http.ListenAndServe(":"+port, mux)
 }

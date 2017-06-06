@@ -18,8 +18,8 @@ export default {
         value: await readFile(Path.resolve(path, file), 'utf8'),
       }));
     },
-    token(_, req) {
-      return req.headers && req.headers['x-extra'];
+    headers(_1, _2, req) {
+      return JSON.stringify(req && req.headers);
     },
   },
 };

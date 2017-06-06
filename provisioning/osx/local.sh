@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
+scriptDir=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd )
+
+cd "$scriptDir"
+
 mkdir -p /tmp/registry
 
-. ./point-to-local.sh
+source point-to-local.sh
 
 for node in mgr1 wkr1 wkr2 wkr3
 do

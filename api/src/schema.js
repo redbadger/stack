@@ -10,7 +10,7 @@ type Secret {
 type Query {
   server: String
   secrets: [Secret]
-  token: String
+  headers: String
 }
 schema {
   query: Query
