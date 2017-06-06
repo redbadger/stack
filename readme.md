@@ -12,7 +12,7 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
 ## To set up the cluster
 1.  Install VirtualBox and Docker for Mac (I had a few problems deploying a stack with 17.06 so maybe use 17.05 or below).
 
-1.  There's a script to create a swarm, which provisions 4 local VMs and joins them into a cluster ...
+1.  There's a script to create a swarm, which provisions 4 local VMs and joins them into a cluster. Take a look at the script to see how straight forward it is.
 
     ```bash
     sh provisioning/osx/swarm.sh
@@ -26,9 +26,9 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
 
 1. In order to push images to the local private registry, you will need to create an alias to `localhost` for `registry` in `/etc/hosts`:
 
-  ```
-  127.0.0.1 localhost registry
-  ```
+    ```
+    127.0.0.1 localhost registry
+    ```
 
 1. Point your Docker client at the manager.
 
