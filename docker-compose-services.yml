@@ -2,7 +2,7 @@ version: "3.1"
 
 services:
   rproxy:
-    image: registry:5000/services_rproxy
+    image: ${registry}/services_rproxy
     build:
       context: rproxy
       args:

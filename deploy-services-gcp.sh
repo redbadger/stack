@@ -3,7 +3,7 @@
 set -ex
 
 file="docker-compose-services.yml"
-export registry="registry:5000"
+export registry="eu.gcr.io/microplatform-demo"
 
 docker-compose -f $file build
 docker-compose -f $file push
