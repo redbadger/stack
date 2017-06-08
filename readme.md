@@ -51,7 +51,7 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
 1.  Build, push and deploy the app stack
 
     ```sh
-    sh deploy.sh
+    sh deploy-app.sh
     ```
 
 1.  There's a script to create a load balancer (also outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes.
