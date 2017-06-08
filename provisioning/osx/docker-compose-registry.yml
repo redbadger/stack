@@ -1,0 +1,13 @@
+version: "3.1"
+
+services:
+  registry:
+    image: registry:2
+    ports:
+      - 5000:5000
+    networks:
+      - registry
+    volumes:
+      - /tmp/registry:/var/lib/registry
+networks:
+  registry:

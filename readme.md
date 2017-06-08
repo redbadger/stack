@@ -18,10 +18,10 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
     sh provisioning/osx/swarm.sh
     ```
 
-1.  There's also a script to create a local private registry and a load balancer (both outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes.
+1.  There's also a script to create a local private registry.
 
     ```sh
-    sh provisioning/osx/local.sh
+    sh provisioning/osx/registry.sh
     ```
 
 1. In order to push images to the local private registry, you will need to create an alias to `localhost` for `registry` in `/etc/hosts`:
@@ -54,18 +54,24 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
     sh deploy.sh
     ```
 
-    You should now see all the services running
+1.  There's a script to create a load balancer (also outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes.
 
     ```sh
-    docker service ls
-    ID            NAME                 MODE        REPLICAS  IMAGE
-    16aozwerflj8  app_web              replicated  3/3       registry:5000/web:latest
-    8nyovw1xqnwh  app_rproxy           replicated  3/3       registry:5000/app_rproxy:latest
-    d0p2a0toiizi  app_api              replicated  3/3       registry:5000/api:latest
-    ivea53e00djo  services_rproxy      replicated  1/1       registry:5000/services_rproxy:latest
-    n1m32eri5qay  services_visualizer  replicated  1/1       charypar/swarm-dashboard:latest
-    v6ex7zwvvbng  app_gateway          replicated  3/3       registry:5000/proxy:latest
+    sh provisioning/osx/load-balancer.sh
     ```
+
+You should now see all the services running:
+
+```sh
+docker service ls
+ID            NAME                 MODE        REPLICAS  IMAGE
+16aozwerflj8  app_web              replicated  3/3       registry:5000/web:latest
+8nyovw1xqnwh  app_rproxy           replicated  3/3       registry:5000/app_rproxy:latest
+d0p2a0toiizi  app_api              replicated  3/3       registry:5000/api:latest
+ivea53e00djo  services_rproxy      replicated  1/1       registry:5000/services_rproxy:latest
+n1m32eri5qay  services_visualizer  replicated  1/1       charypar/swarm-dashboard:latest
+v6ex7zwvvbng  app_gateway          replicated  3/3       registry:5000/proxy:latest
+```
 
 ## Cleaning up
 

@@ -8,4 +8,5 @@ cd "$scriptDir"
 
 source point-to-local.sh
 
-docker-compose -f docker-compose-local.yml down
+docker-compose -f docker-compose-load-balancer.yml down
+docker-compose -f docker-compose-registry.yml down
