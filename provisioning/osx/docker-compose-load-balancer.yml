@@ -1,16 +1,12 @@
 version: "3.1"
 
 services:
-  registry:
-    image: registry:2
-    ports:
-      - 5000:5000
-    volumes:
-      - /tmp/registry:/var/lib/registry
   load_balancer:
     image: nginx
     ports:
       - 80:80
+    networks:
+      - load_balancer
     extra_hosts:
       - "mgr1:${mgr1}"
       - "wkr1:${wkr1}"
@@ -18,3 +14,5 @@ services:
       - "wkr3:${wkr3}"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+networks:
+  load_balancer:
