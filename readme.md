@@ -60,6 +60,8 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
     sh provisioning/osx/load-balancer.sh
     ```
 
+    The app should now be available at http://localhost and the visualizer at http://localhost/_cluster/swarm/
+
 You should now see all the services running:
 
 ```sh
