@@ -1,3 +1,5 @@
+[![Build status](https://badge.buildkite.com/5d85736c5c70e3acecf5dc048195b85754df59febb84ddd824.svg?branch=master)](https://buildkite.com/red-badger-1/stack)
+
 This repo is a noddy web ui and proxied api (on a private network) with `version 3` compose files that are designed to be deployed into a "Docker in swarm mode" cluster.
 
 There are 3 compose files:
