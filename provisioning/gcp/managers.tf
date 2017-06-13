@@ -12,7 +12,7 @@ resource "google_compute_instance_group_manager" "swarm_managers" {
 }
 
 resource "google_compute_instance_template" "swarm_manager" {
-  name_prefix    = "swarm-manager-"
+  name_prefix    = "${var.env}-swarm-manager-"
   machine_type   = "g1-small"
   can_ip_forward = false
   region         = "${var.region}"
