@@ -1,6 +1,5 @@
 steps:
   - label: ":docker: Build"
-    branches: master
     command: bash ci/build.sh
     env:
       registry: eu.gcr.io/microplatform-demo
