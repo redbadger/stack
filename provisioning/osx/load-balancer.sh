@@ -1,18 +1,18 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 set -eux
 
 scriptDir=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")"
+  cd "$(dirname "$0")"
   pwd
 )
 
 cd "$scriptDir"
 
-source point-to-local.sh
+compose="./on-local.sh docker-compose"
 
 for node in mgr1 wkr1 wkr2 wkr3; do
   eval "export ${node}=$(docker-machine ip $node)"
 done
 
-docker-compose -f docker-compose-load-balancer.yml -p load-balancer up -d
+$compose -f docker-compose-load-balancer.yml -p load-balancer up -d

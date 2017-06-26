@@ -9,6 +9,9 @@ scriptDir=$(
 
 cd "$scriptDir"
 
+export docker
+docker="./on-swarm.sh docker"
+
 createMachine() {
   local name="$1"
   docker-machine rm -f $name 2>/dev/null
@@ -24,25 +27,23 @@ createMachine() {
 
 initSwarm() {
   local mgr="$1"
-  docker swarm init --advertise-addr $mgr
+  $docker swarm init --advertise-addr $mgr
 }
 
 joinNode() {
   local mgr="$1"
   local node="$2"
-  docker \
+  $docker \
     --host "tcp://$(docker-machine ip $node):2376" \
     swarm \
     join \
-    --token "$(docker swarm join-token worker --quiet)" \
+    --token "$($docker swarm join-token worker --quiet)" \
     $mgr:2377
 }
 
 for node in mgr1 wkr1 wkr2 wkr3; do
   createMachine $node
 done
-
-source point-to-swarm.sh
 
 MGR=$(docker-machine ip mgr1)
 initSwarm $MGR
@@ -51,4 +52,4 @@ for node in wkr1 wkr2 wkr3; do
   joinNode $MGR $node
 done
 
-docker node ls
+$docker node ls

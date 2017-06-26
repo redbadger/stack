@@ -2,10 +2,11 @@
 
 This repo is a noddy web ui and proxied api (on a private network) with `version 3` compose files that are designed to be deployed into a "Docker in swarm mode" cluster.
 
-There are 3 compose files:
-  1. One for a private Docker registry and nginx load balancer (external to the swarm).
-  1. One for the swarm visualizer, and its reverse proxy (`services` stack)
-  1. One for the web and the api, and their associated reverse proxy and gateway (`app` stack).
+There are 4 compose files:
+  1. private Docker registry (external to the swarm).
+  1. private `nginx` load balancer (external to the swarm).
+  1. the swarm visualizer, and its reverse proxy (`services` stack)
+  1. the web and the api, and their associated reverse proxy and gateway (`app` stack).
 
 ![Swarm Visualizer](doc/visualizer.png)
 
@@ -17,13 +18,13 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
 1.  There's a script to create a swarm, which provisions 4 local VMs and joins them into a cluster. Take a look at the script to see how straight forward it is.
 
     ```bash
-    sh provisioning/osx/swarm.sh
+    ./provisioning/osx/swarm.sh
     ```
 
 1.  There's also a script to create a local private registry.
 
     ```sh
-    sh provisioning/osx/registry.sh
+    ./provisioning/osx/registry.sh
     ```
 
 1. In order to push images to the local private registry, you will need to create an alias to `localhost` for `registry` in `/etc/hosts`:
@@ -32,10 +33,10 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
     127.0.0.1 localhost registry
     ```
 
-1. Point your Docker client at the manager.
+1. Point your Docker client at the swarm manager.
 
     ```sh
-    source provisioning/osx/point-to-swarm.sh
+    source ./provisioning/osx/point-to-swarm.sh
     ```
 
 1.  Create a secret that the `api` service will use (note we use `printf` instead of `echo` to prevent a new-line being added)
@@ -47,19 +48,19 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
 1.  Build, push and deploy the services stack
 
     ```sh
-    sh deploy-services.sh
+    ./deploy-services.sh
     ```
 
 1.  Build, push and deploy the app stack
 
     ```sh
-    sh deploy-app.sh
+    ./deploy-app.sh
     ```
 
 1.  There's a script to create a load balancer (also outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes.
 
     ```sh
-    sh provisioning/osx/load-balancer.sh
+    ./provisioning/osx/load-balancer.sh
     ```
 
     The app should now be available at http://localhost and the visualizer at http://localhost/_cluster/swarm/
@@ -80,8 +81,8 @@ v6ex7zwvvbng  app_gateway          replicated  3/3       registry:5000/proxy:lat
 ## Cleaning up
 
 ```sh
-sh provisioning/osx/local-cleanup.sh
-sh provisioning/osx/swarm-cleanup.sh
+./provisioning/osx/local-cleanup.sh
+./provisioning/osx/swarm-cleanup.sh
 ```
 
 A note about overlay networks
