@@ -1,12 +1,17 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-scriptDir=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd )
+set -eux
+
+scriptDir=$(
+  cd "$(dirname "$0")"
+  pwd
+)
 
 cd "$scriptDir"
 
 # rmdir -p /tmp/registry
 
-source point-to-local.sh
+compose="./on-local.sh docker-compose"
 
-docker-compose -f docker-compose-load-balancer.yml down
-docker-compose -f docker-compose-registry.yml down
+$compose -f docker-compose-load-balancer.yml down
+$compose -f docker-compose-registry.yml down
