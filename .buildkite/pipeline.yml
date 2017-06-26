@@ -1,5 +1,9 @@
+env:
+  registry: eu.gcr.io/microplatform-demo
+
 steps:
+
   - label: ":docker: Build"
-    command: bash ci/build.sh
-    env:
-      registry: eu.gcr.io/microplatform-demo
+    command: bash .buildkite/steps/build.sh
+
+  - wait:
