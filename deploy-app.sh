@@ -1,12 +1,12 @@
 #!/bin/sh
 
-set -ex
+set -eux
 
 file="docker-compose-app.yml"
-export registry="registry:5000"
+export registry="localhost:5000"
 
+compose="./provisioning/osx/on-local.sh docker-compose"
 docker="./provisioning/osx/on-swarm.sh docker"
-compose="./provisioning/osx/on-swarm.sh docker-compose"
 
 $compose -f $file build
 $compose -f $file push

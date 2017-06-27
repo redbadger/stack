@@ -27,22 +27,19 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
     ./provisioning/osx/registry.sh
     ```
 
-1. In order to push images to the local private registry, you will need to create an alias to `localhost` for `registry` in `/etc/hosts`:
-
-    ```
-    127.0.0.1 localhost registry
-    ```
-
-1. Point your Docker client at the swarm manager.
+1. The following steps use aliases to make working with local and swarm docker servers (you might want to add them to your `.bash_profile`):
 
     ```sh
-    source ./provisioning/osx/point-to-swarm.sh
+    alias on-local="/path/to/provisioning/osx/on-local.sh"
+    alias on-swarm="/path/to/provisioning/osx/on-swarm.sh"
+    alias to-local="source /path/to/provisioning/osx/point-to-local.sh"
+    alias to-swarm="source /path/to/provisioning/osx/point-to-swarm.sh"
     ```
 
 1.  Create a secret that the `api` service will use (note we use `printf` instead of `echo` to prevent a new-line being added)
 
     ```sh
-    printf 'sssshhhh!' | docker secret create my_secret -
+    printf 'sssshhhh!' | on-swarm docker secret create my_secret -
     ```
 
 1.  Build, push and deploy the services stack
@@ -68,14 +65,14 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
 You should now see all the services running:
 
 ```sh
-docker service ls
+on-swarm docker service ls
 ID            NAME                 MODE        REPLICAS  IMAGE
-16aozwerflj8  app_web              replicated  3/3       registry:5000/web:latest
-8nyovw1xqnwh  app_rproxy           replicated  3/3       registry:5000/app_rproxy:latest
-d0p2a0toiizi  app_api              replicated  3/3       registry:5000/api:latest
-ivea53e00djo  services_rproxy      replicated  1/1       registry:5000/services_rproxy:latest
+16aozwerflj8  app_web              replicated  3/3       localhost:5000/web:latest
+8nyovw1xqnwh  app_rproxy           replicated  3/3       localhost:5000/app_rproxy:latest
+d0p2a0toiizi  app_api              replicated  3/3       localhost:5000/api:latest
+ivea53e00djo  services_rproxy      replicated  1/1       localhost:5000/services_rproxy:latest
 n1m32eri5qay  services_visualizer  replicated  1/1       charypar/swarm-dashboard:latest
-v6ex7zwvvbng  app_gateway          replicated  3/3       registry:5000/proxy:latest
+v6ex7zwvvbng  app_gateway          replicated  3/3       localhost:5000/proxy:latest
 ```
 
 ## Cleaning up
