@@ -2,10 +2,11 @@
 
 This repo is a noddy web ui and proxied api (on a private network) with `version 3` compose files that are designed to be deployed into a "Docker in swarm mode" cluster.
 
-There are 4 compose files:
+There are 5 compose files:
   1. private Docker registry (external to the swarm).
-  1. private `nginx` load balancer (external to the swarm).
+  1. `nginx` load balancer (external to the swarm).
   1. the swarm visualizer, and its reverse proxy (`services` stack)
+  1. the registry ambassador (`swarm` stack)
   1. the web and the api, and their associated reverse proxy and gateway (`app` stack).
 
 ![Swarm Visualizer](doc/visualizer.png)
