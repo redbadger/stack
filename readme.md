@@ -28,7 +28,7 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
     ./provisioning/osx/registry.sh
     ```
 
-1. The following steps use aliases to make working with local and swarm docker servers (you might want to add them to your `.bash_profile`):
+1. The following steps use aliases to make it easier to work with local and swarm docker servers (you might want to add them to your `.bash_profile`):
 
     ```sh
     alias on-local="/path/to/provisioning/osx/on-local.sh"
