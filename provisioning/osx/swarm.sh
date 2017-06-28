@@ -18,7 +18,7 @@ createMachine() {
   docker-machine create \
     --driver virtualbox \
     --engine-opt experimental=true \
-    --engine-insecure-registry registry:5000 \
+    --engine-insecure-registry localhost:5000 \
     --virtualbox-cpu-count 2 \
     --virtualbox-memory 1024 \
     $name

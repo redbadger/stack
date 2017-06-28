@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  registry_ambassador:
+    image: svendowideit/ambassador
+    environment:
+      DOCKER_PORT_5000_TCP: tcp://10.0.2.2:5000
+    ports:
+      - 5000:5000
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
