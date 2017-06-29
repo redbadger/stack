@@ -2,12 +2,24 @@ version: "3.1"
 
 services:
   registry:
+    restart: always
     image: registry:2
     ports:
       - 5000:5000
+    volumes:
+      - ${HOME}/.docker/registry:/var/lib/registry
     networks:
       - registry
+  registry-mirror:
+    restart: always
+    image: registry:2
+    ports:
+      - 5001:5000
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://registry-1.docker.io
     volumes:
-      - /tmp/registry:/var/lib/registry
+      - ${HOME}/.docker/registry-mirror:/var/lib/registry
+    networks:
+      - registry
 networks:
   registry:
