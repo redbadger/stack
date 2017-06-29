@@ -2,6 +2,9 @@
 
 set -eux
 
+manager="mgr1"
+workers="wkr1 wkr2 wkr3"
+
 scriptDir=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   pwd
@@ -14,42 +17,43 @@ docker="./on-swarm.sh docker"
 
 createMachine() {
   local name="$1"
-  docker-machine rm -f $name 2>/dev/null
   docker-machine create \
     --driver virtualbox \
     --engine-opt experimental=true \
+    --engine-registry-mirror http://10.0.2.2:5001 \
     --engine-insecure-registry localhost:5000 \
     --virtualbox-cpu-count 2 \
     --virtualbox-memory 1024 \
     $name
-  docker-machine ssh $name "sudo sh -c 'echo \"10.0.2.2 registry\" >> /etc/hosts'"
 }
 
 initSwarm() {
-  local mgr="$1"
-  $docker swarm init --advertise-addr $mgr
+  local mgr_ip="$1"
+  $docker swarm init --advertise-addr $mgr_ip
 }
 
 joinNode() {
-  local mgr="$1"
+  local mgr_ip="$1"
   local node="$2"
   $docker \
     --host "tcp://$(docker-machine ip $node):2376" \
     swarm \
     join \
     --token "$($docker swarm join-token worker --quiet)" \
-    $mgr:2377
+    $mgr_ip:2377
 }
 
-for node in mgr1 wkr1 wkr2 wkr3; do
+docker-machine rm -f $manager $workers 2>/dev/null
+
+for node in $manager $workers; do
   createMachine $node
 done
 
-MGR=$(docker-machine ip mgr1)
-initSwarm $MGR
+MGR_IP=$(docker-machine ip $manager)
+initSwarm $MGR_IP
 
-for node in wkr1 wkr2 wkr3; do
-  joinNode $MGR $node
+for node in $workers; do
+  joinNode $MGR_IP $node
 done
 
 $docker node ls
