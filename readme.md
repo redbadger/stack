@@ -3,7 +3,7 @@
 This repo is a noddy web ui and proxied api (on a private network) with `version 3` compose files that are designed to be deployed into a "Docker in swarm mode" cluster.
 
 There are 5 compose files:
-  1. private Docker registry (external to the swarm).
+  1. private Docker registry and registry mirror (external to the swarm).
   1. `nginx` load balancer (external to the swarm).
   1. the swarm visualizer, and its reverse proxy (`services` stack)
   1. the registry ambassador (`swarm` stack)
@@ -16,13 +16,18 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
 ## To set up the cluster
 1.  Install VirtualBox and Docker for Mac (I had a few problems deploying a stack with 17.06 so maybe use 17.05 or below).
 
-1.  There's a script to create a swarm, which provisions 4 local VMs and joins them into a cluster. Take a look at the script to see how straight forward it is.
+1.  Run the script to create a swarm, which provisions 4 local VMs and joins them into a cluster. Take a look at the script to see how straight forward it is.
 
     ```bash
     ./provisioning/osx/swarm.sh
     ```
 
-1.  There's also a script to create a local private registry.
+1.  Run the script to create a load balancer (also outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes.
+
+    ```sh
+    ./provisioning/osx/load-balancer.sh
+    ```
+1.  Run the script to create a local private Docker registry and a local mirror of Docker hub.
 
     ```sh
     ./provisioning/osx/registry.sh
@@ -53,12 +58,6 @@ Incoming requests can hit any node of the swarm and will be routed to an instanc
 
     ```sh
     ./deploy-app.sh
-    ```
-
-1.  There's a script to create a load balancer (also outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes.
-
-    ```sh
-    ./provisioning/osx/load-balancer.sh
     ```
 
     The app should now be available at http://localhost and the visualizer at http://localhost/_cluster/swarm/
