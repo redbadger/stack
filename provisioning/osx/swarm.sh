@@ -22,7 +22,6 @@ createMachine() {
     --engine-opt experimental=true \
     --engine-registry-mirror http://10.0.2.2:5001 \
     --engine-insecure-registry localhost:5000 \
-    --virtualbox-boot2docker-url https://github.com/boot2docker/boot2docker/releases/download/v17.06.0-ce/boot2docker.iso \
     --virtualbox-cpu-count 2 \
     --virtualbox-memory 1024 \
     $name
@@ -57,4 +56,5 @@ for node in $workers; do
   joinNode $MGR_IP $node
 done
 
+docker-machine ls
 $docker node ls
