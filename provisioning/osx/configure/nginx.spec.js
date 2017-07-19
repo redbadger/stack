@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const writeConfig = require('./nginx').writeConfig;
+const createConfig = require('./nginx').createConfig;
 
 describe('nginx', () => {
   it('should write the correct config', () => {
@@ -63,7 +63,7 @@ server {
   }
 }
 `;
-    const actual = writeConfig(services);
+    const actual = createConfig(services);
     expect(actual).to.equal(expected);
   });
 });

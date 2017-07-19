@@ -7,6 +7,7 @@ const fp = require('lodash/fp');
 
 const flattenConfig = require('./config').flatten;
 const findNextPort = require('./ports').findNext;
+const createNginxConfig = require('./nginx').createConfig;
 const writeNginxConfig = require('./nginx').writeConfig;
 
 const argv = require('yargs')
@@ -54,5 +55,6 @@ docker
   .listServices()
   .then(findPublicServices)
   .then(assignPorts(requiredServices))
-  .then(writeNginxConfig),
+  .then(createNginxConfig)
+  .then(writeNginxConfig)
   .then(console.log);
