@@ -1,0 +1,22 @@
+{
+  "name": "configure",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha \"**/*.spec.js\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "dockerode": "^2.5.0",
+    "js-yaml": "^3.9.0",
+    "lodash": "^4.17.4",
+    "yargs": "^8.0.2"
+  },
+  "devDependencies": {
+    "chai": "^4.1.0",
+    "mocha": "^3.4.2"
+  }
+}

@@ -1,3 +1,25 @@
+const expect = require('chai').expect;
+const writeConfig = require('./nginx').writeConfig;
+
+describe('nginx', () => {
+  it('should write the correct config', () => {
+    const services = [
+      {
+        domain: 'dev',
+        stack: 'services',
+        name: 'visualizer',
+        aliases: [],
+        port: 8080,
+      },
+      {
+        domain: 'dev',
+        stack: 'app',
+        name: 'rproxy',
+        aliases: ['web'],
+        port: 80,
+      },
+    ];
+    const expected = `
 server {
   listen 80;
   location / {
@@ -40,3 +62,8 @@ server {
     proxy_set_header Connection "upgrade";
   }
 }
+`;
+    const actual = writeConfig(services);
+    expect(actual).to.equal(expected);
+  });
+});

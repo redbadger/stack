@@ -1,0 +1,17 @@
+domains:
+  - name: dev
+    stacks:
+      - name: services
+        services:
+          - name: visualizer
+      - name: app
+        services:
+          - name: rproxy
+            aliases:
+              - web
+          - name: gateway
+            aliases:
+              - api
+          - name: gateway1
+            aliases:
+              - api1
