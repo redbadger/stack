@@ -41,13 +41,6 @@ const argv = require('yargs').options({
     describe: 'YAML file with master configuration',
     type: 'string',
     coerce: f => _jsYaml2.default.safeLoad(_fs2.default.readFileSync(_path2.default.resolve(f), 'utf8'))
-  },
-  'compose-file-dir': {
-    alias: 'c',
-    demandOption: true,
-    describe: 'The directory in which your compose-files live',
-    type: 'string',
-    coerce: dir => _path2.default.resolve(dir)
   }
 }).help().argv;
 
@@ -74,7 +67,7 @@ const doWork = async () => {
   (0, _nginx.write)(nginxConfig);
 
   const composeFiles = (0, _composeFile.create)(servicesWithPorts);
-  (0, _composeFile.write)(composeFiles, argv['compose-file-dir']);
+  (0, _composeFile.write)(composeFiles);
 };
 
 doWork();

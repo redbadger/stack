@@ -3,7 +3,7 @@
 set -eux
 
 file="app.yml"
-ports="app-ports.yml"
+ports="/tmp/app-ports.yml"
 export registry="localhost:5000"
 
 compose="./provisioning/osx/on-local.sh docker-compose"

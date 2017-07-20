@@ -32,9 +32,9 @@ ${_fp2.default.join('', _fp2.default.map(genService, services))}
   return _fp2.default.fromPairs(_fp2.default.map(([stackname, services]) => [stackname, genStack(services)], stackNameAndServices));
 };
 
-const write = exports.write = (contents, dir) => {
+const write = exports.write = contents => {
   _fp2.default.forEach(([stack, content]) => {
-    const file = `${dir}/${stack}-ports.yml`;
+    const file = `/tmp/${stack}-ports.yml`;
     console.log(`Writing ${file}`);
     _fs2.default.writeFileSync(file, content);
   }, _fp2.default.toPairs(contents));

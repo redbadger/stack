@@ -3,7 +3,7 @@
 set -ex
 
 file="services.yml"
-ports="services-ports.yml"
+ports="/tmp/services-ports.yml"
 export registry="localhost:5000"
 
 compose="./provisioning/osx/on-local.sh docker-compose"

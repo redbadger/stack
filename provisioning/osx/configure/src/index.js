@@ -22,13 +22,6 @@ const argv = require('yargs')
       type: 'string',
       coerce: f => yaml.safeLoad(fs.readFileSync(path.resolve(f), 'utf8')),
     },
-    'compose-file-dir': {
-      alias: 'c',
-      demandOption: true,
-      describe: 'The directory in which your compose-files live',
-      type: 'string',
-      coerce: dir => path.resolve(dir),
-    },
   })
   .help().argv;
 
@@ -69,7 +62,7 @@ const doWork = async () => {
   writeNginxConfig(nginxConfig);
 
   const composeFiles = createComposeFile(servicesWithPorts);
-  writeComposeFile(composeFiles, argv['compose-file-dir']);
+  writeComposeFile(composeFiles);
 };
 
 doWork();

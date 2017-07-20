@@ -25,9 +25,9 @@ ${fp.join('', fp.map(genService, services))}
   );
 };
 
-export const write = (contents, dir) => {
+export const write = contents => {
   fp.forEach(([stack, content]) => {
-    const file = `${dir}/${stack}-ports.yml`;
+    const file = `/tmp/${stack}-ports.yml`;
     console.log(`Writing ${file}`);
     fs.writeFileSync(file, content);
   }, fp.toPairs(contents));
