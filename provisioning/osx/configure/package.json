@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register \"**/*.spec.js\""
+    "build": "babel src -d lib",
+    "test": "mocha --compilers js:babel-core/register \"src/**/*.spec.js\""
   },
   "author": "",
   "license": "ISC",

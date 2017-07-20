@@ -1,4 +1,4 @@
-#!./node_modules/.bin/babel-node
+#!/usr/bin/env node
 import Docker from 'dockerode';
 import fp from 'lodash/fp';
 import fs from 'fs';
@@ -18,9 +18,16 @@ const argv = require('yargs')
       alias: 'f',
       demandOption: true,
       default: 'master.yml',
-      describe: 'yaml file with master configuration',
+      describe: 'YAML file with master configuration',
       type: 'string',
       coerce: f => yaml.safeLoad(fs.readFileSync(path.resolve(f), 'utf8')),
+    },
+    'compose-file-dir': {
+      alias: 'c',
+      demandOption: true,
+      describe: 'The directory in which your compose-files live',
+      type: 'string',
+      coerce: dir => path.resolve(dir),
     },
   })
   .help().argv;
@@ -55,14 +62,14 @@ const doWork = async () => {
   const existingServices = await docker.listServices();
   const servicesWithPorts = fp.pipe(
     findPublicServices,
-    assignPorts(flattenConfig(argv.f)),
+    assignPorts(flattenConfig(argv.file)),
   )(existingServices);
 
   const nginxConfig = createNginxConfig(servicesWithPorts);
   writeNginxConfig(nginxConfig);
 
   const composeFiles = createComposeFile(servicesWithPorts);
-  writeComposeFile(composeFiles);
+  writeComposeFile(composeFiles, argv['compose-file-dir']);
 };
 
 doWork();

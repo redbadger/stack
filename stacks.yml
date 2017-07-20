@@ -9,9 +9,3 @@ domains:
           - name: rproxy
             aliases:
               - web
-          - name: gateway
-            aliases:
-              - api
-          - name: gateway1
-            aliases:
-              - api1

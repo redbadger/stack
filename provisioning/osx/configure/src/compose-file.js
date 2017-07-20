@@ -1,4 +1,5 @@
 import fp from 'lodash/fp';
+import fs from 'fs';
 
 export const create = services => {
   const stackNameAndServices = fp.toPairs(
@@ -24,6 +25,10 @@ ${fp.join('', fp.map(genService, services))}
   );
 };
 
-export const write = content => {
-  fp.map(console.log, content);
+export const write = (contents, dir) => {
+  fp.forEach(([stack, content]) => {
+    const file = `${dir}/${stack}-ports.yml`;
+    console.log(`Writing ${file}`);
+    fs.writeFileSync(file, content);
+  }, fp.toPairs(contents));
 };
