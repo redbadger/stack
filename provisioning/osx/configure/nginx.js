@@ -8,7 +8,7 @@ const baseConfig = `server {
 }
 `;
 
-export const createConfig = services => `
+export const create = services => `
 ${baseConfig}${fp.join(
   '',
   fp.map(
@@ -41,7 +41,8 @@ server {
   ),
 )}`;
 
-export const writeConfig = c => {
+export const write = c => {
   // fs.writeFileSync();
+  console.log(c);
   return c;
 };

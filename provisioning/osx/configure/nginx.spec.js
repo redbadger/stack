@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { createConfig } from './nginx';
+import { create } from './nginx';
 
 describe('nginx', () => {
   it('should write the correct config', () => {
@@ -63,7 +63,7 @@ server {
   }
 }
 `;
-    const actual = createConfig(services);
+    const actual = create(services);
     expect(actual).to.equal(expected);
   });
 });

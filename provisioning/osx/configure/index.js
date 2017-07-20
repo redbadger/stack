@@ -5,10 +5,12 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 
-import { createConfig as createNginxConfig } from './nginx';
+import { create as createComposeFile } from './compose-file';
+import { create as createNginxConfig } from './nginx';
 import { findNext as findNextPort } from './ports';
 import { flatten as flattenConfig } from './config';
-import { writeConfig as writeNginxConfig } from './nginx';
+import { write as writeComposeFile } from './compose-file';
+import { write as writeNginxConfig } from './nginx';
 
 const argv = require('yargs')
   .options({
@@ -50,14 +52,17 @@ const assignPorts = desiredServices => existingServices =>
 
 const doWork = async () => {
   const docker = new Docker();
-  const allServices = await docker.listServices();
+  const existingServices = await docker.listServices();
   const servicesWithPorts = fp.pipe(
     findPublicServices,
     assignPorts(flattenConfig(argv.f)),
-  )(allServices);
+  )(existingServices);
+
   const nginxConfig = createNginxConfig(servicesWithPorts);
   writeNginxConfig(nginxConfig);
-  console.log(nginxConfig);
+
+  const composeFile = createComposeFile(servicesWithPorts);
+  writeComposeFile(composeFile);
 };
 
 doWork();
