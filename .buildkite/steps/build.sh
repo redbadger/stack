@@ -3,7 +3,11 @@
 set -eux
 
 env
+export registry=localhost:5000
 
-for file in "docker-compose-app.yml" "docker-compose-services.yml"; do
-  docker-compose -f $file build
+./provisioning/osx/configure/lib/index.js --file stacks.yml
+
+
+for stack in "app" "services"; do
+  docker-compose -f ${stack}.yml -f /tmp/${stack}-ports.yml build
 done

@@ -23,6 +23,13 @@ const argv = require('yargs')
       type: 'string',
       coerce: f => yaml.safeLoad(fs.readFileSync(path.resolve(f), 'utf8')),
     },
+    update: {
+      alias: 'u',
+      demandOption: true,
+      default: false,
+      describe: 'If true, updates the NGINX load balancer with new ports',
+      type: 'boolean',
+    },
   })
   .help().argv;
 
@@ -61,7 +68,7 @@ const doWork = async () => {
 
   const nginxConfig = createNginxConfig(servicesWithPorts);
   writeNginxConfig(nginxConfig);
-  await reloadNginx();
+  if (argv.update) await reloadNginx();
 
   const composeFiles = createComposeFile(servicesWithPorts);
   writeComposeFile(composeFiles);

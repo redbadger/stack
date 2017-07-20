@@ -41,6 +41,13 @@ const argv = require('yargs').options({
     describe: 'YAML file with master configuration',
     type: 'string',
     coerce: f => _jsYaml2.default.safeLoad(_fs2.default.readFileSync(_path2.default.resolve(f), 'utf8'))
+  },
+  update: {
+    alias: 'u',
+    demandOption: true,
+    default: false,
+    describe: 'If true, updates the NGINX load balancer with new ports',
+    type: 'boolean'
   }
 }).help().argv;
 
@@ -65,7 +72,7 @@ const doWork = async () => {
 
   const nginxConfig = (0, _nginx.create)(servicesWithPorts);
   (0, _nginx.write)(nginxConfig);
-  await (0, _nginx.reload)();
+  if (argv.update) await (0, _nginx.reload)();
 
   const composeFiles = (0, _composeFile.create)(servicesWithPorts);
   (0, _composeFile.write)(composeFiles);
