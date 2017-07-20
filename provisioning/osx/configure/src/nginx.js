@@ -1,4 +1,5 @@
 import fp from 'lodash/fp';
+import fs from 'fs';
 
 const baseConfig = `server {
   listen 80;
@@ -41,8 +42,8 @@ server {
   ),
 )}`;
 
-export const write = c => {
-  // fs.writeFileSync();
-  console.log(c);
-  return c;
+export const write = contents => {
+  const file = '/tmp/nginx.conf';
+  console.log(`Writing ${file}`);
+  fs.writeFileSync(file, contents);
 };

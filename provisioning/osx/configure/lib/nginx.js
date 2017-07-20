@@ -9,6 +9,10 @@ var _fp = require('lodash/fp');
 
 var _fp2 = _interopRequireDefault(_fp);
 
+var _fs = require('fs');
+
+var _fs2 = _interopRequireDefault(_fs);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const baseConfig = `server {
@@ -40,8 +44,8 @@ server {
 }
 `, services))}`;
 
-const write = exports.write = c => {
-  // fs.writeFileSync();
-  console.log(c);
-  return c;
+const write = exports.write = contents => {
+  const file = '/tmp/nginx.conf';
+  console.log(`Writing ${file}`);
+  _fs2.default.writeFileSync(file, contents);
 };
