@@ -3,7 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.write = exports.create = undefined;
+exports.reload = exports.write = exports.create = undefined;
+
+var _execa = require('execa');
+
+var _execa2 = _interopRequireDefault(_execa);
 
 var _fp = require('lodash/fp');
 
@@ -48,4 +52,17 @@ const write = exports.write = contents => {
   const file = '/tmp/nginx.conf';
   console.log(`Writing ${file}`);
   _fs2.default.writeFileSync(file, contents);
+};
+
+const reload = exports.reload = async () => {
+  console.log('Reloading NGINX configuration into Load Balancer...');
+  const cp = (0, _execa2.default)('docker', ['exec', 'loadbalancer_load_balancer_1', 'nginx', '-s', 'reload'], {
+    env: {
+      PATH: process.env.PATH
+    },
+    extendEnv: false
+  });
+  cp.stdout.pipe(process.stdout);
+  cp.stderr.pipe(process.stderr);
+  return cp;
 };

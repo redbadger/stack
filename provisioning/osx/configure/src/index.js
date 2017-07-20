@@ -9,6 +9,7 @@ import { create as createComposeFile } from './compose-file';
 import { create as createNginxConfig } from './nginx';
 import { findNext as findNextPort } from './ports';
 import { flatten as flattenConfig } from './config';
+import { reload as reloadNginx } from './nginx';
 import { write as writeComposeFile } from './compose-file';
 import { write as writeNginxConfig } from './nginx';
 
@@ -60,6 +61,7 @@ const doWork = async () => {
 
   const nginxConfig = createNginxConfig(servicesWithPorts);
   writeNginxConfig(nginxConfig);
+  await reloadNginx();
 
   const composeFiles = createComposeFile(servicesWithPorts);
   writeComposeFile(composeFiles);

@@ -1,3 +1,4 @@
+import execa from 'execa';
 import fp from 'lodash/fp';
 import fs from 'fs';
 
@@ -46,4 +47,21 @@ export const write = contents => {
   const file = '/tmp/nginx.conf';
   console.log(`Writing ${file}`);
   fs.writeFileSync(file, contents);
+};
+
+export const reload = async () => {
+  console.log('Reloading NGINX configuration into Load Balancer...');
+  const cp = execa(
+    'docker',
+    ['exec', 'loadbalancer_load_balancer_1', 'nginx', '-s', 'reload'],
+    {
+      env: {
+        PATH: process.env.PATH,
+      },
+      extendEnv: false,
+    },
+  );
+  cp.stdout.pipe(process.stdout);
+  cp.stderr.pipe(process.stderr);
+  return cp;
 };

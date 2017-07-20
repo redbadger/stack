@@ -65,6 +65,7 @@ const doWork = async () => {
 
   const nginxConfig = (0, _nginx.create)(servicesWithPorts);
   (0, _nginx.write)(nginxConfig);
+  await (0, _nginx.reload)();
 
   const composeFiles = (0, _composeFile.create)(servicesWithPorts);
   (0, _composeFile.write)(composeFiles);
