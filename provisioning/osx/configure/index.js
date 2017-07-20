@@ -1,14 +1,14 @@
-#!/usr/bin/env node
-const yaml = require('js-yaml');
-const fs = require('fs');
-const path = require('path');
-const Docker = require('dockerode');
-const fp = require('lodash/fp');
+#!./node_modules/.bin/babel-node
+import Docker from 'dockerode';
+import fp from 'lodash/fp';
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
 
-const flattenConfig = require('./config').flatten;
-const findNextPort = require('./ports').findNext;
-const createNginxConfig = require('./nginx').createConfig;
-const writeNginxConfig = require('./nginx').writeConfig;
+import { createConfig as createNginxConfig } from './nginx';
+import { findNext as findNextPort } from './ports';
+import { flatten as flattenConfig } from './config';
+import { writeConfig as writeNginxConfig } from './nginx';
 
 const argv = require('yargs')
   .options({
@@ -22,8 +22,6 @@ const argv = require('yargs')
     },
   })
   .help().argv;
-
-const requiredServices = flattenConfig(argv.f);
 
 const findPublicServices = fp.pipe(
   fp.map(s => {
@@ -44,17 +42,22 @@ const assignPorts = desiredServices => existingServices =>
         s => s.stack === svc.stack && s.name === svc.name,
       );
       const port = existing ? existing.port : findNextPort(acc);
-      return acc.concat(Object.assign({}, svc, { port }));
+      return acc.concat({ ...svc, port });
     },
     [],
     desiredServices,
   );
 
-const docker = new Docker();
-docker
-  .listServices()
-  .then(findPublicServices)
-  .then(assignPorts(requiredServices))
-  .then(createNginxConfig)
-  .then(writeNginxConfig)
-  .then(console.log);
+const doWork = async () => {
+  const docker = new Docker();
+  const allServices = await docker.listServices();
+  const servicesWithPorts = fp.pipe(
+    findPublicServices,
+    assignPorts(flattenConfig(argv.f)),
+  )(allServices);
+  const nginxConfig = createNginxConfig(servicesWithPorts);
+  writeNginxConfig(nginxConfig);
+  console.log(nginxConfig);
+};
+
+doWork();

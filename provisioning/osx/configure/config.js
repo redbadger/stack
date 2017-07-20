@@ -1,21 +1,21 @@
-const fp = require('lodash/fp');
+import fp from 'lodash/fp';
 
-exports.flatten = c => {
+export const flatten = config => {
   return fp.flatMap(
-    d =>
+    domain =>
       fp.flatMap(
-        st =>
+        stack =>
           fp.map(
-            s => ({
-              domain: d.name,
-              stack: st.name,
-              name: s.name,
-              aliases: s.aliases || [],
+            service => ({
+              domain: domain.name,
+              stack: stack.name,
+              name: service.name,
+              aliases: service.aliases || [],
             }),
-            st.services,
+            stack.services,
           ),
-        d.stacks,
+        domain.stacks,
       ),
-    c.domains,
+    config.domains,
   );
 };

@@ -4,11 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha \"**/*.spec.js\""
+    "test": "mocha --compilers js:babel-core/register \"**/*.spec.js\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
     "bluebird": "^3.5.0",
     "dockerode": "^2.5.0",
     "js-yaml": "^3.9.0",

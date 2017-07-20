@@ -1,5 +1,5 @@
-const expect = require('chai').expect;
-const createConfig = require('./nginx').createConfig;
+import { expect } from 'chai';
+import { createConfig } from './nginx';
 
 describe('nginx', () => {
   it('should write the correct config', () => {

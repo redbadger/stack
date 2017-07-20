@@ -1,5 +1,5 @@
-const expect = require('chai').expect;
-const findNext = require('./ports').findNext;
+import { expect } from 'chai';
+import { findNext } from './ports';
 
 describe('should find the first unused port above 8000', () => {
   it('when only one', () => {

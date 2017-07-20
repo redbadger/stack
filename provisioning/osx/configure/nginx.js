@@ -1,4 +1,4 @@
-const fp = require('lodash/fp');
+import fp from 'lodash/fp';
 
 const baseConfig = `server {
   listen 80;
@@ -8,7 +8,7 @@ const baseConfig = `server {
 }
 `;
 
-exports.createConfig = services => `
+export const createConfig = services => `
 ${baseConfig}${fp.join(
   '',
   fp.map(
@@ -41,7 +41,7 @@ server {
   ),
 )}`;
 
-exports.writeConfig = c => {
+export const writeConfig = c => {
   // fs.writeFileSync();
   return c;
 };

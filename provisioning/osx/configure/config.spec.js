@@ -1,5 +1,5 @@
-const expect = require('chai').expect;
-const flattenConfig = require('./config').flatten;
+import { expect } from 'chai';
+import { flatten as flattenConfig } from './config';
 
 describe('config', () => {
   it('should flatten the config', () => {

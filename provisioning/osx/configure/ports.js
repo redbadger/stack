@@ -1,8 +1,8 @@
-const fp = require('lodash/fp');
+import fp from 'lodash/fp';
 
-exports.findNext = services => {
+export const findNext = services => {
   const usedPorts = fp.reduce(
-    (acc, s) => Object.assign({}, acc, s.port ? { [s.port]: true } : {}),
+    (acc, s) => ({ ...acc, [s.port]: true }),
     {},
     services,
   );
