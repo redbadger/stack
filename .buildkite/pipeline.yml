@@ -7,5 +7,5 @@ steps:
     command: bash .buildkite/steps/build.sh
 
   - label: ":node: configure cli tests"
-    command: cd ./provisioning/osx/configure && yarn test
+    command: cd ./provisioning/osx/configure && npm test
   - wait:
