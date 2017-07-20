@@ -61,8 +61,8 @@ const doWork = async () => {
   const nginxConfig = createNginxConfig(servicesWithPorts);
   writeNginxConfig(nginxConfig);
 
-  const composeFile = createComposeFile(servicesWithPorts);
-  writeComposeFile(composeFile);
+  const composeFiles = createComposeFile(servicesWithPorts);
+  writeComposeFile(composeFiles);
 };
 
 doWork();
