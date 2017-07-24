@@ -13,7 +13,7 @@ import { create as createComposeFile } from './compose-file';
 import { create as createNginxConfig } from './nginx';
 import { assign as assignPorts } from './ports';
 import { findWithPublishedPorts as findPublicServices } from './services';
-import { flatten as flattenConfig } from './config';
+import { getServices } from './config';
 import { reload as reloadNginx } from './nginx';
 import { write as writeComposeFile } from './compose-file';
 import { write as writeNginxConfig } from './nginx';
@@ -25,9 +25,12 @@ const dockerEnv = Bluebird.promisify(DockerMachine.env);
 const argv = yargs.options(args).help().argv;
 
 const doWork = async () => {
-  const config = await (argv.file === '-'
-    ? getStream(process.stdin)
-    : readFile(path.resolve(argv.file), 'utf8'));
+  const config = yaml.safeLoad(
+    await (argv.file === '-'
+      ? getStream(process.stdin)
+      : readFile(path.resolve(argv.file), 'utf8')),
+  );
+  console.log(JSON.stringify(config));
 
   const env = await dockerEnv(argv.manager, { parse: true });
   R.forEachObjIndexed((v, k) => {
@@ -38,7 +41,7 @@ const doWork = async () => {
   const existingServices = await docker.listServices();
   const servicesWithPorts = R.pipe(
     findPublicServices,
-    assignPorts(flattenConfig(yaml.safeLoad(config))),
+    assignPorts(getServices(config)),
   )(existingServices);
 
   const nginxConfig = createNginxConfig(servicesWithPorts);

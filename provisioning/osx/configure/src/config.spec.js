@@ -1,49 +1,43 @@
 import { expect } from 'chai';
-import { flatten as flattenConfig } from './config';
+import { getServices, getComposeFiles } from './config';
 
 describe('config', () => {
-  it('should flatten the config', () => {
-    const config = {
-      domains: [
-        {
-          name: 'dev',
-          stacks: [
-            {
-              name: 'services',
-              services: [
-                {
-                  name: 'visualizer',
-                },
-              ],
-            },
-            {
-              name: 'app',
-              services: [
-                {
-                  name: 'rproxy',
-                  aliases: ['web'],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    };
+  const config = {
+    stacks: [
+      {
+        name: 'services',
+        'compose-files': ['services.yml'],
+        services: [{ name: 'visualizer' }],
+      },
+      {
+        name: 'app',
+        'compose-files': ['app.yml'],
+        services: [{ name: 'rproxy', aliases: ['web'] }],
+      },
+    ],
+  };
+  it('should get services from the config', () => {
     const expected = [
       {
-        domain: 'dev',
         stack: 'services',
         name: 'visualizer',
         aliases: [],
       },
       {
-        domain: 'dev',
         stack: 'app',
         name: 'rproxy',
         aliases: ['web'],
       },
     ];
-    const actual = flattenConfig(config);
+    const actual = getServices(config);
+    expect(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
+  });
+  it('should get compose files from the config', () => {
+    const expected = {
+      services: ['services.yml'],
+      app: ['app.yml'],
+    };
+    const actual = getComposeFiles(config);
     expect(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
   });
 });

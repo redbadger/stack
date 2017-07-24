@@ -1,11 +1,13 @@
-domains:
-  - name: dev
-    stacks:
-      - name: services
-        services:
-          - name: visualizer
-      - name: app
-        services:
-          - name: rproxy
-            aliases:
-              - web
+stacks:
+  - name: services
+    compose-files:
+      - services.yml
+    services:
+      - name: visualizer
+  - name: app
+    compose-files:
+      - app.yml
+    services:
+      - name: rproxy
+        aliases:
+          - web

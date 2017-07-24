@@ -25,10 +25,7 @@ server {
   listen 80;
   server_name ${R.join(
     ' ',
-    R.map(
-      name => `${name}.${s.stack}.${s.domain}`,
-      R.concat(s.aliases, [s.name]),
-    ),
+    R.map(name => `${name}.${s.stack}.dev`, R.concat(s.aliases, [s.name])),
   )};
 
   location / {

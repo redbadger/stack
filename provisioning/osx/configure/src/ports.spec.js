@@ -7,7 +7,6 @@ describe('should find the first unused port above 8000', () => {
     const expected = 8001;
     const actual = findNext([
       {
-        domain: 'dev',
         stack: 'services',
         name: 'visualizer',
         aliases: [],
@@ -20,7 +19,6 @@ describe('should find the first unused port above 8000', () => {
     const expected = 8000;
     const actual = findNext([
       {
-        domain: 'dev',
         stack: 'services',
         name: 'fsdkflkdf',
         aliases: [],
@@ -32,13 +30,11 @@ describe('should find the first unused port above 8000', () => {
     const expected = 8000;
     const actual = findNext([
       {
-        domain: 'dev',
         stack: 'services',
         name: 'fsdkflkdf',
         aliases: [],
       },
       {
-        domain: 'dev',
         stack: 'app',
         name: 'rproxy',
         aliases: ['web'],
@@ -51,21 +47,18 @@ describe('should find the first unused port above 8000', () => {
     const expected = 8003;
     const actual = findNext([
       {
-        domain: 'dev',
         stack: 'services',
         name: 'fsdkflkdf',
         aliases: [],
         port: 8000,
       },
       {
-        domain: 'dev',
         stack: 'services',
         name: 'fsdkflkdf',
         aliases: [],
         port: 8002,
       },
       {
-        domain: 'dev',
         stack: 'app',
         name: 'rproxy',
         aliases: ['web'],
@@ -80,13 +73,11 @@ describe('assignPorts', () => {
   it('should assign ports to those without', () => {
     const desiredServices = [
       {
-        domain: 'dev',
         stack: 'services',
         name: 'visualizer',
         aliases: [],
       },
       {
-        domain: 'dev',
         stack: 'app',
         name: 'rproxy',
         aliases: ['web'],
@@ -99,14 +90,12 @@ describe('assignPorts', () => {
     ];
     const expected = [
       {
-        domain: 'dev',
         stack: 'services',
         name: 'visualizer',
         aliases: [],
         port: 8000,
       },
       {
-        domain: 'dev',
         stack: 'app',
         name: 'rproxy',
         aliases: ['web'],

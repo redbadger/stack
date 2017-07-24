@@ -7,13 +7,11 @@ var _nginx = require('./nginx');
 describe('nginx', () => {
   it('should write the correct config', () => {
     const services = [{
-      domain: 'dev',
       stack: 'services',
       name: 'visualizer',
       aliases: [],
       port: 8080
     }, {
-      domain: 'dev',
       stack: 'app',
       name: 'rproxy',
       aliases: ['web'],

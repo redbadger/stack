@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.flatten = undefined;
+exports.getComposeFiles = exports.getServices = undefined;
 
 var _ramda = require('ramda');
 
@@ -11,11 +11,10 @@ var _ramda2 = _interopRequireDefault(_ramda);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const flatten = exports.flatten = config => {
-  return _ramda2.default.chain(domain => _ramda2.default.chain(stack => _ramda2.default.map(service => ({
-    domain: domain.name,
-    stack: stack.name,
-    name: service.name,
-    aliases: service.aliases || []
-  }), stack.services), domain.stacks), config.domains);
-};
+const getServices = exports.getServices = config => _ramda2.default.chain(stack => _ramda2.default.map(service => ({
+  stack: stack.name,
+  name: service.name,
+  aliases: service.aliases || []
+}), stack.services), config.stacks);
+
+const getComposeFiles = exports.getComposeFiles = config => _ramda2.default.fromPairs(_ramda2.default.map(stack => [stack.name, stack['compose-files']], config.stacks));

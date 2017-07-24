@@ -59,7 +59,8 @@ const dockerEnv = _bluebird2.default.promisify(_dockerMachine2.default.env);
 const argv = _yargs2.default.options(_args2.default).help().argv;
 
 const doWork = async () => {
-  const config = await (argv.file === '-' ? (0, _getStream2.default)(process.stdin) : readFile(_path2.default.resolve(argv.file), 'utf8'));
+  const config = _jsYaml2.default.safeLoad((await (argv.file === '-' ? (0, _getStream2.default)(process.stdin) : readFile(_path2.default.resolve(argv.file), 'utf8'))));
+  console.log(JSON.stringify(config));
 
   const env = await dockerEnv(argv.manager, { parse: true });
   _ramda2.default.forEachObjIndexed((v, k) => {
@@ -68,7 +69,7 @@ const doWork = async () => {
 
   const docker = new _dockerode2.default();
   const existingServices = await docker.listServices();
-  const servicesWithPorts = _ramda2.default.pipe(_services.findWithPublishedPorts, (0, _ports.assign)((0, _config.flatten)(_jsYaml2.default.safeLoad(config))))(existingServices);
+  const servicesWithPorts = _ramda2.default.pipe(_services.findWithPublishedPorts, (0, _ports.assign)((0, _config.getServices)(config)))(existingServices);
 
   const nginxConfig = (0, _nginx.create)(servicesWithPorts);
   (0, _nginx.write)(nginxConfig);

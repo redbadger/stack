@@ -7,25 +7,21 @@ var _composeFile = require('./compose-file');
 describe('compose-file overlay', () => {
   it('should create the correct content', () => {
     const services = [{
-      domain: 'dev',
       stack: 'services',
       name: 'visualizer',
       aliases: [],
       port: 8080
     }, {
-      domain: 'dev',
       stack: 'app',
       name: 'rproxy',
       aliases: ['web'],
       port: 80
     }, {
-      domain: 'dev',
       stack: 'app',
       name: 'gateway',
       aliases: ['api'],
       port: 8000
     }, {
-      domain: 'dev',
       stack: 'app',
       name: 'gateway1',
       aliases: ['api1'],
