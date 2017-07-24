@@ -7,7 +7,7 @@
     "build": "babel src -d lib",
     "test": "yarn build && mocha \"lib/**/*.spec.js\""
   },
-  "author": "",
+  "author": "Stuart Harris <stuart.harris@red-badger.com>",
   "license": "ISC",
   "dependencies": {
     "babel-cli": "^6.24.1",

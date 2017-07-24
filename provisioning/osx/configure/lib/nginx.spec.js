@@ -61,7 +61,7 @@ server {
   }
 }
 `;
-    const actual = (0, _nginx.create)(services);
+    const actual = (0, _nginx.create)(services, 'dev');
     (0, _chai.expect)(actual).to.equal(expected);
   });
 });

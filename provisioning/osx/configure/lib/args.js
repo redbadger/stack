@@ -18,6 +18,13 @@ exports.default = {
     describe: 'If true, updates the NGINX load balancer with new ports',
     type: 'boolean'
   },
+  domain: {
+    alias: 'd',
+    demandOption: true,
+    default: 'dev',
+    describe: 'The name of the top-level domain you want to use',
+    type: 'string'
+  },
   manager: {
     alias: 'm',
     demandOption: true,

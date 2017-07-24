@@ -30,7 +30,6 @@ const doWork = async () => {
       ? getStream(process.stdin)
       : readFile(path.resolve(argv.file), 'utf8')),
   );
-  console.log(JSON.stringify(config));
 
   const env = await dockerEnv(argv.manager, { parse: true });
   R.forEachObjIndexed((v, k) => {
@@ -44,7 +43,7 @@ const doWork = async () => {
     assignPorts(getServices(config)),
   )(existingServices);
 
-  const nginxConfig = createNginxConfig(servicesWithPorts);
+  const nginxConfig = createNginxConfig(servicesWithPorts, argv.domain);
   writeNginxConfig(nginxConfig);
   if (argv.update) await reloadNginx();
 

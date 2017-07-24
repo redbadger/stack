@@ -10,7 +10,7 @@ const baseConfig = `server {
 }
 `;
 
-export const create = services => `
+export const create = (services, domain) => `
 ${baseConfig}${R.join(
   '',
   R.map(
@@ -25,7 +25,10 @@ server {
   listen 80;
   server_name ${R.join(
     ' ',
-    R.map(name => `${name}.${s.stack}.dev`, R.concat(s.aliases, [s.name])),
+    R.map(
+      name => `${name}.${s.stack}.${domain}`,
+      R.concat(s.aliases, [s.name]),
+    ),
   )};
 
   location / {

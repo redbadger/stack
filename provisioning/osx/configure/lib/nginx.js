@@ -27,7 +27,7 @@ const baseConfig = `server {
 }
 `;
 
-const create = exports.create = services => `
+const create = exports.create = (services, domain) => `
 ${baseConfig}${_ramda2.default.join('', _ramda2.default.map(s => `
 upstream ${s.name} {
   server wkr1:${s.port};
@@ -37,7 +37,7 @@ upstream ${s.name} {
 
 server {
   listen 80;
-  server_name ${_ramda2.default.join(' ', _ramda2.default.map(name => `${name}.${s.stack}.dev`, _ramda2.default.concat(s.aliases, [s.name])))};
+  server_name ${_ramda2.default.join(' ', _ramda2.default.map(name => `${name}.${s.stack}.${domain}`, _ramda2.default.concat(s.aliases, [s.name])))};
 
   location / {
     proxy_pass http://${s.name};

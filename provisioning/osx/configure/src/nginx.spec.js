@@ -61,7 +61,7 @@ server {
   }
 }
 `;
-    const actual = create(services);
+    const actual = create(services, 'dev');
     expect(actual).to.equal(expected);
   });
 });

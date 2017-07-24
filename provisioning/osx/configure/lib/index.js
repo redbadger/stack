@@ -60,7 +60,6 @@ const argv = _yargs2.default.options(_args2.default).help().argv;
 
 const doWork = async () => {
   const config = _jsYaml2.default.safeLoad((await (argv.file === '-' ? (0, _getStream2.default)(process.stdin) : readFile(_path2.default.resolve(argv.file), 'utf8'))));
-  console.log(JSON.stringify(config));
 
   const env = await dockerEnv(argv.manager, { parse: true });
   _ramda2.default.forEachObjIndexed((v, k) => {
@@ -71,7 +70,7 @@ const doWork = async () => {
   const existingServices = await docker.listServices();
   const servicesWithPorts = _ramda2.default.pipe(_services.findWithPublishedPorts, (0, _ports.assign)((0, _config.getServices)(config)))(existingServices);
 
-  const nginxConfig = (0, _nginx.create)(servicesWithPorts);
+  const nginxConfig = (0, _nginx.create)(servicesWithPorts, argv.domain);
   (0, _nginx.write)(nginxConfig);
   if (argv.update) await (0, _nginx.reload)();
 
