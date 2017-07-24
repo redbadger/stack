@@ -1,15 +1,10 @@
-import fs from 'fs';
-import path from 'path';
-import yaml from 'js-yaml';
-
 export default {
   file: {
     alias: 'f',
     demandOption: true,
-    default: 'master.yml',
-    describe: 'YAML file with master configuration',
+    default: '-',
+    describe: 'YAML file with master configuration, or - for stdin',
     type: 'string',
-    coerce: f => yaml.safeLoad(fs.readFileSync(path.resolve(f), 'utf8')),
   },
   update: {
     alias: 'u',
