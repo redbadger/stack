@@ -1,6 +1,7 @@
 import execa from 'execa';
 import fs from 'fs';
 import getStream from 'get-stream';
+import path from 'path';
 import R from 'ramda';
 
 export const create = services => {
@@ -35,10 +36,10 @@ export const mergeFn = async (cmd, args) => {
   return getStream(cp.stdout);
 };
 
-export const merge = async (mergeFn, filesByStack) => {
+export const merge = async (mergeFn, dir, filesByStack) => {
   const retVal = {};
   for (const [stack, files] of R.toPairs(filesByStack)) {
-    const args = R.chain(f => ['-f', f], files);
+    const args = R.chain(f => ['-f', f], R.map(f => path.join(dir, f), files));
     retVal[stack] = await mergeFn('docker-compose', [...args, 'config']);
   }
   return retVal;
@@ -49,12 +50,12 @@ export const writeFn = (filePath, content) => {
   fs.writeFileSync(filePath, content);
 };
 
-export const write = (writeFn, filesByStack, name) => {
+export const write = (writeFn, filesByStack, dir, prefix) => {
   const paths = {};
   R.forEach(([stack, content]) => {
-    const filePath = `/tmp/${stack}${name || ''}.yml`;
-    writeFn(filePath, content);
-    paths[stack] = filePath;
+    const file = `${prefix}${stack}.yml`;
+    paths[stack] = file;
+    writeFn(path.join(dir, file), content);
   }, R.toPairs(filesByStack));
   return paths;
 };

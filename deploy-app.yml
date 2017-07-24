@@ -1,0 +1,100 @@
+networks:
+  dmz:
+    ipam:
+      config:
+      - subnet: 192.168.31.0/24
+      driver: default
+  private:
+    ipam:
+      config:
+      - subnet: 192.168.32.0/24
+      driver: default
+secrets:
+  my_secret:
+    external: true
+services:
+  api:
+    build:
+      context: /Users/stuart/tmp/stack/api
+    deploy:
+      placement:
+        constraints:
+        - node.role == worker
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      update_config:
+        delay: 5s
+        parallelism: 1
+    environment:
+      PORT: 3000
+    image: ${registry}/api
+    networks:
+      private: null
+    secrets:
+    - source: my_secret
+  gateway:
+    build:
+      context: /Users/stuart/tmp/stack/proxy
+    deploy:
+      placement:
+        constraints:
+        - node.role == worker
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      update_config:
+        delay: 2s
+        parallelism: 1
+    environment:
+      API_HOST: api:3000
+      PORT: 3000
+    image: ${registry}/proxy
+    networks:
+      dmz: null
+      private: null
+  rproxy:
+    build:
+      args:
+        config: app
+      context: /Users/stuart/tmp/stack/rproxy
+    deploy:
+      placement:
+        constraints:
+        - node.role == worker
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      update_config:
+        delay: 2s
+        parallelism: 1
+    environment:
+      API_HOST: gateway:3000
+      PORT: 3000
+      WEB_HOST: web:3000
+    image: ${registry}/app_rproxy
+    networks:
+      dmz: null
+    ports:
+    - 8001:3000/tcp
+  web:
+    build:
+      context: /Users/stuart/tmp/stack/web
+    deploy:
+      placement:
+        constraints:
+        - node.role == worker
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      update_config:
+        delay: 2s
+        parallelism: 1
+    environment:
+      API_HOST: gateway:3000
+      PORT: 3000
+    image: ${registry}/web
+    networks:
+      dmz: null
+version: '3.1'
+

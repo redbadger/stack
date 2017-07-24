@@ -46,17 +46,21 @@ const doWork = async () => {
     existingServices,
   );
 
-  const filePathsByStack = await getComposeFiles(
-    x => path.resolve(path.dirname(configPath), x),
-    config.stacks,
-  );
+  const composeFilesDir = path.dirname(configPath);
+  const filenamesByStack = getComposeFiles(config.stacks);
   const portOverrides = createPortOverrides(servicesWithPorts);
-  const portOverridePathsByStack = writeComposeFiles(writeFn, portOverrides, '-ports');
+  const portOverrideFilesByStack = writeComposeFiles(
+    writeFn,
+    portOverrides,
+    composeFilesDir,
+    'ports-',
+  );
   const composeFiles = await mergeComposeFiles(
     mergeComposeFilesFn,
-    R.mergeWith(R.concat, filePathsByStack, R.map(x => [x], portOverridePathsByStack)),
+    composeFilesDir,
+    R.mergeWith(R.concat, filenamesByStack, R.map(x => [x], portOverrideFilesByStack)),
   );
-  writeComposeFiles(writeFn, composeFiles);
+  writeComposeFiles(writeFn, composeFiles, composeFilesDir, 'deploy-');
 
   const nginxConfig = createNginxConfig(servicesWithPorts, argv.domain);
   writeNginxConfig(nginxConfig);

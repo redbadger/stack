@@ -29,12 +29,12 @@ describe('config', () => {
     const actual = (0, _config.getServices)(config);
     (0, _chai.expect)(actual).to.deep.equal(expected);
   });
-  it('should get compose files from the config', async () => {
+  it('should get compose files from the config', () => {
     const expected = {
-      services: ['contents of services.yml'],
-      app: ['contents of app.yml']
+      services: ['services.yml'],
+      app: ['app.yml']
     };
-    const actual = await (0, _config.getComposeFiles)(async f => `contents of ${f}`, config.stacks);
+    const actual = (0, _config.getComposeFiles)(config.stacks);
     (0, _chai.expect)(actual).to.deep.equal(expected);
   });
 });

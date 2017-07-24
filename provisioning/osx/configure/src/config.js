@@ -14,10 +14,7 @@ export const getServices = config =>
     config.stacks,
   );
 
-export const getComposeFiles = async (parse, stacks) => {
-  const x = {};
-  for (const stack of stacks) {
-    x[stack.name] = await Promise.all(R.map(parse, stack['compose-files']));
-  }
-  return x;
-};
+export const getComposeFiles = R.reduce(
+  (acc, stack) => ({ ...acc, [stack.name]: stack['compose-files'] }),
+  {},
+);

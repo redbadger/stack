@@ -39,11 +39,11 @@ services:
     const filesByStack = {
       a: ['a.yml', 'b.yml', 'c.yml']
     };
-    const expected = ['docker-compose', ['-f', 'a.yml', '-f', 'b.yml', '-f', 'c.yml', 'config']];
+    const expected = ['docker-compose', ['-f', '/tmp/a.yml', '-f', '/tmp/b.yml', '-f', '/tmp/c.yml', 'config']];
     let actual;
     await (0, _composeFile.merge)((cmd, args) => {
       actual = [cmd, args];
-    }, filesByStack);
+    }, '/tmp', filesByStack);
     (0, _chai.expect)(actual).to.deep.equal(expected);
   });
 
@@ -55,18 +55,18 @@ services:
     const contents = {};
     const paths = (0, _composeFile.write)((filePath, content) => {
       contents[filePath] = content;
-    }, files, '-ports');
+    }, files, '/tmp', 'ports-');
 
     const expectedContents = {
-      '/tmp/a-ports.yml': 'a1',
-      '/tmp/b-ports.yml': 'b1'
+      '/tmp/ports-a.yml': 'a1',
+      '/tmp/ports-b.yml': 'b1'
     };
     (0, _chai.expect)(contents).to.deep.equal(expectedContents);
 
-    const expectedPaths = {
-      a: '/tmp/a-ports.yml',
-      b: '/tmp/b-ports.yml'
+    const expectedFiles = {
+      a: 'ports-a.yml',
+      b: 'ports-b.yml'
     };
-    (0, _chai.expect)(paths).to.deep.equal(expectedPaths);
+    (0, _chai.expect)(paths).to.deep.equal(expectedFiles);
   });
 });

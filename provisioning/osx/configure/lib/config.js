@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.getComposeFiles = exports.getServices = undefined;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _ramda = require('ramda');
 
 var _ramda2 = _interopRequireDefault(_ramda);
@@ -17,10 +19,4 @@ const getServices = exports.getServices = config => _ramda2.default.chain(stack 
   aliases: service.aliases || []
 }), stack.services), config.stacks);
 
-const getComposeFiles = exports.getComposeFiles = async (parse, stacks) => {
-  const x = {};
-  for (const stack of stacks) {
-    x[stack.name] = await Promise.all(_ramda2.default.map(parse, stack['compose-files']));
-  }
-  return x;
-};
+const getComposeFiles = exports.getComposeFiles = _ramda2.default.reduce((acc, stack) => _extends({}, acc, { [stack.name]: stack['compose-files'] }), {});

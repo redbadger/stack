@@ -68,11 +68,12 @@ const doWork = async () => {
   const existingServices = await docker.listServices();
   const servicesWithPorts = _ramda2.default.pipe(_services.findWithPublishedPorts, (0, _ports.assign)((0, _config.getServices)(config)))(existingServices);
 
-  const filePathsByStack = await (0, _config.getComposeFiles)(x => _path2.default.resolve(_path2.default.dirname(configPath), x), config.stacks);
+  const composeFilesDir = _path2.default.dirname(configPath);
+  const filenamesByStack = (0, _config.getComposeFiles)(config.stacks);
   const portOverrides = (0, _composeFile.create)(servicesWithPorts);
-  const portOverridePathsByStack = (0, _composeFile.write)(_composeFile.writeFn, portOverrides, '-ports');
-  const composeFiles = await (0, _composeFile.merge)(_composeFile.mergeFn, _ramda2.default.mergeWith(_ramda2.default.concat, filePathsByStack, _ramda2.default.map(x => [x], portOverridePathsByStack)));
-  (0, _composeFile.write)(_composeFile.writeFn, composeFiles);
+  const portOverrideFilesByStack = (0, _composeFile.write)(_composeFile.writeFn, portOverrides, composeFilesDir, 'ports-');
+  const composeFiles = await (0, _composeFile.merge)(_composeFile.mergeFn, composeFilesDir, _ramda2.default.mergeWith(_ramda2.default.concat, filenamesByStack, _ramda2.default.map(x => [x], portOverrideFilesByStack)));
+  (0, _composeFile.write)(_composeFile.writeFn, composeFiles, composeFilesDir, 'deploy-');
 
   const nginxConfig = (0, _nginx.create)(servicesWithPorts, argv.domain);
   (0, _nginx.write)(nginxConfig);

@@ -17,6 +17,10 @@ var _getStream = require('get-stream');
 
 var _getStream2 = _interopRequireDefault(_getStream);
 
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
+
 var _ramda = require('ramda');
 
 var _ramda2 = _interopRequireDefault(_ramda);
@@ -53,10 +57,10 @@ const mergeFn = exports.mergeFn = async (cmd, args) => {
   return (0, _getStream2.default)(cp.stdout);
 };
 
-const merge = exports.merge = async (mergeFn, filesByStack) => {
+const merge = exports.merge = async (mergeFn, dir, filesByStack) => {
   const retVal = {};
   for (const [stack, files] of _ramda2.default.toPairs(filesByStack)) {
-    const args = _ramda2.default.chain(f => ['-f', f], files);
+    const args = _ramda2.default.chain(f => ['-f', f], _ramda2.default.map(f => _path2.default.join(dir, f), files));
     retVal[stack] = await mergeFn('docker-compose', [...args, 'config']);
   }
   return retVal;
@@ -67,12 +71,12 @@ const writeFn = exports.writeFn = (filePath, content) => {
   _fs2.default.writeFileSync(filePath, content);
 };
 
-const write = exports.write = (writeFn, filesByStack, name) => {
+const write = exports.write = (writeFn, filesByStack, dir, prefix) => {
   const paths = {};
   _ramda2.default.forEach(([stack, content]) => {
-    const filePath = `/tmp/${stack}${name || ''}.yml`;
-    writeFn(filePath, content);
-    paths[stack] = filePath;
+    const file = `${prefix}${stack}.yml`;
+    paths[stack] = file;
+    writeFn(_path2.default.join(dir, file), content);
   }, _ramda2.default.toPairs(filesByStack));
   return paths;
 };
