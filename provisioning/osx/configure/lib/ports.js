@@ -21,6 +21,7 @@ const findNext = exports.findNext = services => {
     }
     return i;
   }
+  return 0;
 };
 
 const assign = exports.assign = desiredServices => existingServices => _ramda2.default.reduce((acc, svc) => {

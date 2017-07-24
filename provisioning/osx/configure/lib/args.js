@@ -7,8 +7,8 @@ exports.default = {
   file: {
     alias: 'f',
     demandOption: true,
-    default: '-',
-    describe: 'YAML file with master configuration, or - for stdin',
+    default: 'stacks.yml',
+    describe: 'YAML file with stacks configuration',
     type: 'string'
   },
   update: {

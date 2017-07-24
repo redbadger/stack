@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import { findNext } from './ports';
-import { assign } from './ports';
+import { findNext, assign } from './ports';
 
 describe('should find the first unused port above 8000', () => {
   it('when only one', () => {
@@ -103,6 +102,6 @@ describe('assignPorts', () => {
       },
     ];
     const actual = assign(desiredServices)(existingServices);
-    expect(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
+    expect(actual).to.deep.equal(expected);
   });
 });

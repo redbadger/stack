@@ -84,6 +84,6 @@ describe('assignPorts', () => {
       port: 8001
     }];
     const actual = (0, _ports.assign)(desiredServices)(existingServices);
-    (0, _chai.expect)(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
+    (0, _chai.expect)(actual).to.deep.equal(expected);
   });
 });

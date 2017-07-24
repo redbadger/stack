@@ -27,14 +27,14 @@ describe('config', () => {
       aliases: ['web']
     }];
     const actual = (0, _config.getServices)(config);
-    (0, _chai.expect)(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
+    (0, _chai.expect)(actual).to.deep.equal(expected);
   });
-  it('should get compose files from the config', () => {
+  it('should get compose files from the config', async () => {
     const expected = {
-      services: ['services.yml'],
-      app: ['app.yml']
+      services: ['contents of services.yml'],
+      app: ['contents of app.yml']
     };
-    const actual = (0, _config.getComposeFiles)(config);
-    (0, _chai.expect)(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
+    const actual = await (0, _config.getComposeFiles)(async f => `contents of ${f}`, config.stacks);
+    (0, _chai.expect)(actual).to.deep.equal(expected);
   });
 });

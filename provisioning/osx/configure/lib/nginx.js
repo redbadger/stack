@@ -50,12 +50,12 @@ server {
 
 const write = exports.write = contents => {
   const file = '/tmp/nginx.conf';
-  console.log(`Writing ${file}`);
+  console.log(`Writing ${file}`); // eslint-disable-line
   _fs2.default.writeFileSync(file, contents);
 };
 
 const reload = exports.reload = async () => {
-  console.log('Reloading NGINX configuration into Load Balancer...');
+  console.log('Reloading NGINX configuration into Load Balancer...'); //eslint-disable-line
   const cp = (0, _execa2.default)('docker', ['exec', 'loadbalancer_load_balancer_1', 'nginx', '-s', 'reload'], {
     env: {
       PATH: process.env.PATH

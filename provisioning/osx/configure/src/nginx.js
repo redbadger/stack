@@ -25,10 +25,7 @@ server {
   listen 80;
   server_name ${R.join(
     ' ',
-    R.map(
-      name => `${name}.${s.stack}.${domain}`,
-      R.concat(s.aliases, [s.name]),
-    ),
+    R.map(name => `${name}.${s.stack}.${domain}`, R.concat(s.aliases, [s.name])),
   )};
 
   location / {
@@ -45,22 +42,18 @@ server {
 
 export const write = contents => {
   const file = '/tmp/nginx.conf';
-  console.log(`Writing ${file}`);
+  console.log(`Writing ${file}`); // eslint-disable-line
   fs.writeFileSync(file, contents);
 };
 
 export const reload = async () => {
-  console.log('Reloading NGINX configuration into Load Balancer...');
-  const cp = execa(
-    'docker',
-    ['exec', 'loadbalancer_load_balancer_1', 'nginx', '-s', 'reload'],
-    {
-      env: {
-        PATH: process.env.PATH,
-      },
-      extendEnv: false,
+  console.log('Reloading NGINX configuration into Load Balancer...'); //eslint-disable-line
+  const cp = execa('docker', ['exec', 'loadbalancer_load_balancer_1', 'nginx', '-s', 'reload'], {
+    env: {
+      PATH: process.env.PATH,
     },
-  );
+    extendEnv: false,
+  });
   cp.stdout.pipe(process.stdout);
   cp.stderr.pipe(process.stderr);
   return cp;

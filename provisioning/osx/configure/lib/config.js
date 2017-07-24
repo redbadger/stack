@@ -17,4 +17,10 @@ const getServices = exports.getServices = config => _ramda2.default.chain(stack 
   aliases: service.aliases || []
 }), stack.services), config.stacks);
 
-const getComposeFiles = exports.getComposeFiles = config => _ramda2.default.fromPairs(_ramda2.default.map(stack => [stack.name, stack['compose-files']], config.stacks));
+const getComposeFiles = exports.getComposeFiles = async (parse, stacks) => {
+  const x = {};
+  for (const stack of stacks) {
+    x[stack.name] = await Promise.all(_ramda2.default.map(parse, stack['compose-files']));
+  }
+  return x;
+};
