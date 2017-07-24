@@ -1,11 +1,11 @@
-import fp from 'lodash/fp';
+import R from 'ramda';
 
 export const flatten = config => {
-  return fp.flatMap(
+  return R.chain(
     domain =>
-      fp.flatMap(
+      R.chain(
         stack =>
-          fp.map(
+          R.map(
             service => ({
               domain: domain.name,
               stack: stack.name,

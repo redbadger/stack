@@ -9,9 +9,9 @@ var _execa = require('execa');
 
 var _execa2 = _interopRequireDefault(_execa);
 
-var _fp = require('lodash/fp');
+var _ramda = require('ramda');
 
-var _fp2 = _interopRequireDefault(_fp);
+var _ramda2 = _interopRequireDefault(_ramda);
 
 var _fs = require('fs');
 
@@ -28,7 +28,7 @@ const baseConfig = `server {
 `;
 
 const create = exports.create = services => `
-${baseConfig}${_fp2.default.join('', _fp2.default.map(s => `
+${baseConfig}${_ramda2.default.join('', _ramda2.default.map(s => `
 upstream ${s.name} {
   server wkr1:${s.port};
   server wkr2:${s.port};
@@ -37,7 +37,7 @@ upstream ${s.name} {
 
 server {
   listen 80;
-  server_name ${_fp2.default.join(' ', _fp2.default.map(name => `${name}.${s.stack}.${s.domain}`, _fp2.default.concat(s.aliases, [s.name])))};
+  server_name ${_ramda2.default.join(' ', _ramda2.default.map(name => `${name}.${s.stack}.${s.domain}`, _ramda2.default.concat(s.aliases, [s.name])))};
 
   location / {
     proxy_pass http://${s.name};

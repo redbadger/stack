@@ -1,67 +1,32 @@
 #!/usr/bin/env node
+import Bluebird from 'bluebird';
 import Docker from 'dockerode';
-import fp from 'lodash/fp';
-import fs from 'fs';
-import path from 'path';
-import yaml from 'js-yaml';
+import DockerMachine from 'docker-machine';
+import R from 'ramda';
 
 import { create as createComposeFile } from './compose-file';
 import { create as createNginxConfig } from './nginx';
-import { findNext as findNextPort } from './ports';
+import { assign as assignPorts } from './ports';
+import { findWithPublishedPorts as findPublicServices } from './services';
 import { flatten as flattenConfig } from './config';
 import { reload as reloadNginx } from './nginx';
 import { write as writeComposeFile } from './compose-file';
 import { write as writeNginxConfig } from './nginx';
+import args from './args';
 
-const argv = require('yargs')
-  .options({
-    file: {
-      alias: 'f',
-      demandOption: true,
-      default: 'master.yml',
-      describe: 'YAML file with master configuration',
-      type: 'string',
-      coerce: f => yaml.safeLoad(fs.readFileSync(path.resolve(f), 'utf8')),
-    },
-    update: {
-      alias: 'u',
-      demandOption: true,
-      default: false,
-      describe: 'If true, updates the NGINX load balancer with new ports',
-      type: 'boolean',
-    },
-  })
-  .help().argv;
+const argv = require('yargs').options(args).help().argv;
 
-const findPublicServices = fp.pipe(
-  fp.map(s => {
-    const name = s.Spec.Name.split('_')[1];
-    const stack = s.Spec.Labels['com.docker.stack.namespace'];
-    const ports =
-      s.Endpoint.Ports && s.Endpoint.Ports.map(p => p.PublishedPort);
-    const port = fp.head(ports);
-    return { name, stack, port };
-  }),
-  fp.filter(s => s.port),
-);
-
-const assignPorts = desiredServices => existingServices =>
-  fp.reduce(
-    (acc, svc) => {
-      const existing = existingServices.find(
-        s => s.stack === svc.stack && s.name === svc.name,
-      );
-      const port = existing ? existing.port : findNextPort(acc);
-      return acc.concat({ ...svc, port });
-    },
-    [],
-    desiredServices,
-  );
+const dockerEnv = Bluebird.promisify(DockerMachine.env);
 
 const doWork = async () => {
+  const env = await dockerEnv(argv.manager, { parse: true });
+  R.forEachObjIndexed((v, k) => {
+    process.env[k] = v;
+  }, env);
+
   const docker = new Docker();
   const existingServices = await docker.listServices();
-  const servicesWithPorts = fp.pipe(
+  const servicesWithPorts = R.pipe(
     findPublicServices,
     assignPorts(flattenConfig(argv.file)),
   )(existingServices);

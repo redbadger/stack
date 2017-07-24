@@ -7,7 +7,7 @@ var _dockerode = require('dockerode');
 
 var _dockerode2 = _interopRequireDefault(_dockerode);
 
-var _fp = require('lodash/fp');
+var _fp = require('ramda');
 
 var _fp2 = _interopRequireDefault(_fp);
 

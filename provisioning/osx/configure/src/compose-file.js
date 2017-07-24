@@ -1,9 +1,9 @@
-import fp from 'lodash/fp';
+import R from 'ramda';
 import fs from 'fs';
 
 export const create = services => {
-  const stackNameAndServices = fp.toPairs(
-    fp.groupBy(service => service.stack, services),
+  const stackNameAndServices = R.toPairs(
+    R.groupBy(service => service.stack, services),
   );
 
   const genService = service => `  ${service.name}:
@@ -14,11 +14,11 @@ export const create = services => {
   const genStack = services => `version: "3.1"
 
 services:
-${fp.join('', fp.map(genService, services))}
+${R.join('', R.map(genService, services))}
 `;
 
-  return fp.fromPairs(
-    fp.map(
+  return R.fromPairs(
+    R.map(
       ([stackname, services]) => [stackname, genStack(services)],
       stackNameAndServices,
     ),
@@ -26,9 +26,9 @@ ${fp.join('', fp.map(genService, services))}
 };
 
 export const write = contents => {
-  fp.forEach(([stack, content]) => {
+  R.forEach(([stack, content]) => {
     const file = `/tmp/${stack}-ports.yml`;
     console.log(`Writing ${file}`);
     fs.writeFileSync(file, content);
-  }, fp.toPairs(contents));
+  }, R.toPairs(contents));
 };

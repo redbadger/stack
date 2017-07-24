@@ -1,7 +1,7 @@
-import fp from 'lodash/fp';
+import R from 'ramda';
 
 export const findNext = services => {
-  const usedPorts = fp.reduce(
+  const usedPorts = R.reduce(
     (acc, s) => ({ ...acc, [s.port]: true }),
     {},
     services,
@@ -13,3 +13,17 @@ export const findNext = services => {
     return i;
   }
 };
+
+export const assign = desiredServices => existingServices =>
+  R.reduce(
+    (acc, svc) => {
+      const existing = R.find(
+        s => s.stack === svc.stack && s.name === svc.name,
+        existingServices,
+      );
+      const port = existing ? existing.port : findNext(acc);
+      return acc.concat({ ...svc, port });
+    },
+    [],
+    desiredServices,
+  );

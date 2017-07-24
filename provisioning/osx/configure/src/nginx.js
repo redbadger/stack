@@ -1,5 +1,5 @@
 import execa from 'execa';
-import fp from 'lodash/fp';
+import R from 'ramda';
 import fs from 'fs';
 
 const baseConfig = `server {
@@ -11,9 +11,9 @@ const baseConfig = `server {
 `;
 
 export const create = services => `
-${baseConfig}${fp.join(
+${baseConfig}${R.join(
   '',
-  fp.map(
+  R.map(
     s => `
 upstream ${s.name} {
   server wkr1:${s.port};
@@ -23,11 +23,11 @@ upstream ${s.name} {
 
 server {
   listen 80;
-  server_name ${fp.join(
+  server_name ${R.join(
     ' ',
-    fp.map(
+    R.map(
       name => `${name}.${s.stack}.${s.domain}`,
-      fp.concat(s.aliases, [s.name]),
+      R.concat(s.aliases, [s.name]),
     ),
   )};
 

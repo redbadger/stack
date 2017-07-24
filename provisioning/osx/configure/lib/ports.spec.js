@@ -66,3 +66,35 @@ describe('should find the first unused port above 8000', () => {
     (0, _chai.expect)(actual).to.equal(expected);
   });
 });
+
+describe('assignPorts', () => {
+  it('should assign ports to those without', () => {
+    const desiredServices = [{
+      domain: 'dev',
+      stack: 'services',
+      name: 'visualizer',
+      aliases: []
+    }, {
+      domain: 'dev',
+      stack: 'app',
+      name: 'rproxy',
+      aliases: ['web']
+    }];
+    const existingServices = [{ name: 'visualizer', stack: 'services', port: 8000 }, { name: 'rproxy', stack: 'app', port: 8001 }, { name: 'registry', stack: 'swarm', port: 5000 }];
+    const expected = [{
+      domain: 'dev',
+      stack: 'services',
+      name: 'visualizer',
+      aliases: [],
+      port: 8000
+    }, {
+      domain: 'dev',
+      stack: 'app',
+      name: 'rproxy',
+      aliases: ['web'],
+      port: 8001
+    }];
+    const actual = (0, _ports.assign)(desiredServices)(existingServices);
+    (0, _chai.expect)(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
+  });
+});
