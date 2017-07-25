@@ -10,7 +10,6 @@ describe('should find the first unused port above 8000', () => {
     const actual = (0, _ports.findNext)([{
       stack: 'services',
       name: 'visualizer',
-      aliases: [],
       port: 8000
     }]);
     (0, _chai.expect)(actual).to.equal(expected);
@@ -19,8 +18,7 @@ describe('should find the first unused port above 8000', () => {
     const expected = 8000;
     const actual = (0, _ports.findNext)([{
       stack: 'services',
-      name: 'fsdkflkdf',
-      aliases: []
+      name: 'fsdkflkdf'
     }]);
     (0, _chai.expect)(actual).to.equal(expected);
   });
@@ -28,8 +26,7 @@ describe('should find the first unused port above 8000', () => {
     const expected = 8000;
     const actual = (0, _ports.findNext)([{
       stack: 'services',
-      name: 'fsdkflkdf',
-      aliases: []
+      name: 'fsdkflkdf'
     }, {
       stack: 'app',
       name: 'rproxy',
@@ -43,12 +40,10 @@ describe('should find the first unused port above 8000', () => {
     const actual = (0, _ports.findNext)([{
       stack: 'services',
       name: 'fsdkflkdf',
-      aliases: [],
       port: 8000
     }, {
       stack: 'services',
       name: 'fsdkflkdf',
-      aliases: [],
       port: 8002
     }, {
       stack: 'app',
@@ -62,27 +57,16 @@ describe('should find the first unused port above 8000', () => {
 
 describe('assignPorts', () => {
   it('should assign ports to those without', () => {
-    const desiredServices = [{
-      stack: 'services',
-      name: 'visualizer',
-      aliases: []
-    }, {
-      stack: 'app',
-      name: 'rproxy',
-      aliases: ['web']
-    }];
-    const existingServices = [{ name: 'visualizer', stack: 'services', port: 8000 }, { name: 'rproxy', stack: 'app', port: 8001 }, { name: 'registry', stack: 'swarm', port: 5000 }];
-    const expected = [{
-      stack: 'services',
-      name: 'visualizer',
-      aliases: [],
-      port: 8000
-    }, {
-      stack: 'app',
-      name: 'rproxy',
-      aliases: ['web'],
-      port: 8001
-    }];
+    const desiredServices = [{ stack: 'app', name: 'rproxy', aliases: ['web'] }];
+    const existingServices = [{ stack: 'services', name: 'visualizer', port: 8000 }];
+    const expected = [{ stack: 'app', name: 'rproxy', aliases: ['web'], port: 8001 }];
+    const actual = (0, _ports.assign)(desiredServices)(existingServices);
+    (0, _chai.expect)(actual).to.deep.equal(expected);
+  });
+  it('should not change port numbers already assigned', () => {
+    const desiredServices = [{ stack: 'services', name: 'visualizer', port: 8000 }];
+    const existingServices = [{ stack: 'services', name: 'visualizer', port: 8000 }];
+    const expected = [{ stack: 'services', name: 'visualizer', port: 8000 }];
     const actual = (0, _ports.assign)(desiredServices)(existingServices);
     (0, _chai.expect)(actual).to.deep.equal(expected);
   });

@@ -26,6 +26,6 @@ const findNext = exports.findNext = services => {
 
 const assign = exports.assign = desiredServices => existingServices => _ramda2.default.reduce((acc, svc) => {
   const existing = _ramda2.default.find(s => s.stack === svc.stack && s.name === svc.name, existingServices);
-  const port = existing ? existing.port : findNext(acc);
+  const port = existing ? existing.port : findNext(_ramda2.default.concat(existingServices, acc));
   return acc.concat(_extends({}, svc, { port }));
 }, [], desiredServices);
