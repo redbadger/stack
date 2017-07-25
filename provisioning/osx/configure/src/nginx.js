@@ -15,7 +15,7 @@ ${baseConfig}${R.join(
   '',
   R.map(
     s => `
-upstream ${s.name} {
+upstream ${s.name}.${s.stack} {
   server wkr1:${s.port};
   server wkr2:${s.port};
   server wkr3:${s.port};
@@ -29,7 +29,7 @@ server {
   )};
 
   location / {
-    proxy_pass http://${s.name};
+    proxy_pass http://${s.name}.${s.stack};
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";

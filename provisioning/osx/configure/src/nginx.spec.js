@@ -25,7 +25,7 @@ server {
   }
 }
 
-upstream visualizer {
+upstream visualizer.services {
   server wkr1:8080;
   server wkr2:8080;
   server wkr3:8080;
@@ -36,14 +36,14 @@ server {
   server_name visualizer.services.dev;
 
   location / {
-    proxy_pass http://visualizer;
+    proxy_pass http://visualizer.services;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
   }
 }
 
-upstream rproxy {
+upstream rproxy.app {
   server wkr1:80;
   server wkr2:80;
   server wkr3:80;
@@ -54,7 +54,7 @@ server {
   server_name web.app.dev rproxy.app.dev;
 
   location / {
-    proxy_pass http://rproxy;
+    proxy_pass http://rproxy.app;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
