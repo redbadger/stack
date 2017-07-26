@@ -118,5 +118,5 @@ A note about overlay networks
 
 Be careful of clashes between `Boot2Docker`'s networking and `docker swarm`'s overlay networks
 (they both use `10.0.n/24`). This is why we change the subnet for the `private` overlay network in
-[the compose file](./docker-compose-app.yml) (as we ended up looking for a DNS server on the
+[the compose file](./app.yml) (as we ended up looking for a DNS server on the
 `private` network rather than on the host)
