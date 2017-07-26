@@ -16,7 +16,7 @@ export default {
   domain: {
     alias: 'd',
     demandOption: true,
-    default: 'dev',
+    default: 'local',
     describe: 'The name of the top-level domain you want to use',
     type: 'string',
   },
