@@ -15,3 +15,4 @@ compose="./on-local.sh docker-compose"
 
 $compose -f docker-compose-load-balancer.yml -p load-balancer down
 $compose -f docker-compose-registry.yml -p registry down
+$compose -f docker-compose-dns.yml -p dns down
