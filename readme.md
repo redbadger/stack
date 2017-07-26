@@ -22,23 +22,25 @@ You can also describe stack configurations (published services) in `stacks.yml` 
 ## To set up the cluster
 1.  Install VirtualBox and Docker for Mac (I had a few problems deploying a stack with 17.06 so maybe use 17.05 or below).
 
-1.  Run the script to create a swarm, which provisions 4 local VMs and joins them into a cluster. Take a look at the script to see how straight forward it is. NOTE: this script starts by removing any VMs with the names `mgr1,wkr1,wkr2,wkr3`.
+1.  There is a script to create a swarm, which provisions 4 local VMs and joins them into a cluster. Take a look at the script to see how straight forward it is. NOTE: this script starts by removing any VMs with the names `mgr1,wkr1,wkr2,wkr3`.
 
     ```bash
     ./provisioning/osx/swarm.sh
     ```
 
-1.  Run the script to run a container with a load balancer (also outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes.
+1.  There is a script to run a container with a load balancer (also outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes.
 
     ```sh
     ./provisioning/osx/load-balancer.sh
     ```
-1.  Run the script to run a container with a local dns server (also outside the swarm). This is an instance of `dnsmasq` and it used to resolve the tld `.local` to `localhost`.
+1.  There is a script to run a container with a local dns server (also outside the swarm). This is an instance of `dnsmasq` and it used to resolve the tld `.local` to `localhost`. Unfortunately you will need `sudo` to add a resolver for the `local` tld.
 
     ```sh
+    sudo mkdir -p /etc/resolver
+    sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/local'
     ./provisioning/osx/dns.sh
     ```
-1.  Run the script to create containers for a local private Docker registry and a local mirror of Docker hub.
+1.  There is a script to create containers for a local private Docker registry and a local mirror of Docker hub.
 
     ```sh
     ./provisioning/osx/registry.sh
