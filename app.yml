@@ -14,7 +14,7 @@ services:
     networks:
       - dmz
     deploy:
-      replicas: 3
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 2s
@@ -32,7 +32,7 @@ services:
     networks:
       - dmz
     deploy:
-      replicas: 3
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 2s
@@ -51,7 +51,7 @@ services:
       - dmz
       - private
     deploy:
-      replicas: 3
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 2s
@@ -68,7 +68,7 @@ services:
     networks:
       - private
     deploy:
-      replicas: 3
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 5s
