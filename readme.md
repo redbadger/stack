@@ -67,6 +67,14 @@ You can also describe stack configurations (published services) in `stacks.yml` 
     ./provisioning/osx/configure/lib/index.js -u
     ```
 
+    Note: you will need to build it first:
+
+    ```sh
+    cd ./provisioning/osx/configure
+    yarn
+    yarn build
+    ```
+
 1.  Build, push and deploy the services stack
 
     ```sh
