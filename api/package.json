@@ -9,8 +9,10 @@
     "bluebird": "^3.5.0",
     "express": "^4.15.2",
     "express-graphql": "^0.6.4",
+    "express-winston": "^2.4.0",
     "graphql": "^0.9.3",
-    "graphql-tools": "^0.11.0"
+    "graphql-tools": "^0.11.0",
+    "winston": "^2.3.1"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1"
