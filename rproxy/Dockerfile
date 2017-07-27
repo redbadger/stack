@@ -1,6 +1,11 @@
-FROM nginx:alpine
+FROM haproxy:1.7.8-alpine
 
-ARG config
-COPY ./${config}.conf /etc/nginx/conf.d/default.template
+RUN apk add --no-cache rsyslog
 
-CMD ["/bin/sh", "-c", "envsubst '${PORT},${WEB_HOST},${API_HOST},${VISUALIZER_HOST}' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+COPY rsyslog.conf /etc/rsyslog.conf
+
+COPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg
+
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["haproxy", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]

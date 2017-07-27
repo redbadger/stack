@@ -3,10 +3,7 @@ version: "3.1"
 services:
   rproxy:
     image: $${registry}/app_rproxy
-    build:
-      context: rproxy
-      args:
-        - "config=app"
+    build: rproxy
     environment:
       PORT: 3000
       WEB_HOST: web:3000
