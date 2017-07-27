@@ -47,7 +47,7 @@ export const write = contents => {
 };
 
 export const reload = async () => {
-  console.log('Reloading NGINX configuration into Load Balancer...'); //eslint-disable-line
+  console.log('Reconfiguring the Load Balancer...'); //eslint-disable-line
   const cp = execa('docker', ['exec', 'loadbalancer_load_balancer_1', 'nginx', '-s', 'reload'], {
     env: {
       PATH: process.env.PATH,
