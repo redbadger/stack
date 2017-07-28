@@ -1,10 +1,10 @@
 #!/usr/bin/env node
+import Bluebird from 'bluebird';
 import Docker from 'dockerode';
 import DockerMachine from 'docker-machine';
 import fs from 'fs';
 import path from 'path';
 import R from 'ramda';
-import util from 'util';
 import yaml from 'js-yaml';
 import yargs from 'yargs';
 
@@ -21,7 +21,7 @@ import { create as createLBConfig, reload as reloadLB, write as writeLBConfig } 
 import { assign as assignPorts } from './ports';
 import { findWithPublishedPorts as findPublicServices } from './services';
 
-const dockerEnv = util.promisify(DockerMachine.env);
+const dockerEnv = Bluebird.promisify(DockerMachine.env);
 
 const argv = yargs.options(args).help().argv;
 const configPath = path.resolve(argv.file);
