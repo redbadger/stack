@@ -23,8 +23,6 @@ ${R.join('', R.map(genService, services))}
   );
 };
 
-// const deleteFile = ({ name }) => fs.unlinkSync(name);
-
 export const mergeFn = async (cmd, args) => {
   const cp = execa(cmd, args, {
     env: {
