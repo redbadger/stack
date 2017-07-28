@@ -28,11 +28,6 @@ You can also describe stack configurations (published services) in `stacks.yml` 
     ./provisioning/osx/swarm.sh
     ```
 
-1.  There is a script to run a container with a load balancer (also outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes.
-
-    ```sh
-    ./provisioning/osx/load-balancer.sh
-    ```
 1.  There is a script to run a container with a local dns server (also outside the swarm). This is an instance of `dnsmasq` and it used to resolve the tld `.local` to `localhost`. Unfortunately you will need `sudo` to add a resolver for the `local` tld.
 
     ```sh
@@ -61,18 +56,24 @@ You can also describe stack configurations (published services) in `stacks.yml` 
     printf 'sssshhhh!' | on-swarm docker secret create my_secret -
     ```
 
-1.  Run the `configure` utility to generate deployable compose-files with correct ports. It also can update the load balancer with the new configuration if you specify `-u`.
+1.  Run the `configure` utility to generate deployable compose-files with correct ports. This also generates a configuration file for the load balancer (which we will install in the next step). For future invocations, you can specify the `-u` flag in order to update the load balancer with a new configuration (the exposed services have changed, for example).
 
     ```sh
-    ./provisioning/osx/configure/lib/index.js -u
+    ./provisioning/osx/configure/lib/index.js
     ```
 
-    Note: you will need to build it first:
+    Note: you will need to build it before you use it for the first time:
 
     ```sh
     cd ./provisioning/osx/configure
     yarn
     yarn build
+    ```
+
+1.  There is a script to run a container with a load balancer (also outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes.
+
+    ```sh
+    ./provisioning/osx/load-balancer.sh
     ```
 
 1.  Build, push and deploy the services stack
