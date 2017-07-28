@@ -1,2 +1,4 @@
 node_modules
 .next
+ports-*.yml
+deploy-*.yml

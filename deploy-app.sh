@@ -2,7 +2,7 @@
 
 set -eux
 
-file="docker-compose-app.yml"
+file="deploy-app.yml"
 export registry="localhost:5000"
 
 compose="./provisioning/osx/on-local.sh docker-compose"

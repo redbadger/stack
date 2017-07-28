@@ -2,13 +2,11 @@ version: "3.1"
 
 services:
   rproxy:
-    image: ${registry}/app_rproxy
+    image: $${registry}/app_rproxy
     build:
       context: rproxy
       args:
         - "config=app"
-    ports:
-      - 80:3000
     environment:
       PORT: 3000
       WEB_HOST: web:3000
@@ -16,7 +14,7 @@ services:
     networks:
       - dmz
     deploy:
-      replicas: 3
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 2s
@@ -26,7 +24,7 @@ services:
         constraints:
           - node.role == worker
   web:
-    image: ${registry}/web
+    image: $${registry}/web
     build: web
     environment:
       PORT: 3000
@@ -34,7 +32,7 @@ services:
     networks:
       - dmz
     deploy:
-      replicas: 3
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 2s
@@ -44,7 +42,7 @@ services:
         constraints:
           - node.role == worker
   gateway:
-    image: ${registry}/proxy
+    image: $${registry}/proxy
     build: proxy
     environment:
       PORT: 3000
@@ -53,7 +51,7 @@ services:
       - dmz
       - private
     deploy:
-      replicas: 3
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 2s
@@ -63,14 +61,14 @@ services:
         constraints:
           - node.role == worker
   api:
-    image: ${registry}/api
+    image: $${registry}/api
     build: api
     environment:
       PORT: 3000
     networks:
       - private
     deploy:
-      replicas: 3
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 5s

@@ -1,0 +1,9 @@
+version: "3.1"
+
+services:
+  dns:
+    image: andyshinn/dnsmasq
+    command: -d -A /local/127.0.0.1
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
