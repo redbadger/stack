@@ -36,9 +36,7 @@ describe('services', () => {
               Constraints: ['node.role == manager'],
               Platforms: [{ Architecture: 'amd64', OS: 'linux' }],
             },
-            Networks: [
-              { Target: 'sgxihewf68xh8pggc44snqkey', Aliases: ['visualizer'] },
-            ],
+            Networks: [{ Target: 'sgxihewf68xh8pggc44snqkey', Aliases: ['visualizer'] }],
             ForceUpdate: 0,
             Runtime: 'container',
           },
@@ -106,9 +104,7 @@ describe('services', () => {
               Constraints: ['node.role == worker'],
               Platforms: [{ Architecture: 'amd64', OS: 'linux' }],
             },
-            Networks: [
-              { Target: 'k8kd7mjwinx2kzquki19ref1c', Aliases: ['rproxy'] },
-            ],
+            Networks: [{ Target: 'k8kd7mjwinx2kzquki19ref1c', Aliases: ['rproxy'] }],
             ForceUpdate: 0,
             Runtime: 'container',
           },
@@ -255,9 +251,7 @@ describe('services', () => {
               Constraints: ['node.role == worker'],
               Platforms: [{ Architecture: 'amd64', OS: 'linux' }],
             },
-            Networks: [
-              { Target: 'k8kd7mjwinx2kzquki19ref1c', Aliases: ['web'] },
-            ],
+            Networks: [{ Target: 'k8kd7mjwinx2kzquki19ref1c', Aliases: ['web'] }],
             ForceUpdate: 0,
             Runtime: 'container',
           },
@@ -363,9 +357,7 @@ describe('services', () => {
               Constraints: ['node.role == worker'],
               Platforms: [{ Architecture: 'amd64', OS: 'linux' }],
             },
-            Networks: [
-              { Target: 'ro66sxffzd428njh9s01rlahs', Aliases: ['api'] },
-            ],
+            Networks: [{ Target: 'ro66sxffzd428njh9s01rlahs', Aliases: ['api'] }],
             ForceUpdate: 0,
             Runtime: 'container',
           },
@@ -381,17 +373,38 @@ describe('services', () => {
         },
         Endpoint: {
           Spec: { Mode: 'vip' },
-          VirtualIPs: [
-            { NetworkID: 'ro66sxffzd428njh9s01rlahs', Addr: '192.168.32.6/24' },
-          ],
+          VirtualIPs: [{ NetworkID: 'ro66sxffzd428njh9s01rlahs', Addr: '192.168.32.6/24' }],
         },
       },
     ];
     const expected = [
       { name: 'visualizer', stack: 'services', port: 8000 },
       { name: 'rproxy', stack: 'app', port: 8001 },
-      { name: 'registry', stack: 'swarm', port: 5000 },
+      { name: 'registry_ambassador', stack: 'swarm', port: 5000 },
     ];
+    const actual = findWithPublishedPorts(services);
+    expect(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
+  });
+
+  it('should still work even if the stackname has an underscore', () => {
+    const services = [
+      {
+        Spec: {
+          Name: 'my_stack_my_service',
+          Labels: {
+            'com.docker.stack.namespace': 'my_stack',
+          },
+        },
+        Endpoint: {
+          Ports: [
+            {
+              PublishedPort: 8000,
+            },
+          ],
+        },
+      },
+    ];
+    const expected = [{ name: 'my_service', stack: 'my_stack', port: 8000 }];
     const actual = findWithPublishedPorts(services);
     expect(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
   });
