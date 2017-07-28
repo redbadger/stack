@@ -41,18 +41,21 @@ services:
     const filesByStack = {
       a: ['a.yml', 'b.yml', 'c.yml'],
     };
-    const expected = [
+    const expectedCall = [
       'docker-compose',
       ['-f', '/tmp/a.yml', '-f', '/tmp/b.yml', '-f', '/tmp/c.yml', 'config'],
     ];
-    let actual;
-    await merge(
-      (cmd, args) => {
-        actual = [cmd, args];
+    let actualCall;
+    const actual = { a: 'merged' };
+    const expected = await merge(
+      async (cmd, args) => {
+        actualCall = [cmd, args];
+        return 'merged';
       },
       '/tmp',
       filesByStack,
     );
+    expect(actualCall).to.deep.equal(expectedCall);
     expect(actual).to.deep.equal(expected);
   });
 
