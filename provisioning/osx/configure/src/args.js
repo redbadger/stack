@@ -10,7 +10,7 @@ export default {
     alias: 'u',
     demandOption: true,
     default: false,
-    describe: 'If true, updates the NGINX load balancer with new ports',
+    describe: 'If true, updates the load balancer with new ports',
     type: 'boolean',
   },
   domain: {

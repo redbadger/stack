@@ -1,6 +1,13 @@
-FROM nginx:alpine
+FROM haproxy:1.7.8-alpine
 
-ARG config
-COPY ./${config}.conf /etc/nginx/conf.d/default.template
+# NOTE: Alpine doesn't have a syslog daemon so install one here if you want one
+# RUN apk add --no-cache rsyslog
+#
+# COPY rsyslog.conf /etc/rsyslog.conf
 
-CMD ["/bin/sh", "-c", "envsubst '${PORT},${WEB_HOST},${API_HOST},${VISUALIZER_HOST}' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+COPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg
+
+# NOTE: In order to start the rsyslog daemon, we need a new ENTRYPOINT (and therefor a new CMD)
+# COPY docker-entrypoint.sh /
+# ENTRYPOINT ["/docker-entrypoint.sh"]
+# CMD ["haproxy", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]

@@ -17,11 +17,7 @@ import {
   writeFn,
 } from './compose-file';
 import { getServices, getComposeFiles } from './config';
-import {
-  create as createNginxConfig,
-  reload as reloadNginx,
-  write as writeNginxConfig,
-} from './nginx';
+import { create as createLBConfig, reload as reloadLB, write as writeLBConfig } from './haproxy';
 import { assign as assignPorts } from './ports';
 import { findWithPublishedPorts as findPublicServices } from './services';
 
@@ -62,9 +58,9 @@ const doWork = async () => {
   );
   writeComposeFiles(writeFn, composeFiles, composeFilesDir, 'deploy-');
 
-  const nginxConfig = createNginxConfig(servicesWithPorts, argv.domain);
-  writeNginxConfig(nginxConfig);
-  if (argv.update) await reloadNginx();
+  const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
+  writeLBConfig(loadBalancerConfig);
+  if (argv.update) await reloadLB();
 };
 
 doWork();

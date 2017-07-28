@@ -2,7 +2,7 @@ version: "3.1"
 
 services:
   load_balancer:
-    image: nginx
+    image: haproxy:1.7.8-alpine
     ports:
       - 80:80
     networks:
@@ -13,6 +13,6 @@ services:
       - "wkr2:${wkr2}"
       - "wkr3:${wkr3}"
     volumes:
-      - /tmp/nginx.conf:/etc/nginx/conf.d/default.conf
+      - /tmp/haproxy:/usr/local/etc/haproxy
 networks:
   load_balancer:
