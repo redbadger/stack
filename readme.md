@@ -5,7 +5,7 @@ This repo is a noddy web ui and proxied api (on a private network) with `version
 There are 4 containers running outside the cluster:
   1. private Docker registry (for pushing local images)
   1. registry mirror (for caching public images)
-  1. `nginx` load balancer (for hostname to upstream mapping)
+  1. `haproxy` load balancer (for hostname to upstream mapping)
   1. `dnsmasq` dns server (for `.local` tld resolution)
 
 And 3 stacks running inside the cluster:
@@ -17,7 +17,7 @@ And 3 stacks running inside the cluster:
 
 Incoming requests can hit any node of the swarm and will be routed to an instance of the service (that has published the port) by the swarm's mesh routing.
 
-You can also describe stack configurations (published services) in `stacks.yml` and use the configuration utility (`./provisioning/osx/configure/lib/index.js --help`) to write deployable compose-files from multiple merged compose files (includes automatic port assignment). Combined with the local `dns` server and `nginx` load balancer, this allows you to access published services by FQDNs in the form `http://service.stack.local` (in this case http://visualizer.services.local and http://web.app.local). Full documentation for the configuration utility is coming soon :-)
+You can also describe stack configurations (published services) in `stacks.yml` and use the configuration utility (`./provisioning/osx/configure/lib/index.js --help`) to write deployable compose-files from multiple merged compose files (includes automatic port assignment). Combined with the local `dns` server and `haproxy` load balancer, this allows you to access published services by FQDNs in the form `http://service.stack.local` (in this case http://visualizer.services.local and http://web.app.local). Full documentation for the configuration utility is coming soon :-)
 
 ## To set up the cluster
 1.  Install VirtualBox and Docker for Mac (I had a few problems deploying a stack with 17.06 so maybe use 17.05 or below).
@@ -107,11 +107,11 @@ And the following local containers running:
 
 ```sh
 on-local docker ps
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                    NAMES
-fbff0358c773        andyshinn/dnsmasq   "dnsmasq -k -d -A ..."   9 hours ago         Up 9 hours          0.0.0.0:53->53/tcp, 0.0.0.0:53->53/udp   dns_dns_1
-dc929dc479e0        nginx               "nginx -g 'daemon ..."   46 hours ago        Up 46 hours         0.0.0.0:80->80/tcp                       loadbalancer_load_balancer_1
-6e2686acd14a        registry:2          "/entrypoint.sh /e..."   46 hours ago        Up 46 hours         0.0.0.0:5001->5000/tcp                   registry_registry-mirror_1
-a578c7c8703c        registry:2          "/entrypoint.sh /e..."   46 hours ago        Up 46 hours         0.0.0.0:5000->5000/tcp                   registry_registry_1
+CONTAINER ID        IMAGE                  COMMAND                  CREATED             STATUS              PORTS                                    NAMES
+73f862aa53c9        haproxy:1.7.8-alpine   "/docker-entrypoin..."   22 hours ago        Up 22 hours         0.0.0.0:80->80/tcp                       loadbalancer_load_balancer_1
+fbff0358c773        andyshinn/dnsmasq      "dnsmasq -k -d -A ..."   2 days ago          Up 2 days           0.0.0.0:53->53/tcp, 0.0.0.0:53->53/udp   dns_dns_1
+6e2686acd14a        registry:2             "/entrypoint.sh /e..."   3 days ago          Up 3 days           0.0.0.0:5001->5000/tcp                   registry_registry-mirror_1
+a578c7c8703c        registry:2             "/entrypoint.sh /e..."   3 days ago          Up 3 days           0.0.0.0:5000->5000/tcp                   registry_registry_1
 ```
 
 ## Cleaning up
