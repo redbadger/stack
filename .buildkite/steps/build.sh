@@ -5,7 +5,7 @@ set -eux
 env
 export registry=localhost:5000
 
-cat <<EOF >/tmp/app-ports.yml
+cat <<EOF >ports-app.yml
 version: "3.1"
 
 services:
@@ -14,7 +14,7 @@ services:
       - 8001:3000
 EOF
 
-cat <<EOF >/tmp/services-ports.yml
+cat <<EOF >ports-services.yml
 version: "3.1"
 
 services:
@@ -24,5 +24,6 @@ services:
 EOF
 
 for stack in "app" "services"; do
-  docker-compose -f ${stack}.yml -f /tmp/${stack}-ports.yml build
+  docker-compose -f ${stack}.yml -f ports-${stack}.yml config >deploy-${stack}.yml
+  docker-compose -f deploy-${stack}.yml build
 done
