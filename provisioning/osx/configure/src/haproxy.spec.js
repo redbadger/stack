@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { create } from './haproxy';
 
 describe('haproxy', () => {
-  it('should write the correct config', () => {
+  it('should create the correct config', () => {
     const services = [
       {
         stack: 'services',
