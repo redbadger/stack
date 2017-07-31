@@ -25,7 +25,7 @@ describe('deploy - parse and validate stack names', () => {
     const actual = validate(stacknames, stackconfig);
     assert.deepEqual(actual, expected);
   });
-  it('when one valid and on invalid', () => {
+  it('when one valid and one invalid', () => {
     const stacknames = 'app, service';
     const expected = {
       stacks: ['app'],

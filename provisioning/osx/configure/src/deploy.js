@@ -16,3 +16,5 @@ export const validate = (stacknames, stackconfig) =>
     { stacks: [], messages: [] },
     R.map(R.trim, R.split(',', stacknames)),
   );
+
+export const deploy = stacks => {};
