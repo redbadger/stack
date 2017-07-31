@@ -34,10 +34,11 @@ ${R.join(
         `${R.join(
           '',
           R.map(
-            name => `
+            name =>
+              `
 backend ${name}.${s.stack}.${domain}
     balance roundrobin
-    option httpchk GET /_health
+    ${s.health ? `option httpchk GET ${s.health}` : ''}
     server web wkr1:${s.port} check
     server web wkr2:${s.port} check
     server web wkr3:${s.port} check
