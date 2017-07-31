@@ -13,6 +13,6 @@ services:
       - "wkr2:${wkr2}"
       - "wkr3:${wkr3}"
     volumes:
-      - /tmp/haproxy:/usr/local/etc/haproxy
+      - /tmp/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
 networks:
   load_balancer:

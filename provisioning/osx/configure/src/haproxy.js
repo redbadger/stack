@@ -51,7 +51,7 @@ backend ${name}.${s.stack}.${domain}
   )}`;
 
 export const write = contents => {
-  const file = '/tmp/haproxy/haproxy.cfg';
+  const file = '/tmp/haproxy.cfg';
   console.log(`Writing ${file}`); // eslint-disable-line
   fs.writeFileSync(file, contents);
 };
