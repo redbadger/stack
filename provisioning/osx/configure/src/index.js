@@ -20,6 +20,7 @@ import { getServices, getComposeFiles } from './config';
 import { create as createLBConfig, reload as reloadLB, write as writeLBConfig } from './haproxy';
 import { assign as assignPorts } from './ports';
 import { findWithPublishedPorts as findPublicServices } from './services';
+import deploy from './deploy';
 
 const dockerEnv = Bluebird.promisify(DockerMachine.env);
 
@@ -61,6 +62,7 @@ const doWork = async () => {
   const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
   writeLBConfig(loadBalancerConfig);
   if (argv.update) await reloadLB();
+  if (argv.deploy) await deploy();
 };
 
 doWork();

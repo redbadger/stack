@@ -20,6 +20,11 @@ export default {
     describe: 'The name of the top-level domain you want to use',
     type: 'string',
   },
+  deploy: {
+    demandOption: false,
+    describe: 'A comma separated list of stacks to deploy',
+    type: 'string',
+  },
   manager: {
     alias: 'm',
     demandOption: true,
