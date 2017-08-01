@@ -1,7 +1,5 @@
 #!/usr/bin/env node
-import Bluebird from 'bluebird';
 import Docker from 'dockerode';
-import DockerMachine from 'docker-machine';
 import fs from 'fs';
 import path from 'path';
 import R from 'ramda';
@@ -17,26 +15,21 @@ import {
   writeFn,
 } from './compose-file';
 import { getServices, getComposeFiles } from './config';
+import { getDockerServer } from './docker-server';
 import { create as createLBConfig, reload as reloadLB, write as writeLBConfig } from './haproxy';
 import { assign as assignPorts } from './ports';
 import { findWithPublishedPorts as findPublicServices } from './services';
-import { validate, deploy } from './deploy';
-
-const dockerEnv = Bluebird.promisify(DockerMachine.env);
+import { validate, deploy, deployFn } from './deploy';
 
 const argv = yargs.options(args).help().argv;
 const configPath = path.resolve(argv.file);
 const config = yaml.safeLoad(fs.readFileSync(configPath, 'utf8'));
 
-const setDockerServer = async manager => {
-  const env = await dockerEnv(manager, { parse: true });
+const doWork = async () => {
+  const env = await getDockerServer(argv.manager);
   R.forEachObjIndexed((v, k) => {
     process.env[k] = v;
   }, env);
-};
-
-const doWork = async () => {
-  await setDockerServer(argv.manager);
   const docker = new Docker();
   const existingServices = await docker.listServices();
   const servicesWithPorts = R.pipe(findPublicServices, assignPorts(getServices(config)))(
@@ -68,7 +61,7 @@ const doWork = async () => {
       // eslint-disable-next-line no-console
       console.log(R.join(', ', validations.messages));
     } else {
-      deploy(validations.stacks);
+      deploy(deployFn, argv.manager, validations.stacks);
     }
   }
 };

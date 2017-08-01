@@ -1,8 +1,9 @@
-import execa from 'execa';
 import fs from 'fs';
 import getStream from 'get-stream';
 import path from 'path';
 import R from 'ramda';
+
+import { exec, getDockerServer } from './docker-server';
 
 export const create = services => {
   const stackNameAndServices = R.toPairs(R.groupBy(service => service.stack, services));
@@ -24,13 +25,8 @@ ${R.join('', R.map(genService, services))}
 };
 
 export const mergeFn = async (cmd, args) => {
-  const cp = execa(cmd, args, {
-    env: {
-      PATH: process.env.PATH,
-    },
-    extendEnv: false,
-  });
-  cp.stderr.pipe(process.stderr);
+  const env = await getDockerServer();
+  const cp = exec(env, cmd, args, false, true);
   return getStream(cp.stdout);
 };
 
