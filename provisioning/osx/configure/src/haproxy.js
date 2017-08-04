@@ -1,6 +1,7 @@
 import execa from 'execa';
-import R from 'ramda';
 import fs from 'fs';
+import mkdirp from 'mkdirp';
+import R from 'ramda';
 
 export const create = (services, domain) => `global
     maxconn 4096
@@ -51,7 +52,8 @@ backend ${name}.${s.stack}.${domain}
   )}`;
 
 export const write = contents => {
-  const file = '/tmp/haproxy.cfg';
+  mkdirp.sync('/tmp/haproxy');
+  const file = '/tmp/haproxy/haproxy.cfg';
   console.log(`Writing ${file}`); // eslint-disable-line
   fs.writeFileSync(file, contents);
 };
