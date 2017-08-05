@@ -59,7 +59,7 @@ export const write = contents => {
 };
 
 export const reload = async () => {
-  console.log('Reconfiguring the Load Balancer...'); //eslint-disable-line
+  console.log('Signalling haproxy to reload configuration ...'); //eslint-disable-line
   const cp = execa('docker', ['kill', '-s', 'HUP', 'loadbalancer_load_balancer_1'], {
     env: {
       PATH: process.env.PATH,
