@@ -1,0 +1,33 @@
+{
+  "name": "register-dns",
+  "version": "0.1",
+  "description": "Lambda function to register swarm manager nodes with VPC-private DNS",
+  "main": "index.js",
+  "license": "ISC",
+  "author": "Stuart Harris <stuart.harris@red-badger.com>",
+  "scripts": {
+    "build": "webpack",
+    "test": "yarn build && mocha \"lib/**/*.spec.js\""
+  },
+  "dependencies": {
+    "ramda": "^0.24.1"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.95.0",
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-power-assert": "^1.0.0",
+    "eslint": "^4.3.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-config-airbnb-base": "^11.3.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.1.0",
+    "mocha": "^3.4.2",
+    "power-assert": "^1.4.4",
+    "webpack": "^3.5.2"
+  }
+}

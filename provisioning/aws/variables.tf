@@ -14,6 +14,11 @@ variable "private_subnets" {
   default = ["subnet-f49e2493", "subnet-981390d1", "subnet-01c7015a"]
 }
 
+variable "ami" {
+  # coreos alpha channel, Container Linux 1492.1.0, Docker 17.05.0
+  default = "ami-57c0342e"
+}
+
 variable "ssh_bastion_sg" {
   default = ["sg-89129ef1"]
 }
