@@ -45,6 +45,12 @@ resource "aws_autoscaling_lifecycle_hook" "register_dns" {
   default_result    = "ABANDON"
   heartbeat_timeout = 2000
 
+  notification_metadata = <<EOF
+{
+  "hostedZoneId": "${aws_route53_zone.local.zone_id}"
+}
+EOF
+
   notification_target_arn = "${aws_sns_topic.register_dns.arn}"
   role_arn                = "${aws_iam_role.iam_for_sns_notification.arn}"
 }
@@ -123,6 +129,11 @@ data "aws_iam_policy_document" "lambda_policy" {
   statement {
     actions   = ["ec2:DescribeInstances"]
     resources = ["*"]
+  }
+
+  statement {
+    actions   = ["route53:ChangeResourceRecordSets"]
+    resources = ["arn:aws:route53:::hostedzone/${aws_route53_zone.local.zone_id}"]
   }
 }
 

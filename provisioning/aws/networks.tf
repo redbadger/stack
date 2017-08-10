@@ -1,3 +1,9 @@
+resource "aws_route53_zone" "local" {
+  name          = "local"
+  vpc_id        = "${var.vpc_id}"
+  force_destroy = true
+}
+
 resource "aws_security_group" "nodes" {
   name        = "node"
   description = "Swarm traffic"

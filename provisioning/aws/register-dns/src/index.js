@@ -11,11 +11,36 @@ import R from 'ramda';
 
 const ec2 = new AWS.EC2();
 const as = new AWS.AutoScaling();
+const route53 = new AWS.Route53();
 
 const pluckIpAddress = R.path(['Reservations', '0', 'Instances', '0', 'PrivateIpAddress']);
+const pluckMessage = R.path(['Records', '0', 'Sns', 'Message']);
 
 const getIpAddress = async instanceId =>
   pluckIpAddress(await ec2.describeInstances({ InstanceIds: [instanceId] }).promise());
+
+const addToDns = (hostedZoneId, ipAddress) => {
+  const params = {
+    ChangeBatch: {
+      Changes: [
+        {
+          Action: 'CREATE',
+          ResourceRecordSet: {
+            MultiValueAnswer: true,
+            Name: 'swarm.local',
+            ResourceRecords: [{ Value: ipAddress }],
+            SetIdentifier: 'swarm managers',
+            TTL: 60,
+            Type: 'A',
+          },
+        },
+      ],
+      Comment: 'swarm managers',
+    },
+    HostedZoneId: hostedZoneId,
+  };
+  return route53.changeResourceRecordSets(params).promise();
+};
 
 const completeAsLifecycleAction = async lifecycleParams => {
   // returns true on success or false on failure
@@ -33,8 +58,10 @@ const completeAsLifecycleAction = async lifecycleParams => {
 
 const handlerImpl = async notification => {
   console.log(`INFO: request Recieved.\nDetails:\n${JSON.stringify(notification)}`);
-  const message = JSON.parse(notification.Records[0].Sns.Message);
+  const message = JSON.parse(pluckMessage(notification));
   console.log(`DEBUG: SNS message contents. \nMessage:\n${JSON.stringify(message)}`);
+  const metadata = JSON.parse(message.NotificationMetadata);
+  console.log(`DEBUG: Metadata:\n${JSON.stringify(metadata)}`);
 
   const lifecycleParams = {
     AutoScalingGroupName: message.AutoScalingGroupName,
@@ -43,11 +70,12 @@ const handlerImpl = async notification => {
   };
 
   try {
-    const data = await getIpAddress(message.EC2InstanceId);
+    const ipAddress = await getIpAddress(message.EC2InstanceId);
+    console.log(`DEBUG: ipAddress:\n${ipAddress}`);
+    const response = await addToDns(metadata.hostedZoneId, ipAddress);
+    console.log(`DEBUG: response:\n${JSON.stringify(response)}`);
     lifecycleParams.LifecycleActionResult = 'CONTINUE';
-    console.log(
-      `INFO: Lambda function reporting success to AutoScaling. data: ${JSON.stringify(data)}`,
-    );
+    console.log('INFO: Lambda function reporting success to AutoScaling');
   } catch (e) {
     lifecycleParams.LifecycleActionResult = 'ABANDON';
     console.log(`ERROR: Lambda function reporting failure to AutoScaling with error: ${e}`);
