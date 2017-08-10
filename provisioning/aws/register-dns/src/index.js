@@ -19,7 +19,7 @@ const pluckMessage = R.path(['Records', '0', 'Sns', 'Message']);
 const getIpAddress = async instanceId =>
   pluckIpAddress(await ec2.describeInstances({ InstanceIds: [instanceId] }).promise());
 
-const addToDns = (hostedZoneId, ipAddress) => {
+const addToDns = (hostedZoneId, instanceId, ipAddress) => {
   const params = {
     ChangeBatch: {
       Changes: [
@@ -29,7 +29,7 @@ const addToDns = (hostedZoneId, ipAddress) => {
             MultiValueAnswer: true,
             Name: 'swarm.local',
             ResourceRecords: [{ Value: ipAddress }],
-            SetIdentifier: 'swarm managers',
+            SetIdentifier: `Swarm manager ${instanceId}`,
             TTL: 60,
             Type: 'A',
           },
@@ -72,7 +72,7 @@ const handlerImpl = async notification => {
   try {
     const ipAddress = await getIpAddress(message.EC2InstanceId);
     console.log(`DEBUG: ipAddress:\n${ipAddress}`);
-    const response = await addToDns(metadata.hostedZoneId, ipAddress);
+    const response = await addToDns(metadata.hostedZoneId, message.EC2InstanceId, ipAddress);
     console.log(`DEBUG: response:\n${JSON.stringify(response)}`);
     lifecycleParams.LifecycleActionResult = 'CONTINUE';
     console.log('INFO: Lambda function reporting success to AutoScaling');
