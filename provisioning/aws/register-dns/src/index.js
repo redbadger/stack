@@ -61,7 +61,7 @@ const handlerImpl = async notification => {
   const message = JSON.parse(pluckMessage(notification));
   console.log(`DEBUG: SNS message contents. \nMessage:\n${JSON.stringify(message)}`);
   const metadata = JSON.parse(message.NotificationMetadata);
-  console.log(`DEBUG: Metadata:\n${JSON.stringify(metadata)}`);
+  console.log(`DEBUG: \nMetadata:\n${JSON.stringify(metadata)}`);
 
   const lifecycleParams = {
     AutoScalingGroupName: message.AutoScalingGroupName,
@@ -71,7 +71,7 @@ const handlerImpl = async notification => {
 
   try {
     const ipAddress = await getIpAddress(message.EC2InstanceId);
-    console.log(`DEBUG: ipAddress:\n${ipAddress}`);
+    console.log(`DEBUG: \nipAddress:\n${ipAddress}`);
     const response = await updateDns(
       metadata.action,
       metadata.hostedZoneId,

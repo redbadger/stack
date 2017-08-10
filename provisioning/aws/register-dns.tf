@@ -1,3 +1,9 @@
+resource "aws_route53_zone" "local" {
+  name          = "local"
+  vpc_id        = "${var.vpc_id}"
+  force_destroy = true
+}
+
 resource "aws_autoscaling_lifecycle_hook" "register_dns" {
   name                   = "register_dns"
   autoscaling_group_name = "${aws_autoscaling_group.managers.name}"
@@ -115,6 +121,7 @@ resource "aws_lambda_function" "register_dns" {
   handler          = "index.handler"
   source_code_hash = "${data.archive_file.lambda_zip.output_base64sha256}"
   runtime          = "nodejs6.10"
+  timeout          = 30
 }
 
 resource "aws_lambda_permission" "with_sns" {

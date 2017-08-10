@@ -1,9 +1,3 @@
-resource "aws_route53_zone" "local" {
-  name          = "local"
-  vpc_id        = "${var.vpc_id}"
-  force_destroy = true
-}
-
 resource "aws_security_group" "nodes" {
   name        = "node"
   description = "Swarm traffic"
@@ -29,30 +23,11 @@ resource "aws_security_group" "nodes" {
     protocol  = "udp"
     self      = true
   }
-}
 
-resource "aws_security_group" "managers" {
-  name        = "manager"
-  description = "manager traffic"
-  vpc_id      = "${var.vpc_id}"
-
-  ingress {
-    from_port = 2377
-    to_port   = 2377
-    protocol  = "tcp"
-    self      = true
-  }
-}
-
-resource "aws_security_group" "web_servers" {
-  name        = "web_server"
-  description = "web traffic"
-  vpc_id      = "${var.vpc_id}"
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }

@@ -1,3 +1,16 @@
+resource "aws_security_group" "managers" {
+  name        = "manager"
+  description = "manager traffic"
+  vpc_id      = "${var.vpc_id}"
+
+  ingress {
+    from_port = 2377
+    to_port   = 2377
+    protocol  = "tcp"
+    self      = true
+  }
+}
+
 resource "aws_launch_configuration" "manager" {
   name_prefix                 = "manager-"
   image_id                    = "${var.ami}"
@@ -23,7 +36,7 @@ resource "aws_autoscaling_group" "managers" {
 
   min_size                  = 0
   max_size                  = 3
-  desired_capacity          = 2
+  desired_capacity          = 0
   wait_for_capacity_timeout = 0
 
   health_check_grace_period = 300

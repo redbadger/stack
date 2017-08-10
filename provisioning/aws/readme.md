@@ -42,6 +42,13 @@ You will need:
 [Guide](http://templates.cloudonaut.io/en/stable/vpc/#ssh-bastion-hostinstance)
 
 [Notes](https://github.com/widdix/aws-ec2-ssh)
+
+* You may also want NAT gateways (one in each AZ).
+(https://s3-eu-west-1.amazonaws.com/widdix-aws-cf-templates-releases-eu-west-1/stable/vpc/vpc-nat-gateway.yaml)
+![vpc-nat-gateway](./doc/vpc-nat-gateway.png)
+
+[Guide](http://templates.cloudonaut.io/en/stable/vpc/#nat-gateway)
+
 ## Usage
 
 1. Update `variables.tf` to match your project
