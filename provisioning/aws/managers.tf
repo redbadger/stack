@@ -23,7 +23,7 @@ resource "aws_autoscaling_group" "managers" {
 
   min_size                  = 0
   max_size                  = 3
-  desired_capacity          = 1
+  desired_capacity          = 2
   wait_for_capacity_timeout = 0
 
   health_check_grace_period = 300
@@ -47,6 +47,26 @@ resource "aws_autoscaling_lifecycle_hook" "register_dns" {
 
   notification_metadata = <<EOF
 {
+  "action": "CREATE",
+  "hostedZoneId": "${aws_route53_zone.local.zone_id}"
+}
+EOF
+
+  notification_target_arn = "${aws_sns_topic.register_dns.arn}"
+  role_arn                = "${aws_iam_role.iam_for_sns_notification.arn}"
+}
+
+resource "aws_autoscaling_lifecycle_hook" "deregister_dns" {
+  name                   = "deregister_dns"
+  autoscaling_group_name = "${aws_autoscaling_group.managers.name}"
+  lifecycle_transition   = "autoscaling:EC2_INSTANCE_TERMINATING"
+
+  default_result    = "CONTINUE"
+  heartbeat_timeout = 2000
+
+  notification_metadata = <<EOF
+{
+  "action": "DELETE",
   "hostedZoneId": "${aws_route53_zone.local.zone_id}"
 }
 EOF
