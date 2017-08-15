@@ -19,7 +19,7 @@ resource "aws_launch_configuration" "manager" {
   security_groups             = ["${aws_security_group.nodes.id}", "${aws_security_group.managers.id}", "${aws_security_group.ssh.id}"]
   key_name                    = "${aws_key_pair.manager.key_name}"
   user_data                   = "${file("./container-linux-config/manager.json")}"
-  depends_on                  = ["null_resource.ignition_managers"]
+  depends_on                  = ["null_resource.ignition"]
 
   lifecycle {
     create_before_destroy = true
@@ -38,7 +38,7 @@ resource "aws_autoscaling_group" "managers" {
 
   min_size                  = 0
   max_size                  = 3
-  desired_capacity          = 1
+  desired_capacity          = 0
   wait_for_capacity_timeout = 0
 
   health_check_grace_period = 300
