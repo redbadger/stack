@@ -25,6 +25,14 @@ These scripts don't automatically set up a load balancer.
 You will need:
 
 * Terraform on your machine
+
+* The Coreos `ct` provider for Terraform. This converts Container Linux Config into `ignition` configuration for bootstrapping the EC2 instances. To install:
+  ```sh
+  go get -u github.com/coreos/terraform-provider-ct
+  ```
+
+  ([More details](https://github.com/coreos/terraform-provider-ct))
+
 * An AWS account with a VPC network containing at least one
   subnetwork (we recommend having two networks - one public, one private)
 

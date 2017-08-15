@@ -11,13 +11,18 @@ resource "aws_security_group" "web_servers" {
   }
 }
 
+data "ct_config" "ignition_worker" {
+  pretty_print = false
+  content      = "${replace(file("./container-linux-config/worker.yml"), "efs-mount-target", "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com")}"
+}
+
 resource "aws_launch_configuration" "worker" {
   name_prefix                 = "worker-"
   image_id                    = "${var.ami}"
   instance_type               = "t2.micro"
   associate_public_ip_address = false
   security_groups             = ["${aws_security_group.nodes.id}", "${aws_security_group.web_servers.id}"]
-  depends_on                  = ["null_resource.ignition"]
+  user_data                   = "${data.ct_config.ignition_worker.rendered}"
 
   lifecycle {
     create_before_destroy = true

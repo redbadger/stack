@@ -11,6 +11,11 @@ resource "aws_security_group" "managers" {
   }
 }
 
+data "ct_config" "ignition_manager" {
+  pretty_print = false
+  content      = "${replace(file("./container-linux-config/manager.yml"), "efs-mount-target", "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com")}"
+}
+
 resource "aws_launch_configuration" "manager" {
   name_prefix                 = "manager-"
   image_id                    = "${var.ami}"
@@ -18,8 +23,7 @@ resource "aws_launch_configuration" "manager" {
   associate_public_ip_address = false
   security_groups             = ["${aws_security_group.nodes.id}", "${aws_security_group.managers.id}", "${aws_security_group.ssh.id}"]
   key_name                    = "${aws_key_pair.manager.key_name}"
-  user_data                   = "${file("./container-linux-config/manager.json")}"
-  depends_on                  = ["null_resource.ignition"]
+  user_data                   = "${data.ct_config.ignition_manager.rendered}"
 
   lifecycle {
     create_before_destroy = true

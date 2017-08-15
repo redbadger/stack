@@ -23,25 +23,3 @@ resource "aws_security_group" "efs_mount_target" {
     security_groups = ["${aws_security_group.nodes.id}"]
   }
 }
-
-resource "null_resource" "ignition" {
-  triggers {
-    efs_mount_target = "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com"
-  }
-
-  provisioner "local-exec" {
-    command = <<EOF
-cat ./container-linux-config/manager.yml |\
-sed -e 's/efs-mount-target/${self.triggers.efs_mount_target}/g' |\
-ct >./container-linux-config/manager.json
-EOF
-  }
-
-  provisioner "local-exec" {
-    command = <<EOF
-cat ./container-linux-config/worker.yml |\
-sed -e 's/efs-mount-target/${self.triggers.efs_mount_target}/g' |\
-ct >./container-linux-config/worker.json
-EOF
-  }
-}
