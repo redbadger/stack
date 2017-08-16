@@ -1,5 +1,5 @@
 resource "aws_route53_zone" "local" {
-  name          = "local."
+  name          = "local"
   vpc_id        = "${var.vpc_id}"
   force_destroy = true
 }
