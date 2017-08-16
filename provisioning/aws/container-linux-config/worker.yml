@@ -12,5 +12,42 @@ systemd:
         Type=nfs
         [Install]
         WantedBy=multi-user.target
+    - name: swarm.service
+      enable: true
+      contents: |
+        [Unit]
+        Description="Swarm initialisation"
+        After=docker.service
+        Requires=docker.service
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/sh /home/core/swarm-init.sh
+
+        [Install]
+        WantedBy=multi-user.target
+storage:
+  files:
+    - path: /home/core/swarm-init.sh
+      filesystem: root
+      mode: 0755
+      contents:
+        inline: |
+          #!/usr/bin/env bash
+
+          set -eux
+
+          JOIN_TOKEN=''
+          echo "Trying to join a swarm at swarm.local..."
+          while [ -z $JOIN_TOKEN ]; do
+            JOIN_TOKEN=$(cat /var/tokens/worker)
+            if [ -z $JOIN_TOKEN ]; then
+              sleep 10
+            fi
+          done
+
+          docker swarm join --token $JOIN_TOKEN swarm.local:2377
+
 locksmith:
   reboot_strategy: off
