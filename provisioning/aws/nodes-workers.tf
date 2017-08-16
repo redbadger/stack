@@ -21,8 +21,15 @@ resource "aws_launch_configuration" "worker" {
   image_id                    = "${var.ami}"
   instance_type               = "t2.micro"
   associate_public_ip_address = false
-  security_groups             = ["${aws_security_group.nodes.id}", "${aws_security_group.web_servers.id}"]
-  user_data                   = "${data.ct_config.ignition_worker.rendered}"
+
+  security_groups = [
+    "${aws_security_group.nodes.id}",
+    "${aws_security_group.web_servers.id}",
+    "${aws_security_group.ssh.id}",
+  ]
+
+  key_name  = "${aws_key_pair.node.key_name}"
+  user_data = "${data.ct_config.ignition_worker.rendered}"
 
   lifecycle {
     create_before_destroy = true

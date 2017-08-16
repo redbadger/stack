@@ -4,10 +4,10 @@ resource "aws_security_group" "managers" {
   vpc_id      = "${var.vpc_id}"
 
   ingress {
-    from_port = 2377
-    to_port   = 2377
-    protocol  = "tcp"
-    self      = true
+    from_port       = 2377
+    to_port         = 2377
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.nodes.id}"]
   }
 }
 
@@ -21,18 +21,19 @@ resource "aws_launch_configuration" "manager" {
   image_id                    = "${var.ami}"
   instance_type               = "t2.micro"
   associate_public_ip_address = false
-  security_groups             = ["${aws_security_group.nodes.id}", "${aws_security_group.managers.id}", "${aws_security_group.ssh.id}"]
-  key_name                    = "${aws_key_pair.manager.key_name}"
-  user_data                   = "${data.ct_config.ignition_manager.rendered}"
+
+  security_groups = [
+    "${aws_security_group.nodes.id}",
+    "${aws_security_group.managers.id}",
+    "${aws_security_group.ssh.id}",
+  ]
+
+  key_name  = "${aws_key_pair.node.key_name}"
+  user_data = "${data.ct_config.ignition_manager.rendered}"
 
   lifecycle {
     create_before_destroy = true
   }
-}
-
-resource "aws_key_pair" "manager" {
-  key_name   = "manager-key"
-  public_key = "${file("${var.ssh_public_key_file}")}"
 }
 
 resource "aws_autoscaling_group" "managers" {

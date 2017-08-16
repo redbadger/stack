@@ -15,7 +15,7 @@ variable "private_subnets" {
 }
 
 variable "manager_count" {
-  default = 1
+  default = 3
 }
 
 variable "worker_count" {

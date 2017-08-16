@@ -17,8 +17,8 @@ systemd:
       contents: |
         [Unit]
         Description="Swarm initialisation"
-        After=docker.service
-        Requires=docker.service
+        After=docker.service var-tokens.mount
+        Requires=docker.service var-tokens.mount
 
         [Service]
         Type=oneshot

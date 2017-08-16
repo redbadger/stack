@@ -1,3 +1,8 @@
+resource "aws_key_pair" "node" {
+  key_name   = "node-key"
+  public_key = "${file("${var.ssh_public_key_file}")}"
+}
+
 resource "aws_security_group" "nodes" {
   name        = "node"
   description = "Swarm traffic"
