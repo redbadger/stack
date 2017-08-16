@@ -9,6 +9,13 @@ resource "aws_security_group" "nodes" {
   vpc_id      = "${var.vpc_id}"
 
   ingress {
+    from_port = 2377
+    to_port   = 2377
+    protocol  = "tcp"
+    self      = true
+  }
+
+  ingress {
     from_port = 7946
     to_port   = 7946
     protocol  = "tcp"

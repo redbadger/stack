@@ -1,16 +1,3 @@
-resource "aws_security_group" "managers" {
-  name        = "manager"
-  description = "manager traffic"
-  vpc_id      = "${var.vpc_id}"
-
-  ingress {
-    from_port       = 2377
-    to_port         = 2377
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.nodes.id}"]
-  }
-}
-
 data "ct_config" "ignition_manager" {
   pretty_print = false
   content      = "${replace(file("./container-linux-config/manager.yml"), "efs-mount-target", "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com")}"
@@ -24,7 +11,6 @@ resource "aws_launch_configuration" "manager" {
 
   security_groups = [
     "${aws_security_group.nodes.id}",
-    "${aws_security_group.managers.id}",
     "${aws_security_group.ssh.id}",
   ]
 
