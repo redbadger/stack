@@ -14,6 +14,14 @@ variable "private_subnets" {
   default = ["subnet-f49e2493", "subnet-981390d1", "subnet-01c7015a"]
 }
 
+variable "manager_count" {
+  default = 1
+}
+
+variable "worker_count" {
+  default = 3
+}
+
 variable "ami" {
   # coreos alpha channel, Container Linux 1492.1.0, Docker 17.05.0
   default = "ami-57c0342e"

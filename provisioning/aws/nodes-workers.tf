@@ -36,7 +36,7 @@ resource "aws_autoscaling_group" "workers" {
 
   min_size                  = 0
   max_size                  = 12
-  desired_capacity          = 0
+  desired_capacity          = "${var.worker_count}"
   wait_for_capacity_timeout = 0
 
   health_check_grace_period = 300

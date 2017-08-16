@@ -42,7 +42,7 @@ resource "aws_autoscaling_group" "managers" {
 
   min_size                  = 0
   max_size                  = 3
-  desired_capacity          = 0
+  desired_capacity          = "${var.manager_count}"
   wait_for_capacity_timeout = 0
 
   health_check_grace_period = 300
