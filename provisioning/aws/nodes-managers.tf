@@ -38,6 +38,44 @@ resource "aws_autoscaling_group" "managers" {
   termination_policies      = ["OldestInstance", "ClosestToNextInstanceHour"]
   default_cooldown          = 0
 
+  depends_on = ["aws_efs_mount_target.tokens"]
+
+  initial_lifecycle_hook {
+    name                 = "register_dns"
+    lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
+
+    default_result    = "ABANDON"
+    heartbeat_timeout = 2000
+
+    notification_metadata = <<EOF
+{
+  "action": "CREATE",
+  "hostedZoneId": "${aws_route53_zone.local.zone_id}"
+}
+EOF
+
+    notification_target_arn = "${aws_sns_topic.register_dns.arn}"
+    role_arn                = "${aws_iam_role.iam_for_sns_notification.arn}"
+  }
+
+  initial_lifecycle_hook {
+    name                 = "deregister_dns"
+    lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
+
+    default_result    = "CONTINUE"
+    heartbeat_timeout = 2000
+
+    notification_metadata = <<EOF
+{
+  "action": "DELETE",
+  "hostedZoneId": "${aws_route53_zone.local.zone_id}"
+}
+EOF
+
+    notification_target_arn = "${aws_sns_topic.register_dns.arn}"
+    role_arn                = "${aws_iam_role.iam_for_sns_notification.arn}"
+  }
+
   lifecycle {
     create_before_destroy = true
   }

@@ -52,6 +52,8 @@ resource "aws_autoscaling_group" "workers" {
   termination_policies      = ["OldestInstance", "ClosestToNextInstanceHour"]
   default_cooldown          = 0
 
+  depends_on = ["aws_efs_mount_target.tokens", "aws_route53_zone.local"]
+
   lifecycle {
     create_before_destroy = true
   }

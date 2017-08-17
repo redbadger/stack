@@ -16,6 +16,8 @@ into a Docker Swarm using a small bit of bookkeeping stored in an S3 bucket.
 The scripts also configure network security to allow the Swarm to communicate and
 allow incoming SSH connections to the managers.
 
+Have a look at the [terraform dependency graph](./doc/graph.pdf).
+
 ### Left for the user
 
 These scripts don't automatically set up a load balancer.
