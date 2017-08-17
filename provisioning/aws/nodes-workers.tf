@@ -50,7 +50,7 @@ resource "aws_autoscaling_group" "workers" {
   health_check_type         = "ELB"
   launch_configuration      = "${aws_launch_configuration.worker.name}"
   termination_policies      = ["OldestInstance", "ClosestToNextInstanceHour"]
-  default_cooldown          = 0
+  default_cooldown          = 300
 
   depends_on = ["aws_efs_mount_target.tokens", "aws_route53_zone.local"]
 
