@@ -2,21 +2,52 @@
 
 set -eux
 
-JOIN_TOKEN=''
-echo "Trying to join a swarm at swarm.local..."
-while [ -z $JOIN_TOKEN ]; do
-  JOIN_TOKEN=$(cat /var/tokens/worker)
-  if [ -z $JOIN_TOKEN ]; then
-    sleep 10
-  fi
-done
+workerTokenFile='/var/tokens/worker'
 
-MANAGER_IPS="$(getent hosts swarm.local|awk '{ print $1 }')"
-for IP in $MANAGER_IPS; do
-  echo "Trying to join a swarm managed by $IP..."
-  if wget -q --spider -t 1 --connect-timeout 3 $IP:2377; then
-    docker swarm join --token $JOIN_TOKEN $IP:2377
-    break
-  fi
-  echo "...Timeout"
-done
+isManagerListening() {
+  local ip="$1"
+  wget -q --spider -t 1 --connect-timeout 3 $ip:2377
+}
+
+findManagers() {
+  local registeredNodes
+  local listeningNodes=''
+  registeredNodes="$(getent hosts swarm.local | awk '{ print $1 }')"
+  for node in $registeredNodes; do
+    if isManagerListening $node; then
+      listeningNodes="${listeningNodes} ${node}"
+    fi
+  done
+  echo $listeningNodes
+}
+
+getJoinToken() {
+  local tokenFile="$1"
+  local joinToken=''
+  while [ -z $joinToken ]; do
+    [ -e $tokenFile ] && joinToken=$(cat $tokenFile)
+    if [ -z $joinToken ]; then
+      sleep 10
+    fi
+  done
+
+  echo $joinToken
+}
+
+joinSwarm() {
+  echo "Trying to join a swarm as a worker..."
+  local joinToken
+  local managers
+  managers=$(findManagers)
+  joinToken=$(getJoinToken $workerTokenFile)
+  for mgrIP in $managers; do
+    echo "Trying to join a swarm managed by $mgrIP..."
+    if isManagerListening $mgrIP; then
+      docker swarm join --token $joinToken $mgrIP:2377
+      break
+    fi
+    echo "...Timeout"
+  done
+}
+
+joinSwarm
