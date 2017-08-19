@@ -2,9 +2,10 @@
 
 set -eux
 
-lockFile='/var/tokens/lock'
-managerTokenFile='/var/tokens/manager'
-workerTokenFile='/var/tokens/worker'
+readonly tokensDir='/var/tokens'
+readonly managerTokenFile="${tokensDir}/manager"
+readonly workerTokenFile="${tokensDir}/worker"
+readonly lockDir="${tokensDir}/init.lock"
 
 isManagerListening() {
   local ip="$1"
@@ -24,11 +25,10 @@ findManagers() {
 }
 
 getJoinToken() {
-  local tokenFile="$1"
   local joinToken=''
   while [ -z $joinToken ]; do
-    [ -e $tokenFile ] && joinToken=$(cat $tokenFile)
-    [ -z $joinToken ] && sleep 10
+    if [ -e $managerTokenFile ]; then joinToken=$(cat $managerTokenFile); fi
+    if [ -z $joinToken ]; then sleep 10; fi
   done
 
   echo $joinToken
@@ -40,9 +40,10 @@ joinSwarm() {
   local managers
   managers=$(findManagers)
   if [ -z "$managers" ]; then
-    initSwarm
+    rm -f $managerTokenFile $workerTokenFile
+    init
   else
-    joinToken=$(getJoinToken $managerTokenFile)
+    joinToken=$(getJoinToken)
     for mgrIP in $managers; do
       echo "Trying to join a swarm managed by $mgrIP..."
       if isManagerListening $mgrIP; then
@@ -64,9 +65,21 @@ initSwarm() {
   docker swarm join-token -q worker >$workerTokenFile
 }
 
-if [ -f $lockFile ]; then
-  joinSwarm
-else
-  touch $lockFile
-  initSwarm
-fi
+createLock() {
+  mkdir "${lockDir}" &>/dev/null
+}
+
+removeLock() {
+  [ -e "${lockDir}" ] && rmdir "${lockDir}"
+}
+
+init() {
+  trap 'removeLock; exit 0' INT TERM EXIT
+  if [ ! -e $managerTokenFile ] && createLock; then
+    initSwarm
+  else
+    joinSwarm
+  fi
+}
+
+init

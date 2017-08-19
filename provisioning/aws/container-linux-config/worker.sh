@@ -2,7 +2,8 @@
 
 set -eux
 
-workerTokenFile='/var/tokens/worker'
+readonly tokensDir='/var/tokens'
+readonly workerTokenFile="${tokensDir}/worker"
 
 isManagerListening() {
   local ip="$1"
@@ -22,16 +23,16 @@ findManagers() {
 }
 
 getJoinToken() {
-  local tokenFile="$1"
   local joinToken=''
   while [ -z $joinToken ]; do
-    [ -e $tokenFile ] && joinToken=$(cat $tokenFile)
-    [ -z $joinToken ] && sleep 10
+    if [ -e $workerTokenFile ]; then joinToken=$(cat $workerTokenFile); fi
+    if [ -z $joinToken ]; then sleep 10; fi
   done
 
   echo $joinToken
 }
 
+export joined=''
 joinSwarm() {
   echo "Trying to join a swarm as a worker..."
   local joinToken
@@ -42,10 +43,14 @@ joinSwarm() {
     echo "Trying to join a swarm managed by $mgrIP..."
     if isManagerListening $mgrIP; then
       docker swarm join --token $joinToken $mgrIP:2377
+      joined='true'
       break
     fi
     echo "...Timeout"
   done
 }
 
-joinSwarm
+while [ -z $joined ]; do
+  joinSwarm
+  if [ -z $joined ]; then sleep 10; fi
+done
