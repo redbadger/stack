@@ -1,6 +1,15 @@
+data "template_file" "ignition_manager" {
+  template = "${file("${path.module}/container-linux-config/manager.yml")}"
+
+  vars {
+    efs-mount-target  = "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com"
+    swarm-init-script = "${jsonencode(file("${path.module}/container-linux-config/manager.sh"))}"
+  }
+}
+
 data "ct_config" "ignition_manager" {
   pretty_print = false
-  content      = "${replace(file("./container-linux-config/manager.yml"), "efs-mount-target", "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com")}"
+  content      = "${data.template_file.ignition_manager.rendered}"
 }
 
 resource "aws_launch_configuration" "manager" {

@@ -1,3 +1,17 @@
+data "template_file" "ignition_worker" {
+  template = "${file("${path.module}/container-linux-config/worker.yml")}"
+
+  vars {
+    efs-mount-target  = "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com"
+    swarm-init-script = "${jsonencode(file("${path.module}/container-linux-config/worker.sh"))}"
+  }
+}
+
+data "ct_config" "ignition_worker" {
+  pretty_print = false
+  content      = "${data.template_file.ignition_worker.rendered}"
+}
+
 resource "aws_security_group" "web_servers" {
   name        = "web_server"
   description = "web traffic"
@@ -9,11 +23,6 @@ resource "aws_security_group" "web_servers" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
-
-data "ct_config" "ignition_worker" {
-  pretty_print = false
-  content      = "${replace(file("./container-linux-config/worker.yml"), "efs-mount-target", "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com")}"
 }
 
 resource "aws_launch_configuration" "worker" {

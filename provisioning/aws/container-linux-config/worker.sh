@@ -26,9 +26,7 @@ getJoinToken() {
   local joinToken=''
   while [ -z $joinToken ]; do
     [ -e $tokenFile ] && joinToken=$(cat $tokenFile)
-    if [ -z $joinToken ]; then
-      sleep 10
-    fi
+    [ -z $joinToken ] && sleep 10
   done
 
   echo $joinToken
