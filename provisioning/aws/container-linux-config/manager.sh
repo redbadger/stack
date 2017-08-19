@@ -13,13 +13,16 @@ isManagerListening() {
 }
 
 findManagers() {
-  local registeredNodes
+  local registeredNodes=''
   local listeningNodes=''
-  registeredNodes="$(getent hosts swarm.local | awk '{ print $1 }')"
-  for node in $registeredNodes; do
-    if isManagerListening $node; then
-      listeningNodes="${listeningNodes} ${node}"
-    fi
+  while [ -z $registeredNodes ]; do
+    registeredNodes="$(getent hosts swarm.local | awk '{ print $1 }')"
+    for node in $registeredNodes; do
+      if isManagerListening $node; then
+        listeningNodes="${listeningNodes} ${node}"
+      fi
+    done
+    sleep 2
   done
   echo $listeningNodes
 }
@@ -68,5 +71,5 @@ while true; do
     joinSwarm
     break
   fi
-  sleep 1
+  sleep 2
 done

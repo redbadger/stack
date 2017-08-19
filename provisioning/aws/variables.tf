@@ -15,11 +15,11 @@ variable "private_subnets" {
 }
 
 variable "manager_count" {
-  default = 0
+  default = 3
 }
 
 variable "worker_count" {
-  default = 0
+  default = 3
 }
 
 variable "ami" {
