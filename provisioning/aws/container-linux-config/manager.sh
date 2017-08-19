@@ -24,26 +24,15 @@ findManagers() {
   echo $listeningNodes
 }
 
-getJoinToken() {
-  local joinToken=''
-  while [ -z $joinToken ]; do
-    if [ -e $managerTokenFile ]; then joinToken=$(cat $managerTokenFile); fi
-    if [ -z $joinToken ]; then sleep 10; fi
-  done
-
-  echo $joinToken
-}
-
 joinSwarm() {
   echo "Trying to join a swarm as a manager..."
   local joinToken
   local managers
   managers=$(findManagers)
   if [ -z "$managers" ]; then
-    rm -f $managerTokenFile $workerTokenFile
-    init
+    initSwarm
   else
-    joinToken=$(getJoinToken)
+    joinToken=$(cat $managerTokenFile)
     for mgrIP in $managers; do
       echo "Trying to join a swarm managed by $mgrIP..."
       if isManagerListening $mgrIP; then
@@ -57,6 +46,7 @@ joinSwarm() {
 
 initSwarm() {
   echo "Swarm does not exist yet, initializing..."
+  rm -f $managerTokenFile $workerTokenFile
   local privateIpAddress
   privateIpAddress="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
   docker swarm init --advertise-addr $privateIpAddress
@@ -66,20 +56,18 @@ initSwarm() {
 }
 
 createLock() {
-  mkdir "${lockDir}" &>/dev/null
+  mkdir $lockDir &>/dev/null # atomic
 }
 
 removeLock() {
-  [ -e "${lockDir}" ] && rmdir "${lockDir}"
+  if [ -e $lockDir ]; then rmdir $lockDir; fi
 }
 
-init() {
-  trap 'removeLock; exit 0' INT TERM EXIT
-  if [ ! -e $managerTokenFile ] && createLock; then
-    initSwarm
-  else
+trap 'removeLock; exit 0' INT TERM EXIT
+while true; do
+  if createLock; then
     joinSwarm
+    break
   fi
-}
-
-init
+  sleep 1
+done

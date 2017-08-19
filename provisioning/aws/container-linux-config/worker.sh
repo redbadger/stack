@@ -4,6 +4,7 @@ set -eux
 
 readonly tokensDir='/var/tokens'
 readonly workerTokenFile="${tokensDir}/worker"
+readonly lockDir="${tokensDir}/init.lock"
 
 isManagerListening() {
   local ip="$1"
@@ -22,35 +23,35 @@ findManagers() {
   echo $listeningNodes
 }
 
-getJoinToken() {
-  local joinToken=''
-  while [ -z $joinToken ]; do
-    if [ -e $workerTokenFile ]; then joinToken=$(cat $workerTokenFile); fi
-    if [ -z $joinToken ]; then sleep 10; fi
-  done
-
-  echo $joinToken
-}
-
-export joined=''
 joinSwarm() {
   echo "Trying to join a swarm as a worker..."
   local joinToken
   local managers
   managers=$(findManagers)
-  joinToken=$(getJoinToken $workerTokenFile)
+  joinToken=$(cat $workerTokenFile)
   for mgrIP in $managers; do
     echo "Trying to join a swarm managed by $mgrIP..."
     if isManagerListening $mgrIP; then
       docker swarm join --token $joinToken $mgrIP:2377
-      joined='true'
       break
     fi
     echo "...Timeout"
   done
 }
 
-while [ -z $joined ]; do
-  joinSwarm
-  if [ -z $joined ]; then sleep 10; fi
+createLock() {
+  mkdir $lockDir &>/dev/null # atomic
+}
+
+removeLock() {
+  if [ -e $lockDir ]; then rmdir $lockDir; fi
+}
+
+trap 'removeLock; exit 0' INT TERM EXIT
+while true; do
+  if createLock; then
+    joinSwarm
+    break
+  fi
+  sleep 1
 done
