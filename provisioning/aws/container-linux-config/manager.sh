@@ -46,7 +46,6 @@ joinSwarm() {
 
 initSwarm() {
   echo "Swarm does not exist yet, initializing..."
-  rm -f $managerTokenFile $workerTokenFile
   local privateIpAddress
   privateIpAddress="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
   docker swarm init --advertise-addr $privateIpAddress
