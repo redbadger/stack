@@ -14,7 +14,7 @@ isManagerListening() {
 findManagers() {
   local registeredNodes=''
   local listeningNodes=''
-  while [ -z $registeredNodes ]; do
+  while [[ -z $registeredNodes ]]; do
     registeredNodes="$(getent hosts swarm.local | awk '{ print $1 }')"
     for node in $registeredNodes; do
       if isManagerListening $node; then
@@ -36,6 +36,7 @@ joinSwarm() {
     echo "Trying to join a swarm managed by $mgrIP..."
     if isManagerListening $mgrIP; then
       docker swarm join --token $joinToken $mgrIP:2377
+      joined='true'
       break
     fi
     echo "...Timeout"
@@ -47,14 +48,15 @@ createLock() {
 }
 
 removeLock() {
-  if [ -e $lockDir ]; then rmdir $lockDir; fi
+  if [[ -e $lockDir ]]; then rmdir $lockDir; fi
 }
 
 trap 'removeLock; exit 0' INT TERM EXIT
+joined='false'
 while true; do
   if createLock; then
     joinSwarm
-    break
+    if [[ $joined = 'true' ]]; then break; else removeLock; fi
   fi
   sleep 2
 done
