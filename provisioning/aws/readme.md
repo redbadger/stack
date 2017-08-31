@@ -11,7 +11,8 @@ The managers group has exactly 3 machines. The workers group is auto-scaling and
 you can configure the minimums and maximums.
 
 In both groups the instance template used is configured to automatically join
-into a Docker Swarm using a small bit of bookkeeping stored in an S3 bucket.
+into a Docker Swarm using a small bit of bookkeeping stored in an EFS
+NFS shared filesystem.
 
 The scripts also configure network security to allow the Swarm to communicate and
 allow incoming SSH connections to the managers.
