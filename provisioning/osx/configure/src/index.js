@@ -72,6 +72,12 @@ const doWork = async () => {
   }
   if (argv.deploy) {
     const validations = validate(argv.deploy, config);
+    step(
+      5,
+      `Deploying stack${validations.stacks.length === 1 ? '' : 's'}: ${validations.stacks
+        .map(s => `"${s}"`)
+        .join(', ')}`,
+    );
     if (validations.messages.length) {
       // eslint-disable-next-line no-console
       console.log(R.join(', ', validations.messages));
