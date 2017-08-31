@@ -75,14 +75,14 @@ services:
     );
 
     const expectedContents = {
-      '/tmp/ports-a.yml': 'a1',
-      '/tmp/ports-b.yml': 'b1',
+      '/tmp/ports-a-osx.yml': 'a1',
+      '/tmp/ports-b-osx.yml': 'b1',
     };
     expect(contents).to.deep.equal(expectedContents);
 
     const expectedFiles = {
-      a: 'ports-a.yml',
-      b: 'ports-b.yml',
+      a: 'ports-a-osx.yml',
+      b: 'ports-b-osx.yml',
     };
     expect(paths).to.deep.equal(expectedFiles);
   });
