@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import chalk from 'chalk';
 import Docker from 'dockerode';
 import fs from 'fs';
 import path from 'path';
@@ -30,6 +31,15 @@ const doWork = async () => {
   R.forEachObjIndexed((v, k) => {
     process.env[k] = v;
   }, env);
+  const step = (num, msg) => {
+    // eslint-disable-next-line no-console
+    console.log(chalk`
+
+{yellow [Step ${num}]: ${msg} ...}
+`);
+  };
+
+  step(1, 'Configuring ports');
   const docker = new Docker();
   const existingServices = await docker.listServices();
   const servicesWithPorts = R.pipe(findPublicServices, assignPorts(getServices(config)))(
@@ -45,6 +55,7 @@ const doWork = async () => {
     composeFilesDir,
     'ports-',
   );
+  step(2, 'Merging compose files');
   const composeFiles = await mergeComposeFiles(
     mergeComposeFilesFn,
     composeFilesDir,
@@ -52,9 +63,13 @@ const doWork = async () => {
   );
   writeComposeFiles(writeFn, composeFiles, composeFilesDir, 'deploy-');
 
+  step(3, 'Generating load-balancer configuration');
   const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
   writeLBConfig(loadBalancerConfig);
-  if (argv.update) await reloadLB();
+  if (argv.update) {
+    step(4, 'Reloading load-balancer');
+    await reloadLB();
+  }
   if (argv.deploy) {
     const validations = validate(argv.deploy, config);
     if (validations.messages.length) {

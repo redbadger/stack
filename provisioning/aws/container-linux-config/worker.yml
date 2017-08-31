@@ -1,0 +1,39 @@
+# This config is meant to be consumed by the config transpiler, which will
+# generate the corresponding Ignition config. Do not pass this config directly
+# to instances of Container Linux.
+systemd:
+  units:
+    - name: var-tokens.mount
+      enable: true
+      contents: |
+        [Mount]
+        What=${efs-mount-target}:/
+        Where=/var/tokens
+        Type=nfs
+        [Install]
+        WantedBy=multi-user.target
+    - name: swarm.service
+      enable: true
+      contents: |
+        [Unit]
+        Description="Swarm initialisation"
+        After=docker.service var-tokens.mount
+        Requires=docker.service var-tokens.mount
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/sh /home/core/swarm-init.sh
+
+        [Install]
+        WantedBy=multi-user.target
+storage:
+  files:
+    - path: /home/core/swarm-init.sh
+      filesystem: root
+      mode: 0755
+      contents:
+        inline: ${swarm-init-script}
+
+locksmith:
+  reboot_strategy: off

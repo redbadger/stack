@@ -1,6 +1,7 @@
 import execa from 'execa';
-import R from 'ramda';
 import fs from 'fs';
+import mkdirp from 'mkdirp';
+import R from 'ramda';
 
 export const create = (services, domain) => `global
     maxconn 4096
@@ -51,13 +52,14 @@ backend ${name}.${s.stack}.${domain}
   )}`;
 
 export const write = contents => {
-  const file = '/tmp/haproxy.cfg';
+  mkdirp.sync('/tmp/haproxy');
+  const file = '/tmp/haproxy/haproxy.cfg';
   console.log(`Writing ${file}`); // eslint-disable-line
   fs.writeFileSync(file, contents);
 };
 
 export const reload = async () => {
-  console.log('Reconfiguring the Load Balancer...'); //eslint-disable-line
+  console.log('Signalling haproxy to reload configuration ...'); //eslint-disable-line
   const cp = execa('docker', ['kill', '-s', 'HUP', 'loadbalancer_load_balancer_1'], {
     env: {
       PATH: process.env.PATH,
