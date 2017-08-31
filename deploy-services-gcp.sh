@@ -2,7 +2,7 @@
 
 set -ex
 
-file="docker-compose-services.yml"
+file="services.yml"
 export registry="eu.gcr.io/microplatform-demo"
 
 docker-compose -f $file build
