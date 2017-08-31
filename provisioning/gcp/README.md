@@ -14,7 +14,7 @@ In both groups the instance template used is configured to automatically join
 into a Docker Swarm using a small bit of bookkeeping stored in a Storage bucket.
 
 The scripts also configure network security to allow the Swarm to communicate and
-Allow incoming SSH connections to the managers.
+allow incoming SSH connections to the managers.
 
 ### Left for the user
 

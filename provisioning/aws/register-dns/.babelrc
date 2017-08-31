@@ -1,0 +1,14 @@
+{
+  "plugins": ["transform-object-rest-spread"],
+  "presets": [
+    "babel-preset-power-assert",
+    [
+      "env",
+      {
+        "targets": {
+          "node": "6.10"
+        }
+      }
+    ]
+  ]
+}
