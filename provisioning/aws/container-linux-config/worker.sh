@@ -31,10 +31,10 @@ joinSwarm() {
   local joinToken
   local managers
   managers=$(findManagers)
-  joinToken=$(cat $workerTokenFile)
   for mgrIP in $managers; do
     echo "Trying to join a swarm managed by $mgrIP..."
     if isManagerListening $mgrIP; then
+      joinToken=$(cat $workerTokenFile)
       docker swarm join --token $joinToken $mgrIP:2377
       joined='true'
       break

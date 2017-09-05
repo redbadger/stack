@@ -35,10 +35,10 @@ joinSwarm() {
   if [[ -z $managers ]]; then
     initSwarm
   else
-    joinToken=$(cat $managerTokenFile)
     for mgrIP in $managers; do
       echo "Trying to join a swarm managed by $mgrIP..."
       if isManagerListening $mgrIP; then
+        joinToken=$(cat $managerTokenFile)
         docker swarm join --token $joinToken $mgrIP:2377
         joined='true'
         break
