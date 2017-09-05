@@ -2,6 +2,6 @@
 
 set -ex
 
-file="deploy-services.yml"
+file="deploy-services-osx.yml"
 
 docker stack deploy --compose-file=$file --with-registry-auth services
