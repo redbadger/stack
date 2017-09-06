@@ -8,6 +8,7 @@ import yaml from 'js-yaml';
 import yargs from 'yargs';
 
 import args from './args';
+import { log, err } from './log';
 import {
   create as createPortOverrides,
   merge as mergeComposeFiles,
@@ -26,20 +27,17 @@ const argv = yargs.options(args).help().argv;
 const configPath = path.resolve(argv.file);
 const config = yaml.safeLoad(fs.readFileSync(configPath, 'utf8'));
 
+const step = (num, msg) => {
+  log(`\n${chalk`{yellow [Step ${num}]: ${msg} ...}`}`);
+};
+
 const doWork = async () => {
+  step(1, 'Configuring ports');
+  // setup env to point Docker to swarm
   const env = await getDockerServer(argv.manager);
   R.forEachObjIndexed((v, k) => {
     process.env[k] = v;
   }, env);
-  const step = (num, msg) => {
-    // eslint-disable-next-line no-console
-    console.log(chalk`
-
-{yellow [Step ${num}]: ${msg} ...}
-`);
-  };
-
-  step(1, 'Configuring ports');
   const docker = new Docker();
   const existingServices = await docker.listServices();
   const servicesWithPorts = R.pipe(findPublicServices, assignPorts(getServices(config)))(
@@ -79,8 +77,7 @@ const doWork = async () => {
         .join(', ')}`,
     );
     if (validations.messages.length) {
-      // eslint-disable-next-line no-console
-      console.log(R.join(', ', validations.messages));
+      err(R.join(', ', validations.messages));
     } else {
       deploy(deployFn, argv.manager, validations.stacks);
     }

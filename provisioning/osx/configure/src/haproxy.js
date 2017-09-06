@@ -3,6 +3,8 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import R from 'ramda';
 
+import { log } from './log';
+
 export const create = (services, domain) => `global
     maxconn 4096
     log 127.0.0.1:514 local2 debug
@@ -54,12 +56,12 @@ backend ${name}.${s.stack}.${domain}
 export const write = contents => {
   mkdirp.sync('/tmp/haproxy');
   const file = '/tmp/haproxy/haproxy.cfg';
-  console.log(`Writing ${file}`); // eslint-disable-line
+  log(`Writing ${file}`);
   fs.writeFileSync(file, contents);
 };
 
 export const reload = async () => {
-  console.log('Signalling haproxy to reload configuration ...'); //eslint-disable-line
+  log('Signalling haproxy to reload configuration ...');
   const cp = execa('docker', ['kill', '-s', 'HUP', 'loadbalancer_load_balancer_1'], {
     env: {
       PATH: process.env.PATH,

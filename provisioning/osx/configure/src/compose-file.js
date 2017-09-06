@@ -3,6 +3,7 @@ import getStream from 'get-stream';
 import path from 'path';
 import R from 'ramda';
 
+import { log } from './log';
 import { exec, getDockerServer } from './docker-server';
 
 export const create = services => {
@@ -40,7 +41,7 @@ export const merge = async (mergeFn, dir, filesByStack) => {
 };
 
 export const writeFn = (filePath, content) => {
-  console.log(`Writing ${filePath}`); // eslint-disable-line
+  log(`Writing ${filePath}`);
   fs.writeFileSync(filePath, content);
 };
 
