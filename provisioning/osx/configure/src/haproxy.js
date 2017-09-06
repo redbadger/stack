@@ -61,7 +61,6 @@ export const write = contents => {
 };
 
 export const reload = async () => {
-  log('Signalling haproxy to reload configuration ...');
   const docker = new Docker({ socketPath: '/var/run/docker.sock' });
   const opts = {
     limit: 1,

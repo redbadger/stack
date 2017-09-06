@@ -55,11 +55,10 @@ const doWork = async () => {
   );
   writeComposeFiles(writeFn, composeFiles, composeFilesDir, 'deploy-');
 
-  step(3, 'Generating load-balancer configuration');
-  const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
-  writeLBConfig(loadBalancerConfig);
   if (argv.update) {
-    step(4, 'Reloading load-balancer');
+    step(3, 'Updating load-balancer');
+    const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
+    writeLBConfig(loadBalancerConfig);
     await reloadLB();
   }
   if (argv.deploy) {
