@@ -28,7 +28,7 @@ export const deploy = async (deployFn, mgr, stacks) => {
       'stack',
       'deploy',
       '--compose-file',
-      `deploy-${stack}-osx.yml`,
+      `deploy-${stack}.yml`,
       stack,
     ]);
   }

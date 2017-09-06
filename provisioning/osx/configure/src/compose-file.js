@@ -47,7 +47,7 @@ export const writeFn = (filePath, content) => {
 export const write = (writeFn, filesByStack, dir, prefix) => {
   const paths = {};
   R.forEach(([stack, content]) => {
-    const file = `${prefix}${stack}-osx.yml`;
+    const file = `${prefix}${stack}.yml`;
     paths[stack] = file;
     writeFn(path.join(dir, file), content);
   }, R.toPairs(filesByStack));
