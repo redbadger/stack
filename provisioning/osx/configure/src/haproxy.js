@@ -1,9 +1,9 @@
-import execa from 'execa';
+import Docker from 'dockerode';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import R from 'ramda';
 
-import { log } from './log';
+import { log, warn } from './log';
 
 export const create = (services, domain) => `global
     maxconn 4096
@@ -62,13 +62,17 @@ export const write = contents => {
 
 export const reload = async () => {
   log('Signalling haproxy to reload configuration ...');
-  const cp = execa('docker', ['kill', '-s', 'HUP', 'loadbalancer_load_balancer_1'], {
-    env: {
-      PATH: process.env.PATH,
-    },
-    extendEnv: false,
-  });
-  cp.stdout.pipe(process.stdout);
-  cp.stderr.pipe(process.stderr);
-  return cp;
+  const docker = new Docker({ socketPath: '/var/run/docker.sock' });
+  const opts = {
+    limit: 1,
+    filters: { label: ['com.docker.compose.service=load_balancer'] },
+  };
+  const containerInfo = R.head(await docker.listContainers(opts));
+  if (containerInfo) {
+    const container = docker.getContainer(containerInfo.Id);
+    await container.kill({ signal: 'SIGHUP' });
+    log('Load balancer has been signalled to reload config');
+  } else {
+    warn('Cannot find a container with service name "load_balancer"');
+  }
 };

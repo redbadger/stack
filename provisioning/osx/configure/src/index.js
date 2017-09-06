@@ -27,7 +27,7 @@ const configPath = path.resolve(argv.file);
 const config = yaml.safeLoad(fs.readFileSync(configPath, 'utf8'));
 
 const step = (num, msg) => {
-  log(`\n${chalk`{yellow [Step ${num}]: ${msg} ...}`}`);
+  log(`\n${chalk`{white [Step ${num}]: ${msg} ...}`}`);
 };
 
 const doWork = async () => {
