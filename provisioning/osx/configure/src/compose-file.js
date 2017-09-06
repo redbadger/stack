@@ -4,7 +4,7 @@ import path from 'path';
 import R from 'ramda';
 
 import { log } from './log';
-import { exec, getDockerServer } from './docker-server';
+import { exec, getEnv } from './docker-server';
 
 export const create = services => {
   const stackNameAndServices = R.toPairs(R.groupBy(service => service.stack, services));
@@ -26,7 +26,7 @@ ${R.join('', R.map(genService, services))}
 };
 
 export const mergeFn = async (cmd, args) => {
-  const env = await getDockerServer();
+  const env = await getEnv();
   const cp = exec(env, cmd, args, false, true);
   return getStream(cp.stdout);
 };

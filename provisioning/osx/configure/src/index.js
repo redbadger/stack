@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
-import Docker from 'dockerode';
 import fs from 'fs';
 import path from 'path';
 import R from 'ramda';
@@ -17,13 +16,13 @@ import {
   writeFn,
 } from './compose-file';
 import { getServices, getComposeFiles } from './config';
-import { getDockerServer } from './docker-server';
+import { getDocker, getEnv } from './docker-server';
 import { create as createLBConfig, reload as reloadLB, write as writeLBConfig } from './haproxy';
 import { assign as assignPorts } from './ports';
 import { findWithPublishedPorts as findPublicServices } from './services';
 import { validate, deploy, deployFn } from './deploy';
 
-const argv = yargs.options(args).help().argv;
+const { argv } = yargs.options(args).help();
 const configPath = path.resolve(argv.file);
 const config = yaml.safeLoad(fs.readFileSync(configPath, 'utf8'));
 
@@ -33,16 +32,11 @@ const step = (num, msg) => {
 
 const doWork = async () => {
   step(1, 'Configuring ports');
-  // setup env to point Docker to swarm
-  const env = await getDockerServer(argv.manager);
-  R.forEachObjIndexed((v, k) => {
-    process.env[k] = v;
-  }, env);
-  const docker = new Docker();
-  const existingServices = await docker.listServices();
-  const servicesWithPorts = R.pipe(findPublicServices, assignPorts(getServices(config)))(
-    existingServices,
-  );
+  const env = await getEnv(argv.manager);
+  const docker = getDocker(env);
+  const existing = await docker.listServices();
+  const configured = getServices(config);
+  const servicesWithPorts = R.pipe(findPublicServices, assignPorts(configured))(existing);
 
   const composeFilesDir = path.dirname(configPath);
   const filenamesByStack = getComposeFiles(config.stacks);

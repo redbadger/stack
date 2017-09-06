@@ -19,6 +19,7 @@
     "js-yaml": "^3.9.1",
     "mkdirp": "^0.5.1",
     "ramda": "^0.24.1",
+    "split-ca": "^1.0.1",
     "yargs": "^8.0.2"
   },
   "devDependencies": {

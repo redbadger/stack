@@ -6,19 +6,19 @@ export default {
     describe: 'YAML file with stacks configuration',
     type: 'string',
   },
-  update: {
-    alias: 'u',
-    demandOption: true,
-    default: false,
-    describe: 'If true, updates the load balancer with new ports',
-    type: 'boolean',
-  },
   domain: {
     alias: 'd',
     demandOption: true,
     default: 'local',
     describe: 'The name of the top-level domain you want to use',
     type: 'string',
+  },
+  update: {
+    alias: 'u',
+    demandOption: true,
+    default: false,
+    describe: 'If true, updates the load balancer with new ports',
+    type: 'boolean',
   },
   deploy: {
     demandOption: false,
