@@ -4,10 +4,18 @@ import { create, merge, write } from './compose-file';
 describe('compose-file', () => {
   it('should create the correct port overlays', () => {
     const services = [
-      { stack: 'services', name: 'visualizer', aliases: [], port: 8080 },
-      { stack: 'app', name: 'rproxy', aliases: ['web'], port: 80 },
-      { stack: 'app', name: 'gateway', aliases: ['api'], port: 8000 },
-      { stack: 'app', name: 'gateway1', aliases: ['api1'], port: 8001 },
+      {
+        stack: 'services', name: 'visualizer', aliases: [], port: 8080,
+      },
+      {
+        stack: 'app', name: 'rproxy', aliases: ['web'], port: 80,
+      },
+      {
+        stack: 'app', name: 'gateway', aliases: ['api'], port: 8000,
+      },
+      {
+        stack: 'app', name: 'gateway1', aliases: ['api1'], port: 8001,
+      },
     ];
     const expected = {
       services: `version: "3.1"

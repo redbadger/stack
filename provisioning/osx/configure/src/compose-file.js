@@ -20,9 +20,8 @@ services:
 ${R.join('', R.map(genService, services))}
 `;
 
-  return R.fromPairs(
-    R.map(([stackname, services]) => [stackname, genStack(services)], stackNameAndServices),
-  );
+  const toServices = ([stackname, services]) => [stackname, genStack(services)];
+  return R.fromPairs(R.map(toServices, stackNameAndServices));
 };
 
 export const mergeFn = async (cmd, args) => {

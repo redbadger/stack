@@ -345,7 +345,9 @@ describe('services', () => {
               Privileges: { CredentialSpec: null, SELinuxContext: null },
               Secrets: [
                 {
-                  File: { Name: 'my_secret', UID: '0', GID: '0', Mode: 292 },
+                  File: {
+                    Name: 'my_secret', UID: '0', GID: '0', Mode: 292,
+                  },
                   SecretID: 'vsjvhlaitn6fwn7v7epuaggzy',
                   SecretName: 'my_secret',
                 },
