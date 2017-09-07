@@ -11,3 +11,11 @@ export const err = txt => {
 export const warn = txt => {
   process.stderr.write(`\n${chalk`{yellow WARNING: ${txt}}`}\n`);
 };
+
+export const steps = count => {
+  let current = 0;
+  return msg => {
+    current++;
+    log(`\n${chalk`[${current}/${count}] {white ${msg} ...}`}`);
+  };
+};
