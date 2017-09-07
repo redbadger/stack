@@ -16,7 +16,7 @@ describe('deploy', () => {
       },
     ],
   };
-  describe(' - parse and validate stack names', () => {
+  describe('parse and validate stack names', () => {
     it('when both valid', () => {
       const stacknames = 'app, services';
       const expected = {

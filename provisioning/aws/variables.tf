@@ -23,8 +23,8 @@ variable "worker_count" {
 }
 
 variable "ami" {
-  # coreos alpha channel, Container Linux 1492.1.0, Docker 17.05.0
-  default = "ami-57c0342e"
+  # coreos alpha channel, Container Linux 1520.1.0, Docker 17.06.1
+  default = "ami-6383441a"
 }
 
 variable "ssh_bastion_sg" {
