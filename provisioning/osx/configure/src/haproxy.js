@@ -63,7 +63,7 @@ export const write = contents => {
 export const reload = async () => {
   const docker = new Docker({ socketPath: '/var/run/docker.sock' });
   const opts = {
-    limit: 1,
+    all: false,
     filters: { label: ['com.docker.compose.service=load_balancer'] },
   };
   const containerInfo = R.head(await docker.listContainers(opts));
