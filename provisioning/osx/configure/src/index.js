@@ -26,12 +26,15 @@ const { argv } = yargs.options(args).help();
 const configPath = path.resolve(argv.file);
 const config = yaml.safeLoad(fs.readFileSync(configPath, 'utf8'));
 
-const step = (num, msg) => {
-  log(`\n${chalk`{white [Step ${num}]: ${msg} ...}`}`);
+const stepCount = 2 + (argv.update ? 1 : 0) + (argv.deploy ? 1 : 0);
+let currentStep = 0;
+const step = msg => {
+  currentStep++;
+  log(`\n${chalk`[${currentStep}/${stepCount}] {white ${msg} ...}`}`);
 };
 
 const doWork = async () => {
-  step(1, 'Configuring ports');
+  step('Scanning swarm and configuring ports');
   const env = await getEnv(argv.manager);
   const docker = getDocker(env);
   const existing = await docker.listServices();
@@ -47,7 +50,7 @@ const doWork = async () => {
     composeFilesDir,
     'ports-',
   );
-  step(2, 'Merging compose files');
+  step('Merging compose files');
   const composeFiles = await mergeComposeFiles(
     mergeComposeFilesFn,
     composeFilesDir,
@@ -56,19 +59,16 @@ const doWork = async () => {
   writeComposeFiles(writeFn, composeFiles, composeFilesDir, 'deploy-');
 
   if (argv.update) {
-    step(3, 'Updating load-balancer');
+    step('Updating load balancer');
     const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
     writeLBConfig(loadBalancerConfig);
     await reloadLB();
   }
   if (argv.deploy) {
     const validations = validate(argv.deploy, config);
-    step(
-      5,
-      `Deploying stack${validations.stacks.length === 1 ? '' : 's'}: ${validations.stacks
-        .map(s => `"${s}"`)
-        .join(', ')}`,
-    );
+    step(`Deploying stack${validations.stacks.length === 1 ? '' : 's'}: ${validations.stacks
+      .map(s => `"${s}"`)
+      .join(', ')}`);
     if (validations.messages.length) {
       err(R.join(', ', validations.messages));
     } else {
