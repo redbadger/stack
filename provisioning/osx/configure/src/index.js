@@ -21,6 +21,10 @@ import { assign as assignPorts } from './ports';
 import { findWithPublishedPorts as findPublicServices } from './services';
 import { validate, deploy, deployFn } from './deploy';
 
+process.on('unhandledRejection', msg => {
+  err(msg);
+});
+
 const { argv } = yargs.options(args).help();
 const configPath = path.resolve(argv.file);
 const config = yaml.safeLoad(fs.readFileSync(configPath, 'utf8'));
@@ -29,7 +33,7 @@ const step = steps(2 + (argv.update ? 1 : 0) + (argv.deploy ? 1 : 0));
 
 const doWork = async () => {
   step('Scanning swarm and configuring ports');
-  const env = await getEnv(argv.manager);
+  const env = await getEnv(argv.swarm);
   const docker = getDocker(env);
   const existing = await docker.listServices();
   const configured = getServices(config);
@@ -66,7 +70,7 @@ const doWork = async () => {
     if (validations.messages.length) {
       err(R.join(', ', validations.messages));
     } else {
-      deploy(deployFn, argv.manager, validations.stacks);
+      deploy(deployFn, argv.swarm, validations.stacks);
     }
   }
 };
