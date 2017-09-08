@@ -59,12 +59,26 @@ describe('deploy', () => {
       {
         mgr: 'mgr1',
         cmd: 'docker',
-        args: ['stack', 'deploy', '--compose-file', 'deploy-app.yml', 'app'],
+        args: [
+          'stack',
+          'deploy',
+          '--compose-file',
+          'deploy-app.yml',
+          '--with-registry-auth',
+          'app',
+        ],
       },
       {
         mgr: 'mgr1',
         cmd: 'docker',
-        args: ['stack', 'deploy', '--compose-file', 'deploy-services.yml', 'services'],
+        args: [
+          'stack',
+          'deploy',
+          '--compose-file',
+          'deploy-services.yml',
+          '--with-registry-auth',
+          'services',
+        ],
       },
     ];
     assert.deepEqual(actual, expected);

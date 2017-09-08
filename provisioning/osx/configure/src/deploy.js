@@ -19,8 +19,7 @@ export const validate = (stacknames, stackconfig) =>
     R.map(R.trim, R.split(',', stacknames)),
   );
 
-export const deployFn = async (mgr, cmd, args) =>
-  exec(await getEnv(mgr), cmd, args, false, true);
+export const deployFn = async (mgr, cmd, args) => exec(await getEnv(mgr), cmd, args, false, true);
 
 export const deploy = async (deployFn, mgr, stacks) => {
   for (const stack of stacks) {
@@ -29,6 +28,7 @@ export const deploy = async (deployFn, mgr, stacks) => {
       'deploy',
       '--compose-file',
       `deploy-${stack}.yml`,
+      '--with-registry-auth',
       stack,
     ]);
   }

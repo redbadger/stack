@@ -10,6 +10,6 @@ stacks:
       - app.yml
     services:
       - name: rproxy
-        health: /status
+        health: /haproxy?stats
         aliases:
           - web
