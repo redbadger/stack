@@ -4,9 +4,9 @@ import DockerMachine from 'docker-machine';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
-import R from 'ramda';
 import splitca from 'split-ca';
 import url from 'url';
+import { isNil, reject } from 'ramda';
 
 const dockerEnv = Bluebird.promisify(DockerMachine.env);
 const stat = Bluebird.promisify(fs.stat);
@@ -23,7 +23,7 @@ export const getEnv = async (swarm = '/var/run/docker.sock') => {
 };
 
 export const buildEnv = (processEnv, dockerServerEnv) =>
-  R.reject(R.isNil, { ...processEnv, ...dockerServerEnv });
+  reject(isNil, { ...processEnv, ...dockerServerEnv });
 
 export const exec = (env, cmd, args, showStdout, showStderr) => {
   const env1 = buildEnv(process.env, env);

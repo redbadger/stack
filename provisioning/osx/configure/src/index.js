@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import fs from 'fs';
 import path from 'path';
-import R from 'ramda';
 import yaml from 'js-yaml';
 import yargs from 'yargs';
+import { concat, join, map, mergeWith, pipe } from 'ramda';
 
 import args from './args';
 import { steps, err } from './log';
@@ -37,7 +37,7 @@ const doWork = async () => {
   const docker = getDocker(env);
   const existing = await docker.listServices();
   const configured = getServices(config);
-  const servicesWithPorts = R.pipe(findPublicServices, assignPorts(configured))(existing);
+  const servicesWithPorts = pipe(findPublicServices, assignPorts(configured))(existing);
 
   const composeFilesDir = path.dirname(configPath);
   const filenamesByStack = getComposeFiles(config.stacks);
@@ -52,7 +52,7 @@ const doWork = async () => {
   const composeFiles = await mergeComposeFiles(
     mergeComposeFilesFn,
     composeFilesDir,
-    R.mergeWith(R.concat, filenamesByStack, R.map(x => [x], portOverrideFilesByStack)),
+    mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
   );
   writeComposeFiles(writeFn, composeFiles, composeFilesDir, 'deploy-');
 
@@ -68,7 +68,7 @@ const doWork = async () => {
       .map(s => `"${s}"`)
       .join(', ')}`);
     if (validations.messages.length) {
-      err(R.join(', ', validations.messages));
+      err(join(', ', validations.messages));
     } else {
       deploy(deployFn, argv.swarm, validations.stacks);
     }

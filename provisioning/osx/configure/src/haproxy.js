@@ -1,7 +1,7 @@
 import Docker from 'dockerode';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
-import R from 'ramda';
+import { concat, head, join, map } from 'ramda';
 
 import { log, warn } from './log';
 
@@ -30,13 +30,13 @@ frontend http_front
     stats enable
     stats uri /haproxy?stats
     use_backend %[req.hdr(host),lower]
-${R.join(
+${join(
     '',
-    R.map(
+    map(
       s =>
-        `${R.join(
+        `${join(
           '',
-          R.map(
+          map(
             name =>
               `
 backend ${name}.${s.stack}.${domain}
@@ -46,7 +46,7 @@ backend ${name}.${s.stack}.${domain}
     server web wkr2:${s.port} check
     server web wkr3:${s.port} check
 `,
-            R.concat([s.name], s.aliases),
+            concat([s.name], s.aliases),
           ),
         )}`,
       services,
@@ -66,7 +66,7 @@ export const reload = async () => {
     all: false,
     filters: { label: ['com.docker.compose.service=load_balancer'] },
   };
-  const containerInfo = R.head(await docker.listContainers(opts));
+  const containerInfo = head(await docker.listContainers(opts));
   if (containerInfo) {
     const container = docker.getContainer(containerInfo.Id);
     await container.kill({ signal: 'SIGHUP' });

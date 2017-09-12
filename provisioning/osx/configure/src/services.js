@@ -1,12 +1,12 @@
-import R from 'ramda';
+import { filter, head, map, pipe, pluck, replace } from 'ramda';
 
-export const findWithPublishedPorts = R.pipe(
-  R.map(s => {
+export const findWithPublishedPorts = pipe(
+  map(s => {
     const stack = s.Spec.Labels['com.docker.stack.namespace'];
-    const name = R.replace(new RegExp(`^${stack}_`), '', s.Spec.Name);
-    const ports = s.Endpoint.Ports && R.pluck('PublishedPort', s.Endpoint.Ports);
-    const port = R.head(ports || []);
+    const name = replace(new RegExp(`^${stack}_`), '', s.Spec.Name);
+    const ports = s.Endpoint.Ports && pluck('PublishedPort', s.Endpoint.Ports);
+    const port = head(ports || []);
     return { name, stack, port };
   }),
-  R.filter(s => s.port),
+  filter(s => s.port),
 );

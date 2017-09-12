@@ -1,9 +1,9 @@
-import R from 'ramda';
+import { chain, map, reduce } from 'ramda';
 
 export const getServices = config =>
-  R.chain(
+  chain(
     stack =>
-      R.map(
+      map(
         service => ({
           stack: stack.name,
           name: service.name,
@@ -14,7 +14,7 @@ export const getServices = config =>
     config.stacks,
   );
 
-export const getComposeFiles = R.reduce(
+export const getComposeFiles = reduce(
   (acc, stack) => ({ ...acc, [stack.name]: stack['compose-files'] }),
   {},
 );

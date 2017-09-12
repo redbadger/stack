@@ -1,13 +1,13 @@
 import fs from 'fs';
 import getStream from 'get-stream';
 import path from 'path';
-import R from 'ramda';
+import { chain, forEach, fromPairs, groupBy, join, map, toPairs } from 'ramda';
 
 import { log } from './log';
 import { exec, getEnv } from './docker-server';
 
 export const create = services => {
-  const stackNameAndServices = R.toPairs(R.groupBy(service => service.stack, services));
+  const stackNameAndServices = toPairs(groupBy(service => service.stack, services));
 
   const genService = service => `  ${service.name}:
     ports:
@@ -17,11 +17,11 @@ export const create = services => {
   const genStack = services => `version: "3.1"
 
 services:
-${R.join('', R.map(genService, services))}
+${join('', map(genService, services))}
 `;
 
   const toServices = ([stackname, services]) => [stackname, genStack(services)];
-  return R.fromPairs(R.map(toServices, stackNameAndServices));
+  return fromPairs(map(toServices, stackNameAndServices));
 };
 
 export const mergeFn = async (cmd, args) => {
@@ -32,8 +32,8 @@ export const mergeFn = async (cmd, args) => {
 
 export const merge = async (mergeFn, dir, filesByStack) => {
   const retVal = {};
-  for (const [stack, files] of R.toPairs(filesByStack)) {
-    const args = R.chain(f => ['-f', f], R.map(f => path.join(dir, f), files));
+  for (const [stack, files] of toPairs(filesByStack)) {
+    const args = chain(f => ['-f', f], map(f => path.join(dir, f), files));
     retVal[stack] = await mergeFn('docker-compose', [...args, 'config']);
   }
   return retVal;
@@ -46,10 +46,10 @@ export const writeFn = (filePath, content) => {
 
 export const write = (writeFn, filesByStack, dir, prefix) => {
   const paths = {};
-  R.forEach(([stack, content]) => {
+  forEach(([stack, content]) => {
     const file = `${prefix}${stack}.yml`;
     paths[stack] = file;
     writeFn(path.join(dir, file), content);
-  }, R.toPairs(filesByStack));
+  }, toPairs(filesByStack));
   return paths;
 };

@@ -1,16 +1,16 @@
-import R from 'ramda';
+import { contains, lensProp, over, pluck, reduce } from 'ramda';
 
 import { getEnv, exec } from './docker-server';
 
-const stacksLens = R.lensProp('stacks');
-const messageLens = R.lensProp('messages');
+const stacksLens = lensProp('stacks');
+const messageLens = lensProp('messages');
 
 export const validate = (stacknames, stackconfig) =>
-  R.reduce(
+  reduce(
     (accumulator, name) =>
-      (R.contains(name, R.pluck('name', stackconfig.stacks))
-        ? R.over(stacksLens, a => [...a, name], accumulator)
-        : R.over(
+      (contains(name, pluck('name', stackconfig.stacks))
+        ? over(stacksLens, a => [...a, name], accumulator)
+        : over(
           messageLens,
           a => [...a, `The stack called "${name}" is not declared in the configuration`],
           accumulator,

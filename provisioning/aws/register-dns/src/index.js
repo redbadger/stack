@@ -5,14 +5,14 @@
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk';
-import R from 'ramda';
+import { path } from 'ramda';
 
 const ec2 = new AWS.EC2();
 const as = new AWS.AutoScaling();
 const route53 = new AWS.Route53();
 
-const pluckIpAddress = R.path(['Reservations', '0', 'Instances', '0', 'PrivateIpAddress']);
-const pluckMessage = R.path(['Records', '0', 'Sns', 'Message']);
+const pluckIpAddress = path(['Reservations', '0', 'Instances', '0', 'PrivateIpAddress']);
+const pluckMessage = path(['Records', '0', 'Sns', 'Message']);
 
 // eslint-disable-next-line no-console
 const log = console.log.bind(console);

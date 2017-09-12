@@ -1,7 +1,7 @@
-import R from 'ramda';
+import { concat, find, reduce } from 'ramda';
 
 export const findNext = services => {
-  const usedPorts = R.reduce((acc, s) => ({ ...acc, [s.port]: true }), {}, services);
+  const usedPorts = reduce((acc, s) => ({ ...acc, [s.port]: true }), {}, services);
   for (let i = 8000; i < Infinity; i++) {
     if (usedPorts[i]) {
       continue;
@@ -12,10 +12,10 @@ export const findNext = services => {
 };
 
 export const assign = desiredServices => existingServices =>
-  R.reduce(
+  reduce(
     (acc, svc) => {
-      const existing = R.find(s => s.stack === svc.stack && s.name === svc.name, existingServices);
-      const port = existing ? existing.port : findNext(R.concat(existingServices, acc));
+      const existing = find(s => s.stack === svc.stack && s.name === svc.name, existingServices);
+      const port = existing ? existing.port : findNext(concat(existingServices, acc));
       return acc.concat({ ...svc, port });
     },
     [],
