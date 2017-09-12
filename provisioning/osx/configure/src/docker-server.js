@@ -6,20 +6,34 @@ import fs from 'fs';
 import path from 'path';
 import splitca from 'split-ca';
 import url from 'url';
-import { isNil, reject } from 'ramda';
+import yaml from 'js-yaml';
+import { find, isNil, reject } from 'ramda';
 
 const dockerEnv = Bluebird.promisify(DockerMachine.env);
 const stat = Bluebird.promisify(fs.stat);
 
-export const getEnv = async (swarm = '/var/run/docker.sock') => {
-  try {
-    if ((await stat(swarm)).isSocket()) {
-      return { DOCKER_HOST: `unix://${path.resolve(swarm)}` };
-    }
-  } catch (e) {
-    // nothing to do
+const readConfigFn = () => yaml.safeLoad(fs.readFileSync(path.resolve('_docker.yml'), 'utf8'));
+
+export const getEnv = async (serverName = 'local', readConfig = readConfigFn) => {
+  const server = find(x => x.name === serverName, readConfig().docker);
+  if (!server) {
+    throw new Error(`Cannot find configuration for docker server ${serverName}!`);
   }
-  return dockerEnv(swarm, { parse: true });
+  switch (server.type) {
+    case 'unix-socket':
+      try {
+        if ((await stat(server.address)).isSocket()) {
+          return { DOCKER_HOST: `unix://${path.resolve(server.address)}` };
+        }
+        throw new Error(`File ${server.addess} is not a UNIX socket!`);
+      } catch (e) {
+        throw new Error(`No UNIX socket found at ${server.addess}!`);
+      }
+    case 'docker-machine':
+      return dockerEnv(server.address, { parse: true });
+    default:
+      throw new Error(`Docker server connection type ${server.type} is not understood!`);
+  }
 };
 
 export const buildEnv = (processEnv, dockerServerEnv) =>

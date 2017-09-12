@@ -3,7 +3,7 @@ export default {
     alias: 'f',
     demandOption: true,
     requiresArg: true,
-    default: 'stacks.yml',
+    default: '_stacks.yml',
     describe: 'YAML file with stacks configuration',
     type: 'string',
   },
@@ -31,9 +31,8 @@ export default {
     alias: 's',
     demandOption: true,
     requiresArg: true,
-    default: 'mgr1',
-    describe:
-      "The docker-machine name of a manager node in a local swarm, OR the path to Docker's UNIX socket file",
+    default: 'swarm',
+    describe: 'The name of a Docker swarm as described in _docker.yml',
     type: 'string',
   },
 };
