@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { curry } from 'ramda';
 
 export const log = txt => {
   process.stdout.write(`${txt}\n`);
@@ -12,10 +13,7 @@ export const warn = txt => {
   process.stderr.write(`\n${chalk`{yellow WARNING: ${txt}}`}\n`);
 };
 
-export const steps = count => {
-  let current = 0;
-  return msg => {
-    current++;
-    log(`\n${chalk`[${current}/${count}] {white ${msg} ...}`}`);
-  };
-};
+export const step = curry((count, current, msg) => {
+  log(`\n${chalk`[${current}/${count}] {white ${msg} ...}`}`);
+  return current + 1;
+});
