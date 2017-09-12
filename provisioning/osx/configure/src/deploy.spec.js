@@ -18,7 +18,7 @@ describe('deploy', () => {
   };
   describe('parse and validate stack names', () => {
     it('when both valid', () => {
-      const stacknames = 'app, services';
+      const stacknames = ['app', 'services'];
       const expected = {
         stacks: ['app', 'services'],
         messages: [],
@@ -27,7 +27,7 @@ describe('deploy', () => {
       assert.deepEqual(actual, expected);
     });
     it('when one valid and one invalid', () => {
-      const stacknames = 'app, service';
+      const stacknames = ['app', 'service'];
       const expected = {
         stacks: ['app'],
         messages: ['The stack called "service" is not declared in the configuration'],
@@ -36,7 +36,7 @@ describe('deploy', () => {
       assert.deepEqual(actual, expected);
     });
     it('when neither valid', () => {
-      const stacknames = 'app1, service';
+      const stacknames = ['app1', 'service'];
       const expected = {
         stacks: [],
         messages: [

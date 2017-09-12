@@ -16,7 +16,7 @@ export const validate = (stacknames, stackconfig) =>
           accumulator,
         )),
     { stacks: [], messages: [] },
-    R.map(R.trim, R.split(',', stacknames)),
+    stacknames,
   );
 
 export const deployFn = async (mgr, cmd, args) => exec(await getEnv(mgr), cmd, args, false, true);

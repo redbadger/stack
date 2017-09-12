@@ -62,7 +62,7 @@ const doWork = async () => {
     writeLBConfig(loadBalancerConfig);
     await reloadLB();
   }
-  if (argv.deploy) {
+  if (Array.isArray(argv.deploy) && argv.deploy.length > 0) {
     const validations = validate(argv.deploy, config);
     step(`Deploying stack${validations.stacks.length === 1 ? '' : 's'}: ${validations.stacks
       .map(s => `"${s}"`)

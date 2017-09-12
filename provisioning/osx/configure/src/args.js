@@ -24,8 +24,8 @@ export default {
   },
   deploy: {
     demandOption: false,
-    describe: 'A comma separated list of stacks to deploy',
-    type: 'string',
+    describe: 'A space separated list of stacks to deploy',
+    type: 'array',
   },
   swarm: {
     alias: 's',
