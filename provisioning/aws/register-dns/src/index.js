@@ -3,8 +3,6 @@
 // subscribe the lambda function to the SNS topic.
 // Sane values for Memory and Timeout are 128MB and 30s respectively.
 
-/* eslint-disable no-console */
-
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk';
 import R from 'ramda';
@@ -15,6 +13,9 @@ const route53 = new AWS.Route53();
 
 const pluckIpAddress = R.path(['Reservations', '0', 'Instances', '0', 'PrivateIpAddress']);
 const pluckMessage = R.path(['Records', '0', 'Sns', 'Message']);
+
+// eslint-disable-next-line no-console
+const log = console.log.bind(console);
 
 const getIpAddress = async instanceId =>
   pluckIpAddress(await ec2.describeInstances({ InstanceIds: [instanceId] }).promise());
@@ -47,21 +48,22 @@ const completeAsLifecycleAction = async lifecycleParams => {
   // notifies AutoScaling that it should either continue or abandon the instance
   try {
     const data = await as.completeLifecycleAction(lifecycleParams).promise();
-    console.log(`INFO: CompleteLifecycleAction Successful.\nReported:\n${JSON.stringify(data)}`);
+    log(`INFO: CompleteLifecycleAction Successful.\nReported:\n${JSON.stringify(data)}`);
     return data;
   } catch (e) {
-    console.log(`ERROR: AS lifecycle completion failed.\nDetails:\n${e}`);
-    console.log(`DEBUG: CompleteLifecycleAction\nParams:\n${JSON.stringify(lifecycleParams)}`);
+    log(`ERROR: AS lifecycle completion failed.\nDetails:\n${e}`);
+    log(`DEBUG: CompleteLifecycleAction\nParams:\n${JSON.stringify(lifecycleParams)}`);
     return e;
   }
 };
 
 const handlerImpl = async notification => {
-  console.log(`INFO: request Recieved.\nDetails:\n${JSON.stringify(notification)}`);
+  log(`INFO: request Recieved.\nDetails:\n${JSON.stringify(notification)}`);
   const message = JSON.parse(pluckMessage(notification));
-  console.log(`DEBUG: SNS message contents. \nMessage:\n${JSON.stringify(message)}`);
-  const metadata = JSON.parse(message.NotificationMetadata);
-  console.log(`DEBUG: \nMetadata:\n${JSON.stringify(metadata)}`);
+  log(`DEBUG: SNS message contents. \nMessage:\n${JSON.stringify(message)}`);
+  if (!message.LifecycleHookName) {
+    return null;
+  }
 
   const lifecycleParams = {
     AutoScalingGroupName: message.AutoScalingGroupName,
@@ -70,20 +72,22 @@ const handlerImpl = async notification => {
   };
 
   try {
+    const metadata = JSON.parse(message.NotificationMetadata);
+    log(`DEBUG: \nMetadata:\n${JSON.stringify(metadata)}`);
     const ipAddress = await getIpAddress(message.EC2InstanceId);
-    console.log(`DEBUG: \nipAddress:\n${ipAddress}`);
+    log(`DEBUG: \nipAddress:\n${ipAddress}`);
     const response = await updateDns(
       metadata.action,
       metadata.hostedZoneId,
       message.EC2InstanceId,
       ipAddress,
     );
-    console.log(`DEBUG: response:\n${JSON.stringify(response)}`);
+    log(`DEBUG: response:\n${JSON.stringify(response)}`);
     lifecycleParams.LifecycleActionResult = 'CONTINUE';
-    console.log('INFO: Lambda function reporting success to AutoScaling');
+    log('INFO: Lambda function reporting success to AutoScaling');
   } catch (e) {
     lifecycleParams.LifecycleActionResult = 'ABANDON';
-    console.log(`ERROR: Lambda function reporting failure to AutoScaling with error: ${e}`);
+    log(`ERROR: Lambda function reporting failure to AutoScaling with error: ${e}`);
   }
 
   return completeAsLifecycleAction(lifecycleParams);
