@@ -15,5 +15,4 @@ export const warn = txt => {
 
 export const step = curry((count, current, msg) => {
   log(`\n${chalk`[${current}/${count}] {white ${msg} ...}`}`);
-  return current + 1;
 });

@@ -29,11 +29,12 @@ const { argv } = yargs.options(args).help();
 const stackConfigPath = path.resolve(argv.file);
 const stackConfig = yaml.safeLoad(fs.readFileSync(stackConfigPath, 'utf8'));
 
-const logStep = step(2 + (argv.update ? 1 : 0) + (argv.deploy ? 1 : 0));
+const stepper = step(2 + (argv.update ? 1 : 0) + (argv.deploy ? 1 : 0));
 let nextStep = 1;
+const logStep = msg => stepper(nextStep++)(msg);
 
 const doWork = async () => {
-  nextStep = logStep(nextStep, 'Scanning swarm and configuring ports');
+  logStep('Scanning swarm and configuring ports');
   const env = await getEnv(argv.swarm);
   const docker = getDocker(env);
   const existing = await docker.listServices();
@@ -44,7 +45,7 @@ const doWork = async () => {
   const portOverrides = createPortOverrides(servicesWithPorts);
   const portOverrideFilesByStack = writeComposeFiles(writeFn, portOverrides, 'ports-');
 
-  nextStep = logStep(nextStep, 'Merging compose files');
+  logStep('Merging compose files');
   const composeFiles = await mergeComposeFiles(
     mergeComposeFilesFn,
     mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
@@ -52,19 +53,16 @@ const doWork = async () => {
   writeComposeFiles(writeFn, composeFiles, 'deploy-');
 
   if (argv.update) {
-    nextStep = logStep(nextStep, 'Updating load balancer');
+    logStep('Updating load balancer');
     const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
     writeLBConfig(loadBalancerConfig);
     await reloadLB();
   }
   if (Array.isArray(argv.deploy) && argv.deploy.length > 0) {
     const validations = validate(argv.deploy, stackConfig);
-    nextStep = logStep(
-      nextStep,
-      `Deploying stack${validations.stacks.length === 1 ? '' : 's'}: ${validations.stacks
-        .map(s => `"${s}"`)
-        .join(', ')}`,
-    );
+    logStep(`Deploying stack${validations.stacks.length === 1 ? '' : 's'}: ${validations.stacks
+      .map(s => `"${s}"`)
+      .join(', ')}`);
     if (validations.messages.length) {
       err(join(', ', validations.messages));
     } else {
