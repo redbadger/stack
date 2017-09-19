@@ -1,7 +1,9 @@
-import execa from 'execa';
+import Docker from 'dockerode';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
-import R from 'ramda';
+import { concat, head, join, map } from 'ramda';
+
+import { log, warn } from './log';
 
 export const create = (services, domain) => `global
     maxconn 4096
@@ -28,13 +30,13 @@ frontend http_front
     stats enable
     stats uri /haproxy?stats
     use_backend %[req.hdr(host),lower]
-${R.join(
+${join(
     '',
-    R.map(
+    map(
       s =>
-        `${R.join(
+        `${join(
           '',
-          R.map(
+          map(
             name =>
               `
 backend ${name}.${s.stack}.${domain}
@@ -44,7 +46,7 @@ backend ${name}.${s.stack}.${domain}
     server web wkr2:${s.port} check
     server web wkr3:${s.port} check
 `,
-            R.concat([s.name], s.aliases),
+            concat([s.name], s.aliases),
           ),
         )}`,
       services,
@@ -54,19 +56,22 @@ backend ${name}.${s.stack}.${domain}
 export const write = contents => {
   mkdirp.sync('/tmp/haproxy');
   const file = '/tmp/haproxy/haproxy.cfg';
-  console.log(`Writing ${file}`); // eslint-disable-line
+  log(`Writing ${file}`);
   fs.writeFileSync(file, contents);
 };
 
 export const reload = async () => {
-  console.log('Signalling haproxy to reload configuration ...'); //eslint-disable-line
-  const cp = execa('docker', ['kill', '-s', 'HUP', 'loadbalancer_load_balancer_1'], {
-    env: {
-      PATH: process.env.PATH,
-    },
-    extendEnv: false,
-  });
-  cp.stdout.pipe(process.stdout);
-  cp.stderr.pipe(process.stderr);
-  return cp;
+  const docker = new Docker({ socketPath: '/var/run/docker.sock' });
+  const opts = {
+    all: false,
+    filters: { label: ['com.docker.compose.service=load_balancer'] },
+  };
+  const containerInfo = head(await docker.listContainers(opts));
+  if (containerInfo) {
+    const container = docker.getContainer(containerInfo.Id);
+    await container.kill({ signal: 'SIGHUP' });
+    log('Load balancer has been signalled to reload config');
+  } else {
+    warn('Cannot find a container with service name "load_balancer"');
+  }
 };

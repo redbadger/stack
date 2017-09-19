@@ -1,11 +1,13 @@
-import execa from 'execa';
 import fs from 'fs';
 import getStream from 'get-stream';
 import path from 'path';
-import R from 'ramda';
+import { chain, forEach, fromPairs, groupBy, join, map, toPairs } from 'ramda';
+
+import { log } from './log';
+import { exec, getEnv } from './docker-server';
 
 export const create = services => {
-  const stackNameAndServices = R.toPairs(R.groupBy(service => service.stack, services));
+  const stackNameAndServices = toPairs(groupBy(service => service.stack, services));
 
   const genService = service => `  ${service.name}:
     ports:
@@ -15,45 +17,39 @@ export const create = services => {
   const genStack = services => `version: "3.1"
 
 services:
-${R.join('', R.map(genService, services))}
+${join('', map(genService, services))}
 `;
 
-  return R.fromPairs(
-    R.map(([stackname, services]) => [stackname, genStack(services)], stackNameAndServices),
-  );
+  const toServices = ([stackname, services]) => [stackname, genStack(services)];
+  return fromPairs(map(toServices, stackNameAndServices));
 };
 
 export const mergeFn = async (cmd, args) => {
-  const cp = execa(cmd, args, {
-    env: {
-      PATH: process.env.PATH,
-    },
-    extendEnv: false,
-  });
-  cp.stderr.pipe(process.stderr);
+  const env = await getEnv('local');
+  const cp = exec(env, cmd, args, false, true);
   return getStream(cp.stdout);
 };
 
-export const merge = async (mergeFn, dir, filesByStack) => {
+export const merge = async (mergeFn, filesByStack) => {
   const retVal = {};
-  for (const [stack, files] of R.toPairs(filesByStack)) {
-    const args = R.chain(f => ['-f', f], R.map(f => path.join(dir, f), files));
+  for (const [stack, files] of toPairs(filesByStack)) {
+    const args = chain(f => ['-f', f], map(path.resolve, files));
     retVal[stack] = await mergeFn('docker-compose', [...args, 'config']);
   }
   return retVal;
 };
 
 export const writeFn = (filePath, content) => {
-  console.log(`Writing ${filePath}`); // eslint-disable-line
+  log(`Writing ${filePath}`);
   fs.writeFileSync(filePath, content);
 };
 
-export const write = (writeFn, filesByStack, dir, prefix) => {
+export const write = (writeFn, filesByStack, prefix) => {
   const paths = {};
-  R.forEach(([stack, content]) => {
+  forEach(([stack, content]) => {
     const file = `${prefix}${stack}.yml`;
     paths[stack] = file;
-    writeFn(path.join(dir, file), content);
-  }, R.toPairs(filesByStack));
+    writeFn(path.resolve(file), content);
+  }, toPairs(filesByStack));
   return paths;
 };

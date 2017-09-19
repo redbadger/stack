@@ -44,11 +44,15 @@ You will need:
 * VPC with public and private subnets in 3 AZs (https://s3-eu-west-1.amazonaws.com/widdix-aws-cf-templates-releases-eu-west-1/stable/vpc/vpc-3azs.yaml)
 ![vpc-3azs](./doc/vpc-3azs.png)
 
+[![Launch](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=vpc-3azs&templateURL=https://s3-eu-west-1.amazonaws.com/widdix-aws-cf-templates-releases-eu-west-1/stable/vpc/vpc-3azs.yaml)
+
 [Guide](http://templates.cloudonaut.io/en/stable/vpc/#vpc-with-private-and-public-subnets-in-three-availability-zones)
 
 * You may also want an ssh bastion host in a public subnet.
 (https://s3-eu-west-1.amazonaws.com/widdix-aws-cf-templates-releases-eu-west-1/stable/vpc/vpc-ssh-bastion.yaml)
 ![vpc-ssh-bastion](./doc/vpc-ssh-bastion.png)
+
+[![Launch](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=vpc-ssh-bastion&templateURL=https://s3-eu-west-1.amazonaws.com/widdix-aws-cf-templates-releases-eu-west-1/stable/vpc/vpc-ssh-bastion.yaml)
 
 [Guide](http://templates.cloudonaut.io/en/stable/vpc/#ssh-bastion-hostinstance)
 
@@ -57,6 +61,8 @@ You will need:
 * You may also want NAT gateways (one in each AZ).
 (https://s3-eu-west-1.amazonaws.com/widdix-aws-cf-templates-releases-eu-west-1/stable/vpc/vpc-nat-gateway.yaml)
 ![vpc-nat-gateway](./doc/vpc-nat-gateway.png)
+
+[![Launch](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=vpc-nat-gateway&templateURL=https://s3-eu-west-1.amazonaws.com/widdix-aws-cf-templates-releases-eu-west-1/stable/vpc/vpc-nat-gateway.yaml)
 
 [Guide](http://templates.cloudonaut.io/en/stable/vpc/#nat-gateway)
 

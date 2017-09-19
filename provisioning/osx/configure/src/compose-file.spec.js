@@ -4,10 +4,30 @@ import { create, merge, write } from './compose-file';
 describe('compose-file', () => {
   it('should create the correct port overlays', () => {
     const services = [
-      { stack: 'services', name: 'visualizer', aliases: [], port: 8080 },
-      { stack: 'app', name: 'rproxy', aliases: ['web'], port: 80 },
-      { stack: 'app', name: 'gateway', aliases: ['api'], port: 8000 },
-      { stack: 'app', name: 'gateway1', aliases: ['api1'], port: 8001 },
+      {
+        stack: 'services',
+        name: 'visualizer',
+        aliases: [],
+        port: 8080,
+      },
+      {
+        stack: 'app',
+        name: 'rproxy',
+        aliases: ['web'],
+        port: 80,
+      },
+      {
+        stack: 'app',
+        name: 'gateway',
+        aliases: ['api'],
+        port: 8000,
+      },
+      {
+        stack: 'app',
+        name: 'gateway1',
+        aliases: ['api1'],
+        port: 8001,
+      },
     ];
     const expected = {
       services: `version: "3.1"
@@ -43,18 +63,22 @@ services:
     };
     const expectedCall = [
       'docker-compose',
-      ['-f', '/tmp/a.yml', '-f', '/tmp/b.yml', '-f', '/tmp/c.yml', 'config'],
+      [
+        '-f',
+        `${process.cwd()}/a.yml`,
+        '-f',
+        `${process.cwd()}/b.yml`,
+        '-f',
+        `${process.cwd()}/c.yml`,
+        'config',
+      ],
     ];
     let actualCall;
     const actual = { a: 'merged' };
-    const expected = await merge(
-      async (cmd, args) => {
-        actualCall = [cmd, args];
-        return 'merged';
-      },
-      '/tmp',
-      filesByStack,
-    );
+    const expected = await merge(async (cmd, args) => {
+      actualCall = [cmd, args];
+      return 'merged';
+    }, filesByStack);
     expect(actualCall).to.deep.equal(expectedCall);
     expect(actual).to.deep.equal(expected);
   });
@@ -70,13 +94,12 @@ services:
         contents[filePath] = content;
       },
       files,
-      '/tmp',
       'ports-',
     );
 
     const expectedContents = {
-      '/tmp/ports-a.yml': 'a1',
-      '/tmp/ports-b.yml': 'b1',
+      [`${process.cwd()}/ports-a.yml`]: 'a1',
+      [`${process.cwd()}/ports-b.yml`]: 'b1',
     };
     expect(contents).to.deep.equal(expectedContents);
 

@@ -1,15 +1,12 @@
 #!/usr/bin/env node
-import Bluebird from 'bluebird';
-import chalk from 'chalk';
-import Docker from 'dockerode';
-import DockerMachine from 'docker-machine';
 import fs from 'fs';
 import path from 'path';
-import R from 'ramda';
 import yaml from 'js-yaml';
 import yargs from 'yargs';
+import { concat, join, map, mergeWith, pipe } from 'ramda';
 
 import args from './args';
+import { step, err } from './log';
 import {
   create as createPortOverrides,
   merge as mergeComposeFiles,
@@ -18,63 +15,59 @@ import {
   writeFn,
 } from './compose-file';
 import { getServices, getComposeFiles } from './config';
+import { getDocker, getEnv } from './docker-server';
 import { create as createLBConfig, reload as reloadLB, write as writeLBConfig } from './haproxy';
 import { assign as assignPorts } from './ports';
 import { findWithPublishedPorts as findPublicServices } from './services';
+import { validate, deploy, deployFn } from './deploy';
 
-const dockerEnv = Bluebird.promisify(DockerMachine.env);
+process.on('unhandledRejection', msg => {
+  err(msg);
+});
 
-const argv = yargs.options(args).help().argv;
-const configPath = path.resolve(argv.file);
-const config = yaml.safeLoad(fs.readFileSync(configPath, 'utf8'));
+const { argv } = yargs.options(args).help();
+const stackConfigPath = path.resolve(argv.file);
+const stackConfig = yaml.safeLoad(fs.readFileSync(stackConfigPath, 'utf8'));
 
-const setDockerServer = async manager => {
-  const env = await dockerEnv(manager, { parse: true });
-  R.forEachObjIndexed((v, k) => {
-    process.env[k] = v;
-  }, env);
-};
-
-const step = (num, msg) => {
-  // eslint-disable-next-line no-console
-  console.log(chalk`
-
-{yellow [Step ${num}]: ${msg} ...}
-`);
-};
+const stepper = step(2 + (argv.update ? 1 : 0) + (argv.deploy ? 1 : 0));
+let nextStep = 1;
+const logStep = msg => stepper(nextStep++)(msg);
 
 const doWork = async () => {
-  step(1, 'Configuring ports');
-  await setDockerServer(argv.manager);
-  const docker = new Docker();
-  const existingServices = await docker.listServices();
-  const servicesWithPorts = R.pipe(findPublicServices, assignPorts(getServices(config)))(
-    existingServices,
-  );
+  logStep('Scanning swarm and configuring ports');
+  const env = await getEnv(argv.swarm);
+  const docker = getDocker(env);
+  const existing = await docker.listServices();
+  const configured = getServices(stackConfig);
+  const servicesWithPorts = pipe(findPublicServices, assignPorts(configured))(existing);
 
-  const composeFilesDir = path.dirname(configPath);
-  const filenamesByStack = getComposeFiles(config.stacks);
+  const filenamesByStack = getComposeFiles(stackConfig.stacks);
   const portOverrides = createPortOverrides(servicesWithPorts);
-  const portOverrideFilesByStack = writeComposeFiles(
-    writeFn,
-    portOverrides,
-    composeFilesDir,
-    'ports-',
-  );
-  step(2, 'Merging compose files');
+  const portOverrideFilesByStack = writeComposeFiles(writeFn, portOverrides, 'ports-');
+
+  logStep('Merging compose files');
   const composeFiles = await mergeComposeFiles(
     mergeComposeFilesFn,
-    composeFilesDir,
-    R.mergeWith(R.concat, filenamesByStack, R.map(x => [x], portOverrideFilesByStack)),
+    mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
   );
-  writeComposeFiles(writeFn, composeFiles, composeFilesDir, 'deploy-');
+  writeComposeFiles(writeFn, composeFiles, 'deploy-');
 
-  step(3, 'Generating load-balancer configuration');
-  const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
-  writeLBConfig(loadBalancerConfig);
   if (argv.update) {
-    step(4, 'Reloading load-balancer');
+    logStep('Updating load balancer');
+    const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
+    writeLBConfig(loadBalancerConfig);
     await reloadLB();
+  }
+  if (Array.isArray(argv.deploy) && argv.deploy.length > 0) {
+    const validations = validate(argv.deploy, stackConfig);
+    logStep(`Deploying stack${validations.stacks.length === 1 ? '' : 's'}: ${validations.stacks
+      .map(s => `"${s}"`)
+      .join(', ')}`);
+    if (validations.messages.length) {
+      err(join(', ', validations.messages));
+    } else {
+      deploy(deployFn, argv.swarm, validations.stacks);
+    }
   }
 };
 

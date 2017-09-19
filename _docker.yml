@@ -1,0 +1,10 @@
+docker:
+  - name: local
+    type: unix-socket
+    address: /var/run/docker.sock
+  - name: swarm
+    type: docker-machine
+    address: mgr1
+  - name: aws
+    type: unix-socket
+    address: docker.sock

@@ -47,7 +47,10 @@ resource "aws_autoscaling_group" "managers" {
   termination_policies      = ["OldestInstance", "ClosestToNextInstanceHour"]
   default_cooldown          = 300
 
-  depends_on = ["aws_efs_mount_target.tokens"]
+  depends_on = [
+    "aws_efs_mount_target.tokens",
+    "aws_route53_zone.local",
+  ]
 
   initial_lifecycle_hook {
     name                 = "register_dns"

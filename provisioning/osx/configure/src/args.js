@@ -2,8 +2,17 @@ export default {
   file: {
     alias: 'f',
     demandOption: true,
-    default: 'stacks.yml',
+    requiresArg: true,
+    default: '_stacks.yml',
     describe: 'YAML file with stacks configuration',
+    type: 'string',
+  },
+  domain: {
+    alias: 'd',
+    demandOption: true,
+    requiresArg: true,
+    default: 'local',
+    describe: 'The name of the top-level domain you want to use',
     type: 'string',
   },
   update: {
@@ -13,18 +22,17 @@ export default {
     describe: 'If true, updates the load balancer with new ports',
     type: 'boolean',
   },
-  domain: {
-    alias: 'd',
-    demandOption: true,
-    default: 'local',
-    describe: 'The name of the top-level domain you want to use',
-    type: 'string',
+  deploy: {
+    demandOption: false,
+    describe: 'A space separated list of stacks to deploy',
+    type: 'array',
   },
-  manager: {
-    alias: 'm',
+  swarm: {
+    alias: 's',
     demandOption: true,
-    default: 'mgr1',
-    describe: 'The name of a manager in the swarm (the docker-machine VM)',
+    requiresArg: true,
+    default: 'swarm',
+    describe: 'The name of a Docker swarm as described in _docker.yml',
     type: 'string',
   },
 };
