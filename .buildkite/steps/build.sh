@@ -5,6 +5,8 @@ set -eux
 env
 export registry=localhost:5000
 
+cd example
+
 cat <<EOF >ports-app.yml
 version: "3.1"
 

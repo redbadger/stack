@@ -25,7 +25,7 @@ process.on('unhandledRejection', msg => {
   err(msg);
 });
 
-const { argv } = yargs.options(args).help();
+const { argv } = yargs.options(args);
 const stackConfigPath = path.resolve(argv.file);
 const stackConfig = yaml.safeLoad(fs.readFileSync(stackConfigPath, 'utf8'));
 
