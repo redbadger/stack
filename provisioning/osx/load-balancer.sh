@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -eux
 
@@ -17,8 +17,17 @@ done
 
 config=/tmp/haproxy/haproxy.cfg
 
-if [ -f $config ]; then
-  $compose -f docker-compose-load-balancer.yml -p load-balancer up -d
-else
-  echo "Error: Cannot start haproxy. Please run configure to generate $config."
+if [ ! -f $config ]; then
+  cat  > $config <<EOF
+global
+  maxconn 256
+
+defaults
+  mode http
+
+listen http-in
+  bind *:80
+EOF
 fi
+
+$compose -f docker-compose-load-balancer.yml -p load-balancer up -d
