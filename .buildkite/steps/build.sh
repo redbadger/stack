@@ -4,6 +4,7 @@ set -eux
 
 env
 export registry=localhost:5000
+export tag=latest
 
 cd example
 
