@@ -2,7 +2,7 @@ version: "3.1"
 
 services:
   rproxy:
-    image: ${registry}/rproxy
+    image: ${registry}/rproxy:${tag}
     build: rproxy
     environment:
       PORT: 3000
@@ -21,7 +21,7 @@ services:
         constraints:
           - node.role == worker
   web:
-    image: ${registry}/web
+    image: ${registry}/web:${tag}
     build: web
     environment:
       PORT: 3000
@@ -39,7 +39,7 @@ services:
         constraints:
           - node.role == worker
   gateway:
-    image: ${registry}/gateway
+    image: ${registry}/gateway:${tag}
     build: gateway
     environment:
       PORT: 3000
@@ -58,7 +58,7 @@ services:
         constraints:
           - node.role == worker
   api:
-    image: ${registry}/api
+    image: ${registry}/api:${tag}
     build: api
     environment:
       PORT: 3000

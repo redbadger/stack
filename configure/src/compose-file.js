@@ -1,4 +1,5 @@
 import fs from 'fs';
+import getRepoInfo from 'git-repo-info';
 import getStream from 'get-stream';
 import path from 'path';
 import { chain, forEach, fromPairs, groupBy, join, map, toPairs } from 'ramda';
@@ -26,6 +27,7 @@ ${join('', map(genService, services))}
 
 export const mergeFn = async (cmd, args) => {
   const env = await getEnv('local');
+  env.tag = process.env.tag || getRepoInfo().abbreviatedSha;
   const cp = exec(env, cmd, args, false, true);
   return getStream(cp.stdout);
 };

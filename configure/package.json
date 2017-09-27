@@ -16,6 +16,7 @@
     "dockerode": "^2.5.1",
     "execa": "^0.8.0",
     "get-stream": "^3.0.0",
+    "git-repo-info": "^1.4.1",
     "js-yaml": "^3.10.0",
     "mkdirp": "^0.5.1",
     "ramda": "^0.24.1",
