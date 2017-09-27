@@ -17,6 +17,7 @@ done
 
 config=/tmp/haproxy/haproxy.cfg
 
+mkdir -p /tmp/haproxy
 if [ ! -f $config ]; then
   cat  > $config <<EOF
 global
