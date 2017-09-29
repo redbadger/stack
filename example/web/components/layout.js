@@ -10,8 +10,14 @@ export default ({ host, children, title = '!!!' }) => (
     </Head>
     <header>
       <nav>
-        <Link href="/"><a>Home</a></Link> |
-        <Link href="/about"><a>About</a></Link> |
+        <Link href="/">
+          <a>Home</a>
+        </Link>{' '}
+        |
+        <Link href="/about">
+          <a>About</a>
+        </Link>{' '}
+        |
       </nav>
     </header>
 
@@ -21,10 +27,10 @@ export default ({ host, children, title = '!!!' }) => (
       (rendered by {host})
       <style jsx>
         {`
-        footer {
-          color: blue;
-        }
-      `}
+          footer {
+            color: red;
+          }
+        `}
       </style>
     </footer>
   </div>

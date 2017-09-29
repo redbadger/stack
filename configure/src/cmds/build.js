@@ -3,7 +3,7 @@ import path from 'path';
 import yaml from 'js-yaml';
 import { chain, map } from 'ramda';
 
-import { err, log, step } from '../log';
+import { err, step } from '../log';
 import { getComposeFiles } from '../config';
 import { execFn } from '../compose-file';
 
@@ -29,7 +29,6 @@ export const handler = async argv => {
       continue;
     }
     const args = chain(f => ['-f', f], map(path.resolve, files));
-    const output = await execFn('docker-compose', [...args, 'build']);
-    log(`Built ${stack}\n\n${output}`);
+    await execFn('docker-compose', [...args, 'build'], true);
   }
 };

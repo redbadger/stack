@@ -25,10 +25,10 @@ ${join('', map(genService, services))}
   return fromPairs(map(toServices, stackNameAndServices));
 };
 
-export const execFn = async (cmd, args) => {
+export const execFn = async (cmd, args, stdout = false, stderr = true) => {
   const env = await getEnv('local');
   env.tag = process.env.tag || getRepoInfo().abbreviatedSha;
-  const cp = exec(env, cmd, args, false, true);
+  const cp = exec(env, cmd, args, stdout, stderr);
   return getStream(cp.stdout);
 };
 
