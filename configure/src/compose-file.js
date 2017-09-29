@@ -25,20 +25,20 @@ ${join('', map(genService, services))}
   return fromPairs(map(toServices, stackNameAndServices));
 };
 
-export const mergeFn = async (cmd, args) => {
+export const execFn = async (cmd, args) => {
   const env = await getEnv('local');
   env.tag = process.env.tag || getRepoInfo().abbreviatedSha;
   const cp = exec(env, cmd, args, false, true);
   return getStream(cp.stdout);
 };
 
-export const merge = async (mergeFn, filesByStack) => {
-  const retVal = {};
+export const merge = async (execFn, filesByStack) => {
+  const output = {};
   for (const [stack, files] of toPairs(filesByStack)) {
     const args = chain(f => ['-f', f], map(path.resolve, files));
-    retVal[stack] = await mergeFn('docker-compose', [...args, 'config']);
+    output[stack] = await execFn('docker-compose', [...args, 'config']);
   }
-  return retVal;
+  return output;
 };
 
 export const writeFn = (filePath, content) => {
