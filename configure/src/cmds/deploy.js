@@ -28,7 +28,7 @@ export const handler = async argv => {
   const stackConfigPath = path.resolve(argv.file);
   const stackConfig = yaml.safeLoad(fs.readFileSync(stackConfigPath, 'utf8'));
 
-  const stepper = step(3 + (argv.update ? 1 : 0) + (argv.stacks.length ? 3 : 0));
+  const stepper = step(2 + (argv.update ? 1 : 0) + (argv.stacks.length ? 3 : 0));
   let nextStep = 1;
   const logStep = msg => stepper(nextStep++)(msg);
 
