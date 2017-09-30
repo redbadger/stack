@@ -1,3 +1,4 @@
 .next
 ports-*.yml
+pull-*.yml
 deploy-*.yml

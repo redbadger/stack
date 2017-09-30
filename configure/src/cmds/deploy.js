@@ -16,7 +16,7 @@ import { getDocker, getEnv } from '../docker-server';
 import { create as createLBConfig, reload as reloadLB, write as writeLBConfig } from '../haproxy';
 import { assign as assignPorts } from '../ports';
 import { findWithPublishedPorts as findPublicServices } from '../services';
-import { validate, deploy, deployFn } from '../deploy';
+import { validate, deploy, execFn as deployFn } from '../deploy';
 
 export const command = 'deploy [stacks...]';
 export const desc = `Deploys the specified stacks.
@@ -43,20 +43,30 @@ export const handler = argv => {
     const portOverrides = createPortOverrides(servicesWithPorts);
     const portOverrideFilesByStack = writeComposeFiles(writeFn, portOverrides, 'ports-');
 
-    logStep('Merging compose files');
-    const filenamesByStack = getComposeFiles(stackConfig.stacks);
-    const composeFiles = await mergeComposeFiles(
-      mergeComposeFilesFn,
-      mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
-    );
-    writeComposeFiles(writeFn, composeFiles, 'deploy-');
-
     if (argv.update) {
       logStep('Updating load balancer');
       const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
       writeLBConfig(loadBalancerConfig);
       await reloadLB();
     }
+
+    logStep('Merging compose files');
+    const filenamesByStack = getComposeFiles(stackConfig.stacks);
+    const pullFiles = await mergeComposeFiles(
+      mergeComposeFilesFn,
+      'local',
+      filenamesByStack,
+      false,
+    );
+    writeComposeFiles(writeFn, pullFiles, 'pull-');
+    const deployFiles = await mergeComposeFiles(
+      mergeComposeFilesFn,
+      argv.swarm,
+      mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
+      true,
+    );
+    writeComposeFiles(writeFn, deployFiles, 'deploy-');
+
     if (Array.isArray(argv.stacks) && argv.stacks.length > 0) {
       const validations = validate(argv.stacks, stackConfig);
       logStep(`Deploying stack${validations.stacks.length === 1 ? '' : 's'}: ${validations.stacks

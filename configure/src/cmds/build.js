@@ -29,6 +29,6 @@ export const handler = async argv => {
       continue;
     }
     const args = chain(f => ['-f', f], map(path.resolve, files));
-    await execFn('docker-compose', [...args, 'build'], true);
+    await execFn('local', 'docker-compose', [...args, 'build'], true);
   }
 };

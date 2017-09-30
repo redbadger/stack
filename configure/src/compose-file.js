@@ -25,18 +25,21 @@ ${join('', map(genService, services))}
   return fromPairs(map(toServices, stackNameAndServices));
 };
 
-export const execFn = async (cmd, args, stdout = false, stderr = true) => {
-  const env = await getEnv('local');
+export const execFn = async (server, cmd, args, stdout = false, stderr = true) => {
+  const env = await getEnv(server);
   env.tag = process.env.tag || getRepoInfo().abbreviatedSha;
   const cp = exec(env, cmd, args, stdout, stderr);
   return getStream(cp.stdout);
 };
 
-export const merge = async (execFn, filesByStack) => {
+export const merge = async (execFn, server, filesByStack, resolve) => {
   const output = {};
   for (const [stack, files] of toPairs(filesByStack)) {
-    const args = chain(f => ['-f', f], map(path.resolve, files));
-    output[stack] = await execFn('docker-compose', [...args, 'config']);
+    let args = [...chain(f => ['-f', f], map(path.resolve, files)), 'config'];
+    if (resolve) {
+      args = [...args, '--resolve-image-digests'];
+    }
+    output[stack] = await execFn(server, 'docker-compose', args);
   }
   return output;
 };

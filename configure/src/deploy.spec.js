@@ -51,11 +51,16 @@ describe('deploy', () => {
   it('calls deployment correctly', async () => {
     const stacks = ['app', 'services'];
     const actual = [];
-    const deployFn = (mgr, cmd, args) => {
+    const execFn = (mgr, cmd, args) => {
       actual.push({ mgr, cmd, args });
     };
-    await deploy(deployFn, 'mgr1', stacks);
+    await deploy(execFn, 'mgr1', stacks);
     const expected = [
+      {
+        args: ['-f', 'pull-app.yml', 'pull'],
+        cmd: 'docker-compose',
+        mgr: 'mgr1',
+      },
       {
         mgr: 'mgr1',
         cmd: 'docker',
@@ -67,6 +72,11 @@ describe('deploy', () => {
           '--with-registry-auth',
           'app',
         ],
+      },
+      {
+        args: ['-f', 'pull-services.yml', 'pull'],
+        cmd: 'docker-compose',
+        mgr: 'mgr1',
       },
       {
         mgr: 'mgr1',

@@ -19,11 +19,13 @@ export const validate = (stacknames, stackconfig) =>
     stacknames,
   );
 
-export const deployFn = async (mgr, cmd, args) => exec(await getEnv(mgr), cmd, args, false, true);
+export const execFn = async (mgr, cmd, args) => exec(await getEnv(mgr), cmd, args, false, true);
 
-export const deploy = async (deployFn, mgr, stacks) => {
+export const deploy = async (execFn, mgr, stacks) => {
   for (const stack of stacks) {
-    await deployFn(mgr, 'docker', [
+    await execFn(mgr, 'docker-compose', ['-f', `pull-${stack}.yml`, 'pull']);
+
+    await execFn(mgr, 'docker', [
       'stack',
       'deploy',
       '--compose-file',
