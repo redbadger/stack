@@ -16,7 +16,7 @@ import { getDocker, getEnv } from '../docker-server';
 import { create as createLBConfig, reload as reloadLB, write as writeLBConfig } from '../haproxy';
 import { assign as assignPorts } from '../ports';
 import { findWithPublishedPorts as findPublicServices } from '../services';
-import { validate, deploy, execFn as deployFn } from '../deploy';
+import { validate, deploy, execFn } from '../deploy';
 
 export const command = 'deploy [stacks...]';
 export const desc = `Deploys the specified stacks.
@@ -67,7 +67,7 @@ export const handler = argv => {
       } else {
         logStep('Pulling images');
         for (const stack of validations.stacks) {
-          await deployFn(argv.mgr, 'docker-compose', ['-f', `pull-${stack}.yml`, 'pull']);
+          await execFn(argv.swarm, 'docker-compose', ['-f', `pull-${stack}.yml`, 'pull']);
         }
 
         logStep('Resolving images');
@@ -80,7 +80,7 @@ export const handler = argv => {
         writeComposeFiles(writeFn, resolved, 'deploy-');
 
         logStep('Deploying');
-        deploy(deployFn, argv.swarm, validations.stacks);
+        deploy(execFn, argv.swarm, validations.stacks);
       }
     }
   };
