@@ -23,8 +23,6 @@ export const execFn = async (mgr, cmd, args) => exec(await getEnv(mgr), cmd, arg
 
 export const deploy = async (execFn, mgr, stacks) => {
   for (const stack of stacks) {
-    await execFn(mgr, 'docker-compose', ['-f', `pull-${stack}.yml`, 'pull']);
-
     await execFn(mgr, 'docker', [
       'stack',
       'deploy',

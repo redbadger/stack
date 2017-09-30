@@ -57,11 +57,6 @@ describe('deploy', () => {
     await deploy(execFn, 'mgr1', stacks);
     const expected = [
       {
-        args: ['-f', 'pull-app.yml', 'pull'],
-        cmd: 'docker-compose',
-        mgr: 'mgr1',
-      },
-      {
         mgr: 'mgr1',
         cmd: 'docker',
         args: [
@@ -72,11 +67,6 @@ describe('deploy', () => {
           '--with-registry-auth',
           'app',
         ],
-      },
-      {
-        args: ['-f', 'pull-services.yml', 'pull'],
-        cmd: 'docker-compose',
-        mgr: 'mgr1',
       },
       {
         mgr: 'mgr1',

@@ -28,7 +28,7 @@ export const handler = argv => {
   const stackConfigPath = path.resolve(argv.file);
   const stackConfig = yaml.safeLoad(fs.readFileSync(stackConfigPath, 'utf8'));
 
-  const stepper = step(3 + (argv.update ? 1 : 0));
+  const stepper = step(3 + (argv.update ? 1 : 0) + (argv.stacks.length ? 3 : 0));
   let nextStep = 1;
   const logStep = msg => stepper(nextStep++)(msg);
 
@@ -52,29 +52,34 @@ export const handler = argv => {
 
     logStep('Merging compose files');
     const filenamesByStack = getComposeFiles(stackConfig.stacks);
-    const pullFiles = await mergeComposeFiles(
+    const unresolved = await mergeComposeFiles(
       mergeComposeFilesFn,
       'local',
       filenamesByStack,
       false,
     );
-    writeComposeFiles(writeFn, pullFiles, 'pull-');
-    const deployFiles = await mergeComposeFiles(
-      mergeComposeFilesFn,
-      argv.swarm,
-      mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
-      true,
-    );
-    writeComposeFiles(writeFn, deployFiles, 'deploy-');
+    writeComposeFiles(writeFn, unresolved, 'pull-');
 
-    if (Array.isArray(argv.stacks) && argv.stacks.length > 0) {
+    if (argv.stacks.length > 0) {
       const validations = validate(argv.stacks, stackConfig);
-      logStep(`Deploying stack${validations.stacks.length === 1 ? '' : 's'}: ${validations.stacks
-        .map(s => `"${s}"`)
-        .join(', ')}`);
       if (validations.messages.length) {
         err(join(', ', validations.messages));
       } else {
+        logStep('Pulling images');
+        for (const stack of validations.stacks) {
+          await deployFn(argv.mgr, 'docker-compose', ['-f', `pull-${stack}.yml`, 'pull']);
+        }
+
+        logStep('Resolving images');
+        const resolved = await mergeComposeFiles(
+          mergeComposeFilesFn,
+          argv.swarm,
+          mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
+          true,
+        );
+        writeComposeFiles(writeFn, resolved, 'deploy-');
+
+        logStep('Deploying');
         deploy(deployFn, argv.swarm, validations.stacks);
       }
     }
