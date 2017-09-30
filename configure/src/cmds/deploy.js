@@ -24,7 +24,7 @@ If no stacks are specified, then just creates merged compose files.
 `;
 export const builder = {};
 
-export const handler = argv => {
+export const handler = async argv => {
   const stackConfigPath = path.resolve(argv.file);
   const stackConfig = yaml.safeLoad(fs.readFileSync(stackConfigPath, 'utf8'));
 
@@ -32,58 +32,49 @@ export const handler = argv => {
   let nextStep = 1;
   const logStep = msg => stepper(nextStep++)(msg);
 
-  const doWork = async () => {
-    logStep('Scanning swarm and configuring ports');
-    const env = await getEnv(argv.swarm);
-    const docker = getDocker(env);
-    const existing = await docker.listServices();
-    const configured = getServices(stackConfig);
-    const servicesWithPorts = pipe(findPublicServices, assignPorts(configured))(existing);
+  logStep('Scanning swarm and configuring ports');
+  const env = await getEnv(argv.swarm);
+  const docker = getDocker(env);
+  const existing = await docker.listServices();
+  const configured = getServices(stackConfig);
+  const servicesWithPorts = pipe(findPublicServices, assignPorts(configured))(existing);
 
-    const portOverrides = createPortOverrides(servicesWithPorts);
-    const portOverrideFilesByStack = writeComposeFiles(writeFn, portOverrides, 'ports-');
+  const portOverrides = createPortOverrides(servicesWithPorts);
+  const portOverrideFilesByStack = writeComposeFiles(writeFn, portOverrides, 'ports-');
 
-    if (argv.update) {
-      logStep('Updating load balancer');
-      const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
-      writeLBConfig(loadBalancerConfig);
-      await reloadLB();
-    }
+  if (argv.update) {
+    logStep('Updating load balancer');
+    const loadBalancerConfig = createLBConfig(servicesWithPorts, argv.domain);
+    writeLBConfig(loadBalancerConfig);
+    await reloadLB();
+  }
 
-    logStep('Merging compose files');
-    const filenamesByStack = getComposeFiles(stackConfig.stacks);
-    const unresolved = await mergeComposeFiles(
-      mergeComposeFilesFn,
-      'local',
-      filenamesByStack,
-      false,
-    );
-    writeComposeFiles(writeFn, unresolved, 'pull-');
+  logStep('Merging compose files');
+  const filenamesByStack = getComposeFiles(stackConfig.stacks);
+  const unresolved = await mergeComposeFiles(mergeComposeFilesFn, 'local', filenamesByStack, false);
+  writeComposeFiles(writeFn, unresolved, 'pull-');
 
-    if (argv.stacks.length > 0) {
-      const validations = validate(argv.stacks, stackConfig);
-      if (validations.messages.length) {
-        err(join(', ', validations.messages));
-      } else {
-        logStep('Pulling images');
-        for (const stack of validations.stacks) {
-          await execFn(argv.swarm, 'docker-compose', ['-f', `pull-${stack}.yml`, 'pull']);
-        }
-
-        logStep('Resolving images');
-        const resolved = await mergeComposeFiles(
-          mergeComposeFilesFn,
-          argv.swarm,
-          mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
-          true,
-        );
-        writeComposeFiles(writeFn, resolved, 'deploy-');
-
-        logStep('Deploying');
-        deploy(execFn, argv.swarm, validations.stacks);
+  if (argv.stacks.length > 0) {
+    const validations = validate(argv.stacks, stackConfig);
+    if (validations.messages.length) {
+      err(join(', ', validations.messages));
+    } else {
+      logStep('Pulling images');
+      for (const stack of validations.stacks) {
+        await execFn(argv.swarm, 'docker-compose', ['-f', `pull-${stack}.yml`, 'pull']);
       }
-    }
-  };
 
-  doWork();
+      logStep('Resolving images');
+      const resolved = await mergeComposeFiles(
+        mergeComposeFilesFn,
+        argv.swarm,
+        mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
+        true,
+      );
+      writeComposeFiles(writeFn, resolved, 'deploy-');
+
+      logStep('Deploying');
+      deploy(execFn, argv.swarm, validations.stacks);
+    }
+  }
 };
