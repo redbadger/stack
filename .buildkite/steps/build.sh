@@ -27,6 +27,6 @@ services:
 EOF
 
 for stack in "app" "services"; do
-  docker-compose -f ${stack}.yml -f ports-${stack}.yml config >deploy-${stack}.yml
-  docker-compose -f deploy-${stack}.yml build
+  docker-compose -f ${stack}.yml -f ${stack}-ports.yml config >${stack}-unresolved.yml
+  docker-compose -f ${stack}-unresolved.yml build
 done

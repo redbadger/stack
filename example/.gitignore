@@ -1,4 +1,4 @@
 .next
-ports-*.yml
-pull-*.yml
-deploy-*.yml
+*-ports.yml
+*-unresolved.yml
+*-resolved.yml

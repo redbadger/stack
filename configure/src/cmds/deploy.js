@@ -40,7 +40,7 @@ export const handler = async argv => {
   const servicesWithPorts = pipe(findPublicServices, assignPorts(configured))(existing);
 
   const portOverrides = createPortOverrides(servicesWithPorts);
-  const portOverrideFilesByStack = writeComposeFiles(writeFn, portOverrides, 'ports-');
+  const portOverrideFilesByStack = writeComposeFiles(writeFn, portOverrides, 'ports');
 
   if (argv.update) {
     logStep('Updating load balancer');
@@ -51,8 +51,13 @@ export const handler = async argv => {
 
   logStep('Merging compose files');
   const filenamesByStack = getComposeFiles(stackConfig.stacks);
-  const unresolved = await mergeComposeFiles(mergeComposeFilesFn, 'local', filenamesByStack, false);
-  writeComposeFiles(writeFn, unresolved, 'pull-');
+  const unresolved = await mergeComposeFiles(
+    mergeComposeFilesFn,
+    'local',
+    mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
+    false,
+  );
+  writeComposeFiles(writeFn, unresolved, 'unresolved');
 
   if (argv.stacks.length > 0) {
     const validations = validate(argv.stacks, stackConfig);
@@ -61,7 +66,7 @@ export const handler = async argv => {
     } else {
       logStep('Pulling images');
       for (const stack of validations.stacks) {
-        await execFn(argv.swarm, 'docker-compose', ['-f', `pull-${stack}.yml`, 'pull']);
+        await execFn(argv.swarm, 'docker-compose', ['-f', `${stack}-unresolved.yml`, 'pull']);
       }
 
       logStep('Resolving images');
@@ -71,7 +76,7 @@ export const handler = async argv => {
         mergeWith(concat, filenamesByStack, map(x => [x], portOverrideFilesByStack)),
         true,
       );
-      writeComposeFiles(writeFn, resolved, 'deploy-');
+      writeComposeFiles(writeFn, resolved, 'resolved');
 
       logStep('Deploying');
       deploy(execFn, argv.swarm, validations.stacks);

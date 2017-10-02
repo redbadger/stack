@@ -133,18 +133,18 @@ services:
         contents[filePath] = content;
       },
       files,
-      'ports-',
+      'ports',
     );
 
     const expectedContents = {
-      [`${process.cwd()}/ports-a.yml`]: 'a1',
-      [`${process.cwd()}/ports-b.yml`]: 'b1',
+      [`${process.cwd()}/a-ports.yml`]: 'a1',
+      [`${process.cwd()}/b-ports.yml`]: 'b1',
     };
     expect(contents).to.deep.equal(expectedContents);
 
     const expectedFiles = {
-      a: 'ports-a.yml',
-      b: 'ports-b.yml',
+      a: 'a-ports.yml',
+      b: 'b-ports.yml',
     };
     expect(paths).to.deep.equal(expectedFiles);
   });

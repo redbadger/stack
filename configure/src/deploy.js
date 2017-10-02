@@ -27,7 +27,7 @@ export const deploy = async (execFn, mgr, stacks) => {
       'stack',
       'deploy',
       '--compose-file',
-      `deploy-${stack}.yml`,
+      `${stack}-resolved.yml`,
       '--with-registry-auth',
       stack,
     ]);

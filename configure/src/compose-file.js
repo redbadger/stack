@@ -49,10 +49,10 @@ export const writeFn = (filePath, content) => {
   fs.writeFileSync(filePath, content);
 };
 
-export const write = (writeFn, filesByStack, prefix) => {
+export const write = (writeFn, filesByStack, stage) => {
   const paths = {};
   forEach(([stack, content]) => {
-    const file = `${prefix}${stack}.yml`;
+    const file = `${stack}-${stage}.yml`;
     paths[stack] = file;
     writeFn(path.resolve(file), content);
   }, toPairs(filesByStack));
