@@ -8,7 +8,7 @@ export tag=latest
 
 cd example
 
-cat <<EOF >ports-app.yml
+cat <<EOF >app-ports.yml
 version: "3.1"
 
 services:
@@ -17,7 +17,7 @@ services:
       - 8001:3000
 EOF
 
-cat <<EOF >ports-services.yml
+cat <<EOF >services-ports.yml
 version: "3.1"
 
 services:
