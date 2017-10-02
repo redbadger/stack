@@ -117,6 +117,12 @@ a578c7c8703c        registry:2             "/entrypoint.sh /e..."   3 days ago  
 
 When all the services have started, the app should be available at http://web.app.local and the visualizer at http://visualizer.services.local
 
+Note: If you get a 503 Service Unavailable from `app_web`, you may need to restart `app_rproxy` (this is probably due to the startup order and it _should_ recover on its own, this needs fixing):
+
+```sh
+on-swarm docker service update --force app_rproxy
+```
+
 ## Cleaning up
 
 ```sh
