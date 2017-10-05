@@ -17,7 +17,7 @@ The example application has 3 stacks running inside the cluster:
 
 Incoming requests can hit any node of the swarm and will be routed to an instance of the service (that has published the port) by the swarm's mesh routing.
 
-You can describe stack configurations (published services) in a `yaml` file which is called `_stacks.yml` by default, and then use the configuration utility (`configure/lib/index.js --help`) to write deployable compose-files from multiple merged compose files (includes automatic port assignment). Combined with the local `dns` server and `haproxy` load balancer, this allows you to access published services by FQDNs in the form `http://service.stack.local` (in this case http://visualizer.services.local and http://web.app.local). See examples below.
+You can describe stack configurations (published services) in a `yaml` file which is called `_stacks.yml` by default, and then use the configuration utility (`configure/lib/index.js --help`) to write deployable compose-files created by merging multiple compose files (including one for automatic port assignment). Combined with the local `dns` server and `haproxy` load balancer, this allows you to access published services by FQDNs in the form `http://service.stack.local` (in this case http://visualizer.services.local and http://web.app.local). See examples below.
 
 ## To set up the cluster locally
 1.  Install the latest VirtualBox and Docker for Mac.
@@ -48,10 +48,31 @@ You can describe stack configurations (published services) in a `yaml` file whic
     ./provisioning/osx/load-balancer.sh
     ```
 
+1.  Run the `configure` utility to generate deployable compose-files with correct ports. This also updates the load balancer in case the ports have changed. It deploys the `visualizer`, so that we can see what's going on.
+
+    Note: you will need to build it (and run tests) before you use it for the first time:
+
+    ```sh
+    cd configure
+    yarn
+    yarn test
+    cd ..
+    ```
+
+    ```sh
+    cd example
+    ../configure/lib/index.js deploy --update services
+    cd ..
+    ```
+
 1.  Build and push the app stack.
 
     ```sh
-    (cd example && ./build-app.sh)
+    cd example
+    export registry=localhost:5000
+    ../configure/lib/index.js build app
+    ../configure/lib/index.js push app
+    cd ..
     ```
 
 1.  Create a secret that the `api` service will use (note we use `printf` instead of `echo` to prevent a new-line being added).
@@ -60,17 +81,12 @@ You can describe stack configurations (published services) in a `yaml` file whic
     printf 'sssshhhh!' | on-swarm docker secret create my_secret -
     ```
 
-1.  Run the `configure` utility to generate deployable compose-files with correct ports. This also updates the load balancer in case the ports have changed. It deploys the `app` and `visualizer` stacks.
-
-    Note: you will need to build it (and run tests) before you use it for the first time:
+1.  Run the `configure` utility to deploy the `app` stack.
 
     ```sh
-    (cd configure && yarn && yarn test)
-    ```
-
-    ```sh
-
-    (cd example && registry=localhost:5000 ../configure/lib/index.js -u --deploy app services)
+    cd example
+    ../configure/lib/index.js deploy --update app
+    cd ..
     ```
 
 1. The following steps use aliases to make it easier to work with local and swarm docker servers (you might want to add them to your `.bash_profile`):
@@ -87,13 +103,13 @@ You should wait until all the services in the swarm are running:
 ```sh
 on-swarm docker service ls
 
-ID                  NAME                        MODE                REPLICAS            IMAGE                              PORTS
-3qztnky5jkkw        swarm_registry_ambassador   replicated          1/1                 svendowideit/ambassador:latest     *:5000->5000/tcp
-ganvtcr24zmp        app_web                     replicated          2/2                 localhost:5000/web:latest
-jzco4rlqyg52        app_gateway                 replicated          2/2                 localhost:5000/proxy:latest
-mgo4je3ug8eg        services_visualizer         replicated          1/1                 charypar/swarm-dashboard:latest    *:8000->3000/tcp
-nonwzdp91sb3        app_rproxy                  replicated          2/2                 localhost:5000/app_rproxy:latest   *:8001->3000/tcp
-wblj76ieyw6z        app_api                     replicated          2/2                 localhost:5000/api:latest
+ID                  NAME                        MODE                REPLICAS            IMAGE                                                                                            PORTS
+1yofqh0g1b9b        services_visualizer         replicated          1/1                 charypar/swarm-dashboard:latest                                                                  *:8000->3000/tcp
+fuhipdgtyvvd        swarm_registry_ambassador   replicated          1/1                 svendowideit/ambassador:latest                                                                   *:5000->5000/tcp
+hi21cmf1oi0x        app_gateway                 replicated          2/2                 localhost:5000/gateway@sha256:75035764b5ee55c35820aa38b4cf7b4d1742be8e7f47ef5379296978cff87eb5
+j3wmx8r2s2kv        app_api                     replicated          2/2                 localhost:5000/api@sha256:1b836f221052dace536425e34dc84714440a31a48a8d48594cdff97107121084       *:8002->3000/tcp
+ntuo4tmulyel        app_web                     replicated          2/2                 localhost:5000/web@sha256:10e40e7311a083371af387fc1d6d505a468e7750e401928a52d2a8aafd217aab
+qzxhfbrkp2vz        app_rproxy                  replicated          2/2                 localhost:5000/rproxy@sha256:7348f573df6ff4a4623c59ab2453de3cd8ae24d0c150f2373a9521e4117c47a1    *:8001->3000/tcp
 ```
 
 You should also have the following local containers running:
@@ -109,6 +125,12 @@ a578c7c8703c        registry:2             "/entrypoint.sh /e..."   3 days ago  
 ```
 
 When all the services have started, the app should be available at http://web.app.local and the visualizer at http://visualizer.services.local
+
+Note: If you get a 503 Service Unavailable from `app_web`, you may need to restart `app_rproxy` (this is probably due to the startup order and it _should_ recover on its own, this needs fixing):
+
+```sh
+on-swarm docker service update --force app_rproxy
+```
 
 ## Cleaning up
 

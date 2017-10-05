@@ -13,5 +13,3 @@ stacks:
         health: /haproxy?stats
         aliases:
           - web
-      - name: api
-        health: /_health

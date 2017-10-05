@@ -22,11 +22,6 @@ export default {
     describe: 'If true, updates the load balancer with new ports',
     type: 'boolean',
   },
-  deploy: {
-    demandOption: false,
-    describe: 'A space separated list of stacks to deploy',
-    type: 'array',
-  },
   swarm: {
     alias: 's',
     demandOption: true,

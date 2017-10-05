@@ -25,20 +25,23 @@ ${join('', map(genService, services))}
   return fromPairs(map(toServices, stackNameAndServices));
 };
 
-export const mergeFn = async (cmd, args) => {
-  const env = await getEnv('local');
+export const execFn = async (server, cmd, args, stdout = false, stderr = true) => {
+  const env = await getEnv(server);
   env.tag = process.env.tag || getRepoInfo().abbreviatedSha;
-  const cp = exec(env, cmd, args, false, true);
+  const cp = exec(env, cmd, args, stdout, stderr);
   return getStream(cp.stdout);
 };
 
-export const merge = async (mergeFn, filesByStack) => {
-  const retVal = {};
+export const merge = async (execFn, server, filesByStack, resolve) => {
+  const output = {};
   for (const [stack, files] of toPairs(filesByStack)) {
-    const args = chain(f => ['-f', f], map(path.resolve, files));
-    retVal[stack] = await mergeFn('docker-compose', [...args, 'config']);
+    let args = [...chain(f => ['-f', f], map(path.resolve, files)), 'config'];
+    if (resolve) {
+      args = [...args, '--resolve-image-digests'];
+    }
+    output[stack] = await execFn(server, 'docker-compose', args);
   }
-  return retVal;
+  return output;
 };
 
 export const writeFn = (filePath, content) => {
@@ -46,10 +49,10 @@ export const writeFn = (filePath, content) => {
   fs.writeFileSync(filePath, content);
 };
 
-export const write = (writeFn, filesByStack, prefix) => {
+export const write = (writeFn, filesByStack, stage) => {
   const paths = {};
   forEach(([stack, content]) => {
-    const file = `${prefix}${stack}.yml`;
+    const file = `${stack}-${stage}.yml`;
     paths[stack] = file;
     writeFn(path.resolve(file), content);
   }, toPairs(filesByStack));

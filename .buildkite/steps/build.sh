@@ -8,7 +8,7 @@ export tag=latest
 
 cd example
 
-cat <<EOF >ports-app.yml
+cat <<EOF >app-ports.yml
 version: "3.1"
 
 services:
@@ -17,7 +17,7 @@ services:
       - 8001:3000
 EOF
 
-cat <<EOF >ports-services.yml
+cat <<EOF >services-ports.yml
 version: "3.1"
 
 services:
@@ -27,6 +27,6 @@ services:
 EOF
 
 for stack in "app" "services"; do
-  docker-compose -f ${stack}.yml -f ports-${stack}.yml config >deploy-${stack}.yml
-  docker-compose -f deploy-${stack}.yml build
+  docker-compose -f ${stack}.yml -f ${stack}-ports.yml config >${stack}-unresolved.yml
+  docker-compose -f ${stack}-unresolved.yml build
 done

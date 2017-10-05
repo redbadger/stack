@@ -62,6 +62,7 @@ services:
       a: ['a.yml', 'b.yml', 'c.yml'],
     };
     const expectedCall = [
+      'mgr1',
       'docker-compose',
       [
         '-f',
@@ -75,10 +76,48 @@ services:
     ];
     let actualCall;
     const actual = { a: 'merged' };
-    const expected = await merge(async (cmd, args) => {
-      actualCall = [cmd, args];
-      return 'merged';
-    }, filesByStack);
+    const expected = await merge(
+      async (server, cmd, args) => {
+        actualCall = [server, cmd, args];
+        return 'merged';
+      },
+      'mgr1',
+      filesByStack,
+      false,
+    );
+    expect(actualCall).to.deep.equal(expectedCall);
+    expect(actual).to.deep.equal(expected);
+  });
+
+  it('should merge and resolve the files correctly', async () => {
+    const filesByStack = {
+      a: ['a.yml', 'b.yml', 'c.yml'],
+    };
+    const expectedCall = [
+      'mgr1',
+      'docker-compose',
+      [
+        '-f',
+        `${process.cwd()}/a.yml`,
+        '-f',
+        `${process.cwd()}/b.yml`,
+        '-f',
+        `${process.cwd()}/c.yml`,
+        'config',
+        '--resolve-image-digests',
+      ],
+    ];
+    let actualCall;
+    const actual = { a: 'merged' };
+    const expected = await merge(
+      async (server, cmd, args) => {
+        actualCall = [server, cmd, args];
+        return 'merged';
+      },
+      'mgr1',
+      filesByStack,
+      true,
+    );
     expect(actualCall).to.deep.equal(expectedCall);
     expect(actual).to.deep.equal(expected);
   });
@@ -94,18 +133,18 @@ services:
         contents[filePath] = content;
       },
       files,
-      'ports-',
+      'ports',
     );
 
     const expectedContents = {
-      [`${process.cwd()}/ports-a.yml`]: 'a1',
-      [`${process.cwd()}/ports-b.yml`]: 'b1',
+      [`${process.cwd()}/a-ports.yml`]: 'a1',
+      [`${process.cwd()}/b-ports.yml`]: 'b1',
     };
     expect(contents).to.deep.equal(expectedContents);
 
     const expectedFiles = {
-      a: 'ports-a.yml',
-      b: 'ports-b.yml',
+      a: 'a-ports.yml',
+      b: 'b-ports.yml',
     };
     expect(paths).to.deep.equal(expectedFiles);
   });

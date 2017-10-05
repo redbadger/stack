@@ -51,10 +51,10 @@ describe('deploy', () => {
   it('calls deployment correctly', async () => {
     const stacks = ['app', 'services'];
     const actual = [];
-    const deployFn = (mgr, cmd, args) => {
+    const execFn = (mgr, cmd, args) => {
       actual.push({ mgr, cmd, args });
     };
-    await deploy(deployFn, 'mgr1', stacks);
+    await deploy(execFn, 'mgr1', stacks);
     const expected = [
       {
         mgr: 'mgr1',
@@ -63,7 +63,7 @@ describe('deploy', () => {
           'stack',
           'deploy',
           '--compose-file',
-          'deploy-app.yml',
+          'app-resolved.yml',
           '--with-registry-auth',
           'app',
         ],
@@ -75,7 +75,7 @@ describe('deploy', () => {
           'stack',
           'deploy',
           '--compose-file',
-          'deploy-services.yml',
+          'services-resolved.yml',
           '--with-registry-auth',
           'services',
         ],
