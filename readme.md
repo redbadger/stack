@@ -48,6 +48,23 @@ You can describe stack configurations (published services) in a `yaml` file whic
     ./provisioning/osx/load-balancer.sh
     ```
 
+1.  Run the `configure` utility to generate deployable compose-files with correct ports. This also updates the load balancer in case the ports have changed. It deploys the `visualizer`, so that we can see what's going on.
+
+    Note: you will need to build it (and run tests) before you use it for the first time:
+
+    ```sh
+    cd configure
+    yarn
+    yarn test
+    cd ..
+    ```
+
+    ```sh
+    cd example
+    ../configure/lib/index.js deploy --update services
+    cd ..
+    ```
+
 1.  Build and push the app stack.
 
     ```sh
@@ -64,20 +81,11 @@ You can describe stack configurations (published services) in a `yaml` file whic
     printf 'sssshhhh!' | on-swarm docker secret create my_secret -
     ```
 
-1.  Run the `configure` utility to generate deployable compose-files with correct ports. This also updates the load balancer in case the ports have changed. It deploys the `app` and `visualizer` stacks.
-
-    Note: you will need to build it (and run tests) before you use it for the first time:
-
-    ```sh
-    cd configure
-    yarn
-    yarn test
-    cd ..
-    ```
+1.  Run the `configure` utility to deploy the `app` stack.
 
     ```sh
     cd example
-    ../configure/lib/index.js deploy -u app services
+    ../configure/lib/index.js deploy --update app
     cd ..
     ```
 
@@ -94,6 +102,7 @@ You should wait until all the services in the swarm are running:
 
 ```sh
 on-swarm docker service ls
+
 ID                  NAME                        MODE                REPLICAS            IMAGE                                                                                            PORTS
 1yofqh0g1b9b        services_visualizer         replicated          1/1                 charypar/swarm-dashboard:latest                                                                  *:8000->3000/tcp
 fuhipdgtyvvd        swarm_registry_ambassador   replicated          1/1                 svendowideit/ambassador:latest                                                                   *:5000->5000/tcp
