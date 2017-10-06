@@ -1,0 +1,10 @@
+{
+  "name": "configure",
+  "reason": {
+    "react-jsx": 2
+  },
+  "package-specs": ["commonjs", "es6"],
+  "bsc-flags": ["-bs-super-errors"],
+  "bs-dependencies": ["bs-jest"],
+  "sources": "src"
+}
