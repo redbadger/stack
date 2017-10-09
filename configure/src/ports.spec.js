@@ -66,9 +66,14 @@ describe('assignPorts', () => {
   test('should assign ports to those without', () => {
     const desiredServices = [{ stack: 'app', name: 'rproxy', aliases: ['web'] }];
     const existingServices = [{ stack: 'services', name: 'visualizer', port: 8000 }];
-    const expected = [{
-      stack: 'app', name: 'rproxy', aliases: ['web'], port: 8001,
-    }];
+    const expected = [
+      {
+        stack: 'app',
+        name: 'rproxy',
+        aliases: ['web'],
+        port: 8001,
+      },
+    ];
     const actual = assign(desiredServices)(existingServices);
     expect(actual).toEqual(expected);
   });
