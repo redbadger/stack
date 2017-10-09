@@ -4,13 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "babel src -d lib && bsb -make-world && yarn webpack",
+    "build": "bsb -make-world && yarn webpack",
     "clean": "bsb -clean-world",
-    "deploy":
-      "yarn clean && NODE_ENV=production yarn build && now --name \"reason-interop-hacker-news\" ./bundledOutputs",
     "lint": "eslint --cache .",
     "start": "webpack -w",
-    "test": "yarn build && mocha \"lib/**/*.spec.js\"",
+    "test": "jest",
     "watch": "bsb -make-world -w"
   },
   "author": "Stuart Harris <stuart.harris@red-badger.com>",
