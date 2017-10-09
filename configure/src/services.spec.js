@@ -1,8 +1,7 @@
-import { expect } from 'chai';
 import { findWithPublishedPorts } from './services';
 
 describe('services', () => {
-  it('should find public services', () => {
+  test('should find public services', () => {
     const services = [
       {
         ID: '14grfo1mbeno4tsxspfmxy84p',
@@ -385,10 +384,10 @@ describe('services', () => {
       { name: 'registry_ambassador', stack: 'swarm', port: 5000 },
     ];
     const actual = findWithPublishedPorts(services);
-    expect(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
+    expect(JSON.stringify(actual)).toBe(JSON.stringify(expected));
   });
 
-  it('should still work even if the stackname has an underscore', () => {
+  test('should still work even if the stackname has an underscore', () => {
     const services = [
       {
         Spec: {
@@ -408,6 +407,6 @@ describe('services', () => {
     ];
     const expected = [{ name: 'my_service', stack: 'my_stack', port: 8000 }];
     const actual = findWithPublishedPorts(services);
-    expect(JSON.stringify(actual)).to.equal(JSON.stringify(expected));
+    expect(JSON.stringify(actual)).toBe(JSON.stringify(expected));
   });
 });

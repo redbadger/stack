@@ -17,7 +17,7 @@ describe('deploy', () => {
     ],
   };
   describe('parse and validate stack names', () => {
-    it('when both valid', () => {
+    test('when both valid', () => {
       const stacknames = ['app', 'services'];
       const expected = {
         stacks: ['app', 'services'],
@@ -26,7 +26,7 @@ describe('deploy', () => {
       const actual = validate(stacknames, stackconfig);
       assert.deepEqual(actual, expected);
     });
-    it('when one valid and one invalid', () => {
+    test('when one valid and one invalid', () => {
       const stacknames = ['app', 'service'];
       const expected = {
         stacks: ['app'],
@@ -35,7 +35,7 @@ describe('deploy', () => {
       const actual = validate(stacknames, stackconfig);
       assert.deepEqual(actual, expected);
     });
-    it('when neither valid', () => {
+    test('when neither valid', () => {
       const stacknames = ['app1', 'service'];
       const expected = {
         stacks: [],
@@ -48,7 +48,7 @@ describe('deploy', () => {
       assert.deepEqual(actual, expected);
     });
   });
-  it('calls deployment correctly', async () => {
+  test('calls deployment correctly', async () => {
     const stacks = ['app', 'services'];
     const actual = [];
     const execFn = (mgr, cmd, args) => {

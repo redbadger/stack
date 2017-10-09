@@ -1,8 +1,7 @@
-import { expect } from 'chai';
 import { findNext, assign } from './ports';
 
 describe('should find the first unused port above 8000', () => {
-  it('when only one', () => {
+  test('when only one', () => {
     const expected = 8001;
     const actual = findNext([
       {
@@ -11,9 +10,9 @@ describe('should find the first unused port above 8000', () => {
         port: 8000,
       },
     ]);
-    expect(actual).to.equal(expected);
+    expect(actual).toBe(expected);
   });
-  it('when one but without port', () => {
+  test('when one but without port', () => {
     const expected = 8000;
     const actual = findNext([
       {
@@ -21,9 +20,9 @@ describe('should find the first unused port above 8000', () => {
         name: 'fsdkflkdf',
       },
     ]);
-    expect(actual).to.equal(expected);
+    expect(actual).toBe(expected);
   });
-  it('when there is a gap', () => {
+  test('when there is a gap', () => {
     const expected = 8000;
     const actual = findNext([
       {
@@ -37,9 +36,9 @@ describe('should find the first unused port above 8000', () => {
         port: 8001,
       },
     ]);
-    expect(actual).to.equal(expected);
+    expect(actual).toBe(expected);
   });
-  it('when multiple', () => {
+  test('when multiple', () => {
     const expected = 8003;
     const actual = findNext([
       {
@@ -59,25 +58,25 @@ describe('should find the first unused port above 8000', () => {
         port: 8001,
       },
     ]);
-    expect(actual).to.equal(expected);
+    expect(actual).toBe(expected);
   });
 });
 
 describe('assignPorts', () => {
-  it('should assign ports to those without', () => {
+  test('should assign ports to those without', () => {
     const desiredServices = [{ stack: 'app', name: 'rproxy', aliases: ['web'] }];
     const existingServices = [{ stack: 'services', name: 'visualizer', port: 8000 }];
     const expected = [{
       stack: 'app', name: 'rproxy', aliases: ['web'], port: 8001,
     }];
     const actual = assign(desiredServices)(existingServices);
-    expect(actual).to.deep.equal(expected);
+    expect(actual).toEqual(expected);
   });
-  it('should not change port numbers already assigned', () => {
+  test('should not change port numbers already assigned', () => {
     const desiredServices = [{ stack: 'services', name: 'visualizer', port: 8000 }];
     const existingServices = [{ stack: 'services', name: 'visualizer', port: 8000 }];
     const expected = [{ stack: 'services', name: 'visualizer', port: 8000 }];
     const actual = assign(desiredServices)(existingServices);
-    expect(actual).to.deep.equal(expected);
+    expect(actual).toEqual(expected);
   });
 });

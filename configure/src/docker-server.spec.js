@@ -3,7 +3,7 @@ import assert from 'power-assert';
 import { buildEnv } from './docker-server';
 
 describe('docker-server', () => {
-  it('should build the right env for local docker server', () => {
+  test('should build the right env for local docker server', () => {
     const processEnv = {
       x: 1,
       DOCKER_TLS_VERIFY: 'x',
@@ -21,7 +21,7 @@ describe('docker-server', () => {
     const actual = buildEnv(processEnv, dockerEnv);
     assert.deepEqual(actual, expected);
   });
-  it('should build the right env for remote docker server, when local', () => {
+  test('should build the right env for remote docker server, when local', () => {
     const processEnv = {
       x: 1,
     };
@@ -41,28 +41,31 @@ describe('docker-server', () => {
     const actual = buildEnv(processEnv, dockerEnv);
     assert.deepEqual(actual, expected);
   });
-  it('should build the right env for remote docker server, when remote', () => {
-    const processEnv = {
-      x: 1,
-      DOCKER_TLS_VERIFY: 'x',
-      DOCKER_HOST: 'x',
-      DOCKER_CERT_PATH: 'x',
-      DOCKER_MACHINE_NAME: 'x',
-    };
-    const dockerEnv = {
-      DOCKER_TLS_VERIFY: 'y',
-      DOCKER_HOST: 'y',
-      DOCKER_CERT_PATH: 'y',
-      DOCKER_MACHINE_NAME: 'y',
-    };
-    const expected = {
-      x: 1,
-      DOCKER_TLS_VERIFY: 'y',
-      DOCKER_HOST: 'y',
-      DOCKER_CERT_PATH: 'y',
-      DOCKER_MACHINE_NAME: 'y',
-    };
-    const actual = buildEnv(processEnv, dockerEnv);
-    assert.deepEqual(actual, expected);
-  });
+  test(
+    'should build the right env for remote docker server, when remote',
+    () => {
+      const processEnv = {
+        x: 1,
+        DOCKER_TLS_VERIFY: 'x',
+        DOCKER_HOST: 'x',
+        DOCKER_CERT_PATH: 'x',
+        DOCKER_MACHINE_NAME: 'x',
+      };
+      const dockerEnv = {
+        DOCKER_TLS_VERIFY: 'y',
+        DOCKER_HOST: 'y',
+        DOCKER_CERT_PATH: 'y',
+        DOCKER_MACHINE_NAME: 'y',
+      };
+      const expected = {
+        x: 1,
+        DOCKER_TLS_VERIFY: 'y',
+        DOCKER_HOST: 'y',
+        DOCKER_CERT_PATH: 'y',
+        DOCKER_MACHINE_NAME: 'y',
+      };
+      const actual = buildEnv(processEnv, dockerEnv);
+      assert.deepEqual(actual, expected);
+    }
+  );
 });

@@ -1,8 +1,7 @@
-import { expect } from 'chai';
 import { create, merge, write } from './compose-file';
 
 describe('compose-file', () => {
-  it('should create the correct port overlays', () => {
+  test('should create the correct port overlays', () => {
     const services = [
       {
         stack: 'services',
@@ -54,10 +53,10 @@ services:
 `,
     };
     const actual = create(services);
-    expect(actual).to.deep.equal(expected);
+    expect(actual).toEqual(expected);
   });
 
-  it('should merge the files correctly', async () => {
+  test('should merge the files correctly', async () => {
     const filesByStack = {
       a: ['a.yml', 'b.yml', 'c.yml'],
     };
@@ -85,11 +84,11 @@ services:
       filesByStack,
       false,
     );
-    expect(actualCall).to.deep.equal(expectedCall);
-    expect(actual).to.deep.equal(expected);
+    expect(actualCall).toEqual(expectedCall);
+    expect(actual).toEqual(expected);
   });
 
-  it('should merge and resolve the files correctly', async () => {
+  test('should merge and resolve the files correctly', async () => {
     const filesByStack = {
       a: ['a.yml', 'b.yml', 'c.yml'],
     };
@@ -118,11 +117,11 @@ services:
       filesByStack,
       true,
     );
-    expect(actualCall).to.deep.equal(expectedCall);
-    expect(actual).to.deep.equal(expected);
+    expect(actualCall).toEqual(expectedCall);
+    expect(actual).toEqual(expected);
   });
 
-  it('should write the files correctly', () => {
+  test('should write the files correctly', () => {
     const files = {
       a: 'a1',
       b: 'b1',
@@ -140,12 +139,12 @@ services:
       [`${process.cwd()}/a-ports.yml`]: 'a1',
       [`${process.cwd()}/b-ports.yml`]: 'b1',
     };
-    expect(contents).to.deep.equal(expectedContents);
+    expect(contents).toEqual(expectedContents);
 
     const expectedFiles = {
       a: 'a-ports.yml',
       b: 'b-ports.yml',
     };
-    expect(paths).to.deep.equal(expectedFiles);
+    expect(paths).toEqual(expectedFiles);
   });
 });

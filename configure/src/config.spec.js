@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { getServices, getComposeFiles } from './config';
 
 describe('config', () => {
@@ -16,7 +15,7 @@ describe('config', () => {
       },
     ],
   };
-  it('should get services from the config', () => {
+  test('should get services from the config', () => {
     const expected = [
       {
         stack: 'services',
@@ -30,14 +29,14 @@ describe('config', () => {
       },
     ];
     const actual = getServices(config);
-    expect(actual).to.deep.equal(expected);
+    expect(actual).toEqual(expected);
   });
-  it('should get compose files from the config', () => {
+  test('should get compose files from the config', () => {
     const expected = {
       services: ['services.yml'],
       app: ['app.yml'],
     };
     const actual = getComposeFiles(config.stacks);
-    expect(actual).to.deep.equal(expected);
+    expect(actual).toEqual(expected);
   });
 });
