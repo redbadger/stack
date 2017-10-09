@@ -16,6 +16,8 @@ RUN (curl -sL https://deb.nodesource.com/setup_8.x | bash -) && \
 
 RUN npm i -g yarn
 
+WORKDIR /app
+
 COPY package.json yarn.lock ./
 RUN yarn
 
