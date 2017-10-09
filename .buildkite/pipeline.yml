@@ -7,9 +7,6 @@ steps:
     command: bash .buildkite/steps/build.sh
 
   - label: ":node: 'configure' utility: unit tests"
-    env:
-      BUILDKITE_DOCKER_COMPOSE_FILE: ./configure/docker-compose.yml
-      BUILDKITE_DOCKER_COMPOSE_CONTAINER: app
-    command: yarn test # no integration tests yet so run unit tests again! (they ran once as part of build)
+    command: cd ./configure && docker build .
 
   - wait:
