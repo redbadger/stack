@@ -8,7 +8,7 @@ steps:
 
   - label: ":node: 'configure' utility: unit tests"
     env:
-      BUILDKITE_DOCKER_COMPOSE_FILE: docker-compose.yml
+      BUILDKITE_DOCKER_COMPOSE_FILE: ./configure/docker-compose.yml
       BUILDKITE_DOCKER_COMPOSE_CONTAINER: app
     command: cd ./configure && echo done # no integration tests yet and unit tests are part of build
 
