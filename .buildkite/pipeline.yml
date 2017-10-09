@@ -10,6 +10,6 @@ steps:
     env:
       BUILDKITE_DOCKER_COMPOSE_FILE: ./configure/docker-compose.yml
       BUILDKITE_DOCKER_COMPOSE_CONTAINER: app
-    command: cd ./configure && echo done # no integration tests yet and unit tests are part of build
+    command: yarn test # no integration tests yet so run unit tests again! (they ran once as part of build)
 
   - wait:
