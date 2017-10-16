@@ -1,0 +1,15 @@
+stacks:
+  - name: services
+    compose-files:
+      - services.yml
+    services:
+      - name: visualizer
+        health: /_health
+  - name: app
+    compose-files:
+      - app.yml
+    services:
+      - name: rproxy
+        health: /haproxy?stats
+        aliases:
+          - web

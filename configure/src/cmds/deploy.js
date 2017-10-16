@@ -3,7 +3,7 @@ import path from 'path';
 import yaml from 'js-yaml';
 import { concat, join, map, mergeWith, pipe } from 'ramda';
 
-import { step, err } from '../log';
+import { step, err } from '../log.re';
 import {
   create as createPortOverrides,
   merge as mergeComposeFiles,
@@ -11,7 +11,7 @@ import {
   write as writeComposeFiles,
   writeFn,
 } from '../compose-file';
-import { getServices, getComposeFiles } from '../config';
+import { getServices, getComposeFiles } from '../config.re';
 import { getDocker, getEnv } from '../docker-server';
 import { create as createLBConfig, reload as reloadLB, write as writeLBConfig } from '../haproxy';
 import { assign as assignPorts } from '../ports';
