@@ -50,6 +50,7 @@
   },
   "jest": {
     "moduleFileExtensions": ["re", "js", "ml"],
+    "testMatch": ["**/?(*.)(spec|test).(js?(x)|re)"],
     "transform": {
       "^.+\\.(re|ml)": "bs-loader",
       "^.+\\.jsx?$": "babel-jest"
