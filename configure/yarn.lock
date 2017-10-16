@@ -1052,6 +1052,10 @@ bs-loader@^1.8.1:
     loader-utils "^1.1.0"
     read-bsconfig "^1.0.1"
 
+bs-node@buckletypes/bs-node:
+  version "0.0.1"
+  resolved "https://codeload.github.com/buckletypes/bs-node/tar.gz/2feff70afcead1f32c5ae9d49f49977dd30c5e2c"
+
 bs-platform@^1.9.3:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-1.9.3.tgz#8c28976ea206165183f0e8bb2c3cfd8a04120a8a"
