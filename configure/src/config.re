@@ -30,4 +30,4 @@ module Decode = {
   let config json => Json.Decode.{stacks: json |> field "stacks" (list stack)};
 };
 
-let load filename :config => safeLoad (Node.Fs.readFileSync filename `utf8) |> Decode.config;
+let load filename => safeLoad (Node.Fs.readFileSync filename `utf8) |> Decode.config;
