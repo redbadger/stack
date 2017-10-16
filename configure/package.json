@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-jest": "^21.2.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.26.0",
@@ -46,5 +47,12 @@
     "eslint-plugin-react": "^7.4.0",
     "power-assert": "^1.4.4",
     "webpack": "^3.6.0"
+  },
+  "jest": {
+    "moduleFileExtensions": ["re", "js", "ml"],
+    "transform": {
+      "^.+\\.(re|ml)": "bs-loader",
+      "^.+\\.jsx?$": "babel-jest"
+    }
   }
 }

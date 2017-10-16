@@ -4,7 +4,7 @@ import getStream from 'get-stream';
 import path from 'path';
 import { chain, forEach, fromPairs, groupBy, join, map, toPairs } from 'ramda';
 
-import { log } from './log';
+import { log } from './log.re';
 import { exec, getEnv } from './docker-server';
 
 export const create = services => {
