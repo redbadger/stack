@@ -1,9 +1,11 @@
 external safeLoad : string => Js.Json.t = "" [@@bs.module "js-yaml"];
 
 type service = {
+  stack: string,
   name: string,
+  aliases: list string,
   health: option string,
-  aliases: option (list string)
+  port: option int
 };
 
 type stack = {
@@ -15,18 +17,27 @@ type stack = {
 type config = {stacks: list stack};
 
 module Decode = {
-  let service json =>
+  let service stack json =>
     Json.Decode.{
+      stack,
       name: json |> field "name" string,
+      aliases:
+        switch (json |> optional (field "aliases" (list string))) {
+        | None => []
+        | Some x => x
+        },
       health: json |> optional (field "health" string),
-      aliases: json |> optional (field "aliases" (list string))
+      port: None
     };
-  let stack json =>
-    Json.Decode.{
-      name: json |> field "name" string,
-      files: json |> field "compose-files" (list string),
-      services: json |> field "services" (list service)
-    };
+  let stack json => {
+    let raw =
+      Json.Decode.{
+        name: json |> field "name" string,
+        files: json |> field "compose-files" (list string),
+        services: []
+      };
+    {...raw, services: Json.Decode.(json |> field "services" (list (service raw.name)))}
+  };
   let config json => Json.Decode.{stacks: json |> field "stacks" (list stack)};
 };
 

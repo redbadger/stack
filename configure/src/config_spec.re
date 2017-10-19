@@ -25,13 +25,27 @@ describe
                   {
                     name: "services",
                     files: ["services.yml"],
-                    services: [{name: "visualizer", health: Some "/_health", aliases: None}]
+                    services: [
+                      {
+                        stack: "services",
+                        name: "visualizer",
+                        aliases: [],
+                        health: Some "/_health",
+                        port: None
+                      }
+                    ]
                   },
                   {
                     name: "app",
                     files: ["app.yml"],
                     services: [
-                      {name: "rproxy", health: Some "/haproxy?stats", aliases: Some ["web"]}
+                      {
+                        stack: "app",
+                        name: "rproxy",
+                        aliases: ["web"],
+                        health: Some "/haproxy?stats",
+                        port: None
+                      }
                     ]
                   }
                 ]

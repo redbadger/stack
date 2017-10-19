@@ -55,7 +55,7 @@ describe
                       {
                         "Protocol": "tcp",
                         "TargetPort": 3000,
-                        "PublishedPort": 8000,
+                        "port": 8000,
                         "PublishMode": "ingress"
                       }
                     ]
@@ -68,7 +68,7 @@ describe
                       {
                         "Protocol": "tcp",
                         "TargetPort": 3000,
-                        "PublishedPort": 8000,
+                        "port": 8000,
                         "PublishMode": "ingress"
                       }
                     ]
@@ -77,7 +77,7 @@ describe
                     {
                       "Protocol": "tcp",
                       "TargetPort": 3000,
-                      "PublishedPort": 8000,
+                      "port": 8000,
                       "PublishMode": "ingress"
                     }
                   ],
@@ -129,7 +129,7 @@ describe
                       {
                         "Protocol": "tcp",
                         "TargetPort": 3000,
-                        "PublishedPort": 8001,
+                        "port": 8001,
                         "PublishMode": "ingress"
                       }
                     ]
@@ -142,7 +142,7 @@ describe
                       {
                         "Protocol": "tcp",
                         "TargetPort": 3000,
-                        "PublishedPort": 8001,
+                        "port": 8001,
                         "PublishMode": "ingress"
                       }
                     ]
@@ -151,7 +151,7 @@ describe
                     {
                       "Protocol": "tcp",
                       "TargetPort": 3000,
-                      "PublishedPort": 8001,
+                      "port": 8001,
                       "PublishMode": "ingress"
                     }
                   ],
@@ -197,7 +197,7 @@ describe
                       {
                         "Protocol": "tcp",
                         "TargetPort": 5000,
-                        "PublishedPort": 5000,
+                        "port": 5000,
                         "PublishMode": "ingress"
                       }
                     ]
@@ -210,7 +210,7 @@ describe
                       {
                         "Protocol": "tcp",
                         "TargetPort": 5000,
-                        "PublishedPort": 5000,
+                        "port": 5000,
                         "PublishMode": "ingress"
                       }
                     ]
@@ -219,7 +219,7 @@ describe
                     {
                       "Protocol": "tcp",
                       "TargetPort": 5000,
-                      "PublishedPort": 5000,
+                      "port": 5000,
                       "PublishMode": "ingress"
                     }
                   ],
@@ -377,11 +377,17 @@ describe
               }
             ]|};
             let expected: list Services.service = [
-              {name: "visualizer", stack: "services", publishedPort: 8000},
-              {name: "rproxy", stack: "app", publishedPort: 8001},
-              {name: "registry_ambassador", stack: "swarm", publishedPort: 5000}
+              {stack: "services", name: "visualizer", aliases: [], health: None, port: Some 8000},
+              {stack: "app", name: "rproxy", aliases: [], health: None, port: Some 8001},
+              {
+                stack: "swarm",
+                name: "registry_ambassador",
+                aliases: [],
+                health: None,
+                port: Some 5000
+              }
             ];
-            let actual = Services.findWithPublishedPorts services;
+            let actual = Services.findWithports services;
             expect actual |> toEqual expected
           }
         );
@@ -395,13 +401,13 @@ describe
                   "Name": "my_stack_my_service",
                   "Labels": {"com.docker.stack.namespace": "my_stack"}
                 },
-                "Endpoint": {"Ports": [{"PublishedPort": 8000}]}
+                "Endpoint": {"Ports": [{"port": 8000}]}
               }
             ]|};
             let expected: list Services.service = [
-              {name: "my_service", stack: "my_stack", publishedPort: 8000}
+              {stack: "my_stack", name: "my_service", aliases: [], health: None, port: Some 8000}
             ];
-            let actual = Services.findWithPublishedPorts services;
+            let actual = Services.findWithports services;
             expect actual |> toEqual expected
           }
         )

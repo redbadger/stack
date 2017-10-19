@@ -5,6 +5,7 @@ external getEnv : string => Js.t {..} = "" [@@bs.module "../docker-server"];
 
 external getDocker : Js.t {..} => Js.t {. listServices : unit => Js.t {..}} =
   "" [@@bs.module "../docker-server"];
+
 /*
  import {
    create as createPortOverrides,
@@ -15,20 +16,17 @@ external getDocker : Js.t {..} => Js.t {. listServices : unit => Js.t {..}} =
  } from "../compose-file";
  import { getDocker } from "../docker-server";
  import { create as createLBConfig, reload as reloadLB, write as writeLBConfig } from "../haproxy";
- import { assign as assignPorts } from "../ports";
- import { findWithPublishedPorts as findPublicServices } from "../services";
  import { validate, deploy, execFn } from "../deploy"; */
-/* let command = "deploy [stacks...]";
+let command = "deploy [stacks...]";
 
-   let desc = {|Deploys the specified stacks.
+let desc = {|Deploys the specified stacks.
    If no stacks are specified, then just creates merged compose files.
    |};
 
-   let builder = Js.Obj.empty ();
+let builder = Js.Obj.empty ();
 
-   type argv = Js.t {. stacks : array string, file : string, update : Js.boolean, swarm : string};
-
-   let handler (argv: argv) :Js.Promise.t unit => {
+type argv = Js.t {. stacks : array string, file : string, update : Js.boolean, swarm : string};
+/* let handler (argv: argv) :Js.Promise.t unit => {
      let stepper =
        Log.step (2 + (argv##update === Js.true_ ? 1 : 0) + (Array.length argv##stacks > 0 ? 3 : 0));
      let nextStep = ref 0;
@@ -46,7 +44,8 @@ external getDocker : Js.t {..} => Js.t {. listServices : unit => Js.t {..}} =
          Js.Promise.then_ (
            fun existing => {
              let configured = List.concat (List.map (fun stack => stack.services) config.stacks);
-             let servicesWithPorts = (findPublicServices () |> assignPorts configured) existing;
+             let servicesWithPorts =
+               Services.findWithports existing |> Ports.assign configured;
              let portOverrides = createPortOverrides servicesWithPorts;
              let portOverrideFilesByStack = writeComposeFiles writeFn portOverrides "ports";
              (
