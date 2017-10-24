@@ -28,7 +28,7 @@ resource "aws_launch_configuration" "manager" {
   key_name  = "${aws_key_pair.node.key_name}"
   user_data = "${data.ct_config.ignition_manager.rendered}"
 
-  iam_instance_profile = "${aws_iam_instance_profile.manager_profile.arn}"
+  iam_instance_profile = "${aws_iam_instance_profile.node_profile.arn}"
 
   lifecycle {
     create_before_destroy = true
@@ -95,50 +95,4 @@ EOF
   lifecycle {
     create_before_destroy = true
   }
-}
-
-resource "aws_iam_instance_profile" "manager_profile" {
-  name = "manager_profile"
-  role = "${aws_iam_role.ecr_full_role.name}"
-}
-
-resource "aws_iam_role" "ecr_full_role" {
-  name = "ecr_full_role"
-  path = "/"
-
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": "sts:AssumeRole",
-            "Principal": {
-               "Service": "ec2.amazonaws.com"
-            },
-            "Effect": "Allow",
-            "Sid": ""
-        }
-    ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "ecr_full_policy" {
-  name = "ecr_full_policy"
-  role = "${aws_iam_role.ecr_full_role.id}"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "ecr:*"
-      ],
-      "Effect": "Allow",
-      "Resource": "*"
-    }
-  ]
-}
-EOF
 }

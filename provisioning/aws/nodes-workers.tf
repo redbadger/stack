@@ -4,6 +4,8 @@ data "template_file" "ignition_worker" {
   vars {
     efs-mount-target  = "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com"
     swarm-init-script = "${jsonencode(file("${path.module}/container-linux-config/worker.sh"))}"
+    ecr-creds-script  = "${jsonencode(file("${path.module}/container-linux-config/docker-credential-ecr-login.sh"))}"
+    docker-config     = "${jsonencode(file("${path.module}/container-linux-config/docker-config.json"))}"
   }
 }
 
@@ -39,6 +41,8 @@ resource "aws_launch_configuration" "worker" {
 
   key_name  = "${aws_key_pair.node.key_name}"
   user_data = "${data.ct_config.ignition_worker.rendered}"
+
+  iam_instance_profile = "${aws_iam_instance_profile.node_profile.arn}"
 
   lifecycle {
     create_before_destroy = true

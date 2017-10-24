@@ -56,3 +56,29 @@ resource "aws_security_group" "ssh" {
     security_groups = ["${var.ssh_bastion_sg}"]
   }
 }
+
+resource "aws_iam_instance_profile" "node_profile" {
+  name = "node_profile"
+  role = "${aws_iam_role.node_instance_role.name}"
+}
+
+resource "aws_iam_role" "node_instance_role" {
+  name = "node_instance_role"
+  path = "/"
+
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "sts:AssumeRole",
+            "Principal": {
+               "Service": "ec2.amazonaws.com"
+            },
+            "Effect": "Allow",
+            "Sid": ""
+        }
+    ]
+}
+EOF
+}
