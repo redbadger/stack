@@ -4,7 +4,7 @@ open Expect;
 
 open Config;
 
-describe
+Only.describe
   "should find the first unused port above 8000"
   (
     fun _ => {

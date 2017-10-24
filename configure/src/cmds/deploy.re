@@ -44,9 +44,8 @@ type argv = Js.t {. stacks : array string, file : string, update : Js.boolean, s
          Js.Promise.then_ (
            fun existing => {
              let configured = List.concat (List.map (fun stack => stack.services) config.stacks);
-             let servicesWithPorts =
-               Services.findWithports existing |> Ports.assign configured;
-             let portOverrides = createPortOverrides servicesWithPorts;
+             let configWithPorts = Services.findWithports existing |> Ports.assign configured;
+             let portOverrides = ComposeFile.createPortOverlays servicesWithPorts;
              let portOverrideFilesByStack = writeComposeFiles writeFn portOverrides "ports";
              (
                if (argv.update === Js.true_) {

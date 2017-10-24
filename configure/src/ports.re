@@ -34,7 +34,7 @@ let assign (desiredServices: list service) (existingServices: list service) =>
               (fun (s: service) => s.stack === svc.stack && s.name === svc.name) existingServices
           ) {
           | existing => existing.port
-          | exception Not_found => Some (findNext (List.concat [existingServices, acc]))
+          | exception Not_found => Some (findNext (existingServices @ acc))
           };
         [{...svc, port}, ...acc]
       }
