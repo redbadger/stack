@@ -4,6 +4,8 @@ data "template_file" "ignition_manager" {
   vars {
     efs-mount-target  = "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com"
     swarm-init-script = "${jsonencode(file("${path.module}/container-linux-config/manager.sh"))}"
+    ecr-creds-script  = "${jsonencode(file("${path.module}/container-linux-config/docker-credential-ecr-login.sh"))}"
+    docker-config     = "${jsonencode(file("${path.module}/container-linux-config/docker-config.json"))}"
   }
 }
 
@@ -15,7 +17,7 @@ data "ct_config" "ignition_manager" {
 resource "aws_launch_configuration" "manager" {
   name_prefix                 = "manager-"
   image_id                    = "${var.ami}"
-  instance_type               = "t2.micro"
+  instance_type               = "${var.manager_instance_type}"
   associate_public_ip_address = false
 
   security_groups = [
@@ -25,6 +27,8 @@ resource "aws_launch_configuration" "manager" {
 
   key_name  = "${aws_key_pair.node.key_name}"
   user_data = "${data.ct_config.ignition_manager.rendered}"
+
+  iam_instance_profile = "${aws_iam_instance_profile.manager_profile.arn}"
 
   lifecycle {
     create_before_destroy = true
@@ -91,4 +95,50 @@ EOF
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_iam_instance_profile" "manager_profile" {
+  name = "manager_profile"
+  role = "${aws_iam_role.ecr_full_role.name}"
+}
+
+resource "aws_iam_role" "ecr_full_role" {
+  name = "ecr_full_role"
+  path = "/"
+
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "sts:AssumeRole",
+            "Principal": {
+               "Service": "ec2.amazonaws.com"
+            },
+            "Effect": "Allow",
+            "Sid": ""
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "ecr_full_policy" {
+  name = "ecr_full_policy"
+  role = "${aws_iam_role.ecr_full_role.id}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "ecr:*"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
 }

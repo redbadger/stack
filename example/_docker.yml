@@ -7,4 +7,4 @@ docker:
     address: mgr1
   - name: aws
     type: unix-socket
-    address: docker.sock
+    address: /tmp/docker.sock

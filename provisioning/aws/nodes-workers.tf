@@ -28,7 +28,7 @@ resource "aws_security_group" "web_servers" {
 resource "aws_launch_configuration" "worker" {
   name_prefix                 = "worker-"
   image_id                    = "${var.ami}"
-  instance_type               = "t2.micro"
+  instance_type               = "${var.worker_instance_type}"
   associate_public_ip_address = false
 
   security_groups = [
