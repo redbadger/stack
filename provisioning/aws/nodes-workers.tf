@@ -4,6 +4,8 @@ data "template_file" "ignition_worker" {
   vars {
     efs-mount-target  = "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com"
     swarm-init-script = "${jsonencode(file("${path.module}/container-linux-config/worker.sh"))}"
+    ecr-creds-script  = "${jsonencode(file("${path.module}/container-linux-config/docker-credential-ecr-login.sh"))}"
+    docker-config     = "${jsonencode(data.template_file.docker_config.rendered)}"
   }
 }
 
@@ -28,7 +30,7 @@ resource "aws_security_group" "web_servers" {
 resource "aws_launch_configuration" "worker" {
   name_prefix                 = "worker-"
   image_id                    = "${var.ami}"
-  instance_type               = "t2.micro"
+  instance_type               = "${var.worker_instance_type}"
   associate_public_ip_address = false
 
   security_groups = [
@@ -39,6 +41,8 @@ resource "aws_launch_configuration" "worker" {
 
   key_name  = "${aws_key_pair.node.key_name}"
   user_data = "${data.ct_config.ignition_worker.rendered}"
+
+  iam_instance_profile = "${aws_iam_instance_profile.node_profile.arn}"
 
   lifecycle {
     create_before_destroy = true

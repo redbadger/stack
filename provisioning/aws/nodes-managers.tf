@@ -4,6 +4,8 @@ data "template_file" "ignition_manager" {
   vars {
     efs-mount-target  = "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com"
     swarm-init-script = "${jsonencode(file("${path.module}/container-linux-config/manager.sh"))}"
+    ecr-creds-script  = "${jsonencode(file("${path.module}/container-linux-config/docker-credential-ecr-login.sh"))}"
+    docker-config     = "${jsonencode(data.template_file.docker_config.rendered)}"
   }
 }
 
@@ -15,7 +17,7 @@ data "ct_config" "ignition_manager" {
 resource "aws_launch_configuration" "manager" {
   name_prefix                 = "manager-"
   image_id                    = "${var.ami}"
-  instance_type               = "t2.micro"
+  instance_type               = "${var.manager_instance_type}"
   associate_public_ip_address = false
 
   security_groups = [
@@ -25,6 +27,8 @@ resource "aws_launch_configuration" "manager" {
 
   key_name  = "${aws_key_pair.node.key_name}"
   user_data = "${data.ct_config.ignition_manager.rendered}"
+
+  iam_instance_profile = "${aws_iam_instance_profile.node_profile.arn}"
 
   lifecycle {
     create_before_destroy = true

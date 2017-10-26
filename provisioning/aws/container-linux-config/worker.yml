@@ -34,6 +34,16 @@ storage:
       mode: 0755
       contents:
         inline: ${swarm-init-script}
+    - path: /opt/bin/docker-credential-ecr-login
+      filesystem: root
+      mode: 0755
+      contents:
+        inline: ${ecr-creds-script}
+    - path: /home/core/.docker/config.json
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: ${docker-config}
 
 locksmith:
   reboot_strategy: off

@@ -17,6 +17,11 @@ NFS shared filesystem.
 The scripts also configure network security to allow the Swarm to communicate and
 allow incoming SSH connections to the managers.
 
+The machines have an instance profile that provides a role to access ECR,
+which together with a 
+[docker-credential-ecr-login](https://github.com/redbadger/docker-credential-ecr-login)
+helper, allows the swarm to pull images from ECR.
+
 Have a look at the [terraform dependency graph](./doc/graph.pdf).
 
 ### Left for the user
@@ -75,10 +80,30 @@ You will need:
 1. You should now be able to ssh onto one of the managers, run `docker node ls`
    and you should see the cluster nodes.
 
+## Tunnelling to a manager in your swarm
+
+```bash
+> cat ~/.ssh/config
+Host bastion
+  Hostname 52.50.162.185
+  User admin
+  IdentityFile ~/.ssh/id_rsa
+Host mgrA
+  Hostname 10.0.31.253
+  User core
+  ProxyCommand ssh bastion -W %h:%p
+
+> rm /tmp/docker.sock
+
+> nohup ssh -nNT -L /tmp/docker.sock:/var/run/docker.sock mgrA &
+
+> export DOCKER_HOST=unix:///tmp/docker.sock
+
+> docker node ls
+```
+
 ## To do
 
 * Limit SSH access to only non-interactive only to only allow tunnelling to the
   manager nodes to issue docker commands
-* Create an SSH bastion that is the only machine accessible from the public
-  internet and the only machine allowed to connect to the swarm managers
 * Add conditional load balancer creation
