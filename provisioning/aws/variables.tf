@@ -1,3 +1,7 @@
+variable "account" {
+  default = "415714308318"
+}
+
 variable "region" {
   default = "eu-west-1"
 }
@@ -19,7 +23,7 @@ variable "manager_count" {
 }
 
 variable "worker_count" {
-  default = 2
+  default = 1
 }
 
 variable "manager_instance_type" {

@@ -5,7 +5,7 @@ data "template_file" "ignition_manager" {
     efs-mount-target  = "${aws_efs_file_system.tokens.id}.efs.${var.region}.amazonaws.com"
     swarm-init-script = "${jsonencode(file("${path.module}/container-linux-config/manager.sh"))}"
     ecr-creds-script  = "${jsonencode(file("${path.module}/container-linux-config/docker-credential-ecr-login.sh"))}"
-    docker-config     = "${jsonencode(file("${path.module}/container-linux-config/docker-config.json"))}"
+    docker-config     = "${jsonencode(data.template_file.docker_config.rendered)}"
   }
 }
 

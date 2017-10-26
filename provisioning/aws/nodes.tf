@@ -82,3 +82,12 @@ resource "aws_iam_role" "node_instance_role" {
 }
 EOF
 }
+
+data "template_file" "docker_config" {
+  template = "${file("${path.module}/container-linux-config/docker-config.json")}"
+
+  vars {
+    account = "${var.account}"
+    region  = "${var.region}"
+  }
+}
