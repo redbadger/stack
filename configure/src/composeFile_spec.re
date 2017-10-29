@@ -10,10 +10,10 @@ let cwd = cwd();
 
 describe(
   "compose-file",
-  (_) =>
+  () => {
     test(
       "should create the correct port overlays",
-      (_) => {
+      () => {
         let services: list(service) = [
           {stack: "services", name: "visualizer", aliases: [], health: None, port: Some(8080)},
           {stack: "app", name: "rproxy", aliases: ["web"], health: None, port: Some(80)},
@@ -46,83 +46,86 @@ services:
         let actual = ComposeFile.createPortOverlays(services);
         expect(actual) |> toEqual(expected)
       }
+    );
+    test(
+      "should merge the files correctly",
+      () => {
+        let filesByStack = [("a", ["a.yml", "b.yml", "c.yml"])];
+        let expectedCall = [
+          "mgr1",
+          "docker-compose",
+          "-f",
+          {j|$cwd/a.yml|j},
+          "-f",
+          {j|$cwd/b.yml|j},
+          "-f",
+          {j|$cwd/c.yml|j},
+          "config"
+        ];
+        let actualCall = ref([]);
+        let actual = [("a", "merged")];
+        let expected =
+          ComposeFile.merge(
+            (server, cmd, args) => {
+              actualCall := [server, cmd, ...args];
+              "merged"
+            },
+            "mgr1",
+            filesByStack,
+            false
+          );
+        expect((actual, actualCall^)) |> toEqual((expected, expectedCall))
+      }
+    );
+    test(
+      "should merge and resolve the files correctly",
+      () => {
+        let filesByStack = [("a", ["a.yml", "b.yml", "c.yml"])];
+        let expectedCall = [
+          "mgr1",
+          "docker-compose",
+          "-f",
+          {j|$cwd/a.yml|j},
+          "-f",
+          {j|$cwd/b.yml|j},
+          "-f",
+          {j|$cwd/c.yml|j},
+          "--resolve-image-digests",
+          "config"
+        ];
+        let actualCall = ref([]);
+        let actual = [("a", "merged")];
+        let expected =
+          ComposeFile.merge(
+            (server, cmd, args) => {
+              actualCall := [server, cmd, ...args];
+              "merged"
+            },
+            "mgr1",
+            filesByStack,
+            true
+          );
+        expect((actual, actualCall^)) |> toEqual((expected, expectedCall))
+      }
+    );
+    test(
+      "should write the files correctly",
+      () => {
+        let filesByStack = [("a", "a1"), ("b", "b1")];
+        let contents = ref([]);
+        let paths =
+          ComposeFile.write(
+            (filePath, content) => {
+              contents := contents^ @ [(filePath, content)];
+              filePath
+            },
+            filesByStack,
+            "ports"
+          );
+        let expectedContents = [({j|$cwd/a-ports.yml|j}, "a1"), ({j|$cwd/b-ports.yml|j}, "b1")];
+        let expectedPaths = [("a", {j|$cwd/a-ports.yml|j}), ("b", {j|$cwd/b-ports.yml|j})];
+        expect((contents^, paths)) |> toEqual((expectedContents, expectedPaths))
+      }
     )
+  }
 );
-/* test
-     "should merge the files correctly"
-     (
-       fun _ => {
-         let filesByStack = [("a", ["a.yml", "b.yml", "c.yml"])];
-         let expectedCall = [
-           "mgr1",
-           "docker-compose",
-           ["-f", {|$cwd/a.yml|}, "-f", {|$cwd/b.yml|}, "-f", {|$cwd/c.yml|}, "config"]
-         ];
-         let actualCall = ref [];
-         let actual = [("a", "merged")];
-         let expected =
-           merge (
-             (
-               fun server cmd args => {
-                 actualCall := [server, cmd, args];
-                 "merged"
-               }
-             )
-               "mgr1" filesByStack false
-           );
-         expect actualCall |> toEqual expectedCall;
-         expect actual |> toEqual expected
-       }
-     );
-   test
-     "should merge and resolve the files correctly"
-     (
-       fun _ => {
-         let filesByStack = [("a", ["a.yml", "b.yml", "c.yml"])];
-         let expectedCall = [
-           "mgr1",
-           "docker-compose",
-           [
-             "-f",
-             {|$cwd/a.yml|},
-             "-f",
-             {|$cwd/b.yml|},
-             "-f",
-             {|$cwd/c.yml|},
-             "config",
-             "--resolve-image-digests"
-           ]
-         ];
-         let actualCall = ref [];
-         let actual = [("a", "merged")];
-         let expected =
-           merge (
-             (
-               fun server cmd args => {
-                 actualCall := [server, cmd, args];
-                 "merged"
-               }
-             )
-               "mgr1" filesByStack true
-           );
-         expect actualCall |> toEqual expectedCall;
-         expect actual |> toEqual expected
-       }
-     );
-   test
-     "should write the files correctly"
-     (
-       fun _ => {
-         let files = [("a", "a1"), ("b", "b1")];
-         let contents = ref [];
-         let paths =
-           write (
-             (fun filePath content => contents := [(filePath, content), ...!contents])
-               files "ports"
-           );
-         let expectedContents = [({|$cwd/a-ports.yml|}, "a1"), ({|$cwd/b-ports.yml|}, "b1")];
-         expect contents |> toEqual expectedContents;
-         let expectedFiles = [("a", "a-ports.yml"), ("b", "b-ports.yml")];
-         expect paths |> toEqual expectedFiles
-       }
-     ) */

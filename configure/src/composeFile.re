@@ -45,36 +45,36 @@ services:|},
     grouped
   )
 };
+
+let merge = (execFn, server, filesByStack, resolve) =>
+  List.map(
+    ((stack, files)) => {
+      let fileArgs = List.concat(List.map((f) => ["-f", Node.Path.resolve([|f|])], files));
+      let resolveArgs = resolve ? ["--resolve-image-digests"] : [];
+      (stack, execFn(server, "docker-compose", fileArgs @ resolveArgs @ ["config"]))
+    },
+    filesByStack
+  );
+
+let write = (writeFn, filesByStack, stage) =>
+  List.map(
+    ((stack, content)) => (
+      stack,
+      writeFn(Node.Path.resolve([|{j|$stack-$stage.yml|j}|]), content)
+    ),
+    filesByStack
+  );
 /* let execFn = async (server, cmd, args, stdout = false, stderr = true) => {
-     let env = await getEnv(server);
-     env.tag = process.env.tag || getRepoInfo().abbreviatedSha;
-     let cp = exec(env, cmd, args, stdout, stderr);
-     return getStream(cp.stdout);
-   };
+       let env = await getEnv(server);
+       env.tag = process.env.tag || getRepoInfo().abbreviatedSha;
+       let cp = exec(env, cmd, args, stdout, stderr);
+       return getStream(cp.stdout);
+     };
 
-   let merge = async (execFn, server, filesByStack, resolve) => {
-     let output = {};
-     for (let [stack, files] of toPairs(filesByStack)) {
-       let args = [...chain(f => ['-f', f], map(path.resolve, files)), 'config'];
-       if (resolve) {
-         args = [...args, '--resolve-image-digests'];
-       }
-       output[stack] = await execFn(server, 'docker-compose', args);
-     }
-     return output;
-   };
 
-   let writeFn = (filePath, content) => {
-     log(`Writing ${filePath}`);
-     fs.writeFileSync(filePath, content);
-   };
+     let writeFn = (filePath, content) => {
+       log(`Writing ${filePath}`);
+       fs.writeFileSync(filePath, content);
+     };
 
-   let write = (writeFn, filesByStack, stage) => {
-     let paths = {};
-     forEach(([stack, content]) => {
-       let file = `${stack}-${stage}.yml`;
-       paths[stack] = file;
-       writeFn(path.resolve(file), content);
-     }, toPairs(filesByStack));
-     return paths;
-   }; */
+   */
