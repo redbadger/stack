@@ -8,36 +8,42 @@ open Config;
 
    import { log } from './log.re';
    import { exec, getEnv } from './docker-server'; */
-let createPortOverlays = (services: list(service)) => {
-  let sorted = List.sort(compare, services);
-  let result = ref([]);
-  let current = ref(("", ""));
-  List.iter(
-    (s: service) => {
-      result := [current^, ...result^];
-      if (s.stack !== stack^) {
-        stack := s.stack;
-        current := (s.stack, {|version: "3.1"
+let join = List.fold_left((a, x) => a ++ x, "");
 
-  services:
-|})
-      } else {
-        switch s.port {
-        | None => ()
-        | Some(p) =>
-          current :=
-            (
-              s.stack,
-              snd(current^)
-              ++ (
-                "    " ++ (s.name ++ ("\n      ports:\n      - " ++ (string_of_int(p) ++ ":3000")))
-              )
-            )
-        }
-      }
-    }
-  );
-  result^
+let group = (f, l) => {
+  let rec grouping = (acc) =>
+    fun
+    | [] => acc
+    | [hd, ...tl] => {
+        let (l1, l2) = List.partition(f(hd), tl);
+        grouping([[hd, ...l1], ...acc], l2)
+      };
+  grouping([], l)
+};
+
+let createPortOverlays = (services: list(service)) => {
+  let grouped: list(list(service)) = group((s1, s2) => s1.stack === s2.stack, services);
+  List.map(
+    (services) => (
+      List.hd(services).stack,
+      List.fold_left(
+        (acc: string, svc: service) =>
+          acc
+          ++ (
+            switch svc.port {
+            | None => ""
+            | Some(p) =>
+              "\n  " ++ (svc.name ++ (":\n    ports:\n      - " ++ (string_of_int(p) ++ ":3000")))
+            }
+          ),
+        {|version: "3.1"
+
+services:|},
+        services
+      )
+    ),
+    grouped
+  )
 };
 /* let execFn = async (server, cmd, args, stdout = false, stderr = true) => {
      let env = await getEnv(server);
