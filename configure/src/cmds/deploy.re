@@ -1,10 +1,12 @@
-external mergeComposeFilesFn : string => string => array string => Js.boolean => Js.Promise.t unit =
-  "execFn" [@@bs.module "../compose-file"];
+[@bs.module "../compose-file"]
+external mergeComposeFilesFn : (string, string, array(string), Js.boolean) => Js.Promise.t(unit) =
+  "execFn";
 
-external getEnv : string => Js.t {..} = "" [@@bs.module "../docker-server"];
+[@bs.module "../docker-server"] external getEnv : string => Js.t({..}) = "";
 
-external getDocker : Js.t {..} => Js.t {. listServices : unit => Js.t {..}} =
-  "" [@@bs.module "../docker-server"];
+[@bs.module "../docker-server"]
+external getDocker : Js.t({..}) => {. "listServices": unit => Js.t({..})} =
+  "";
 
 /*
  import {
@@ -23,9 +25,9 @@ let desc = {|Deploys the specified stacks.
    If no stacks are specified, then just creates merged compose files.
    |};
 
-let builder = Js.Obj.empty ();
+let builder = Js.Obj.empty();
 
-type argv = Js.t {. stacks : array string, file : string, update : Js.boolean, swarm : string};
+type argv = {. "stacks": array(string), "file": string, "update": Js.boolean, "swarm": string};
 /* let handler (argv: argv) :Js.Promise.t unit => {
      let stepper =
        Log.step (2 + (argv##update === Js.true_ ? 1 : 0) + (Array.length argv##stacks > 0 ? 3 : 0));

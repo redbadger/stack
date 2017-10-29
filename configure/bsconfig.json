@@ -3,8 +3,21 @@
   "reason": {
     "react-jsx": 2
   },
-  "package-specs": ["commonjs", "es6"],
-  "bsc-flags": ["-bs-super-errors"],
-  "bs-dependencies": ["bs-jest", "bs-node", "bs-json"],
-  "sources": ["src", "src/cmds"]
+  "refmt": 3,
+  "package-specs": [
+    "commonjs",
+    "es6"
+  ],
+  "bsc-flags": [
+    "-bs-super-errors"
+  ],
+  "bs-dependencies": [
+    "bs-jest",
+    "bs-node",
+    "bs-json"
+  ],
+  "sources": [
+    "src",
+    "src/cmds"
+  ]
 }

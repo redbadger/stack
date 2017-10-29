@@ -8,14 +8,14 @@ open Config;
 
    import { log } from './log.re';
    import { exec, getEnv } from './docker-server'; */
-let createPortOverlays (services: list service) => {
-  let sorted = List.sort compare services;
-  let result = ref [];
-  let current = ref ("", "");
-  List.iter (
-    fun (s: service) => {
-      result := [!current, ...!result];
-      if (s.stack !== !stack) {
+let createPortOverlays = (services: list(service)) => {
+  let sorted = List.sort(compare, services);
+  let result = ref([]);
+  let current = ref(("", ""));
+  List.iter(
+    (s: service) => {
+      result := [current^, ...result^];
+      if (s.stack !== stack^) {
         stack := s.stack;
         current := (s.stack, {|version: "3.1"
 
@@ -24,16 +24,20 @@ let createPortOverlays (services: list service) => {
       } else {
         switch s.port {
         | None => ()
-        | Some p =>
-          current := (
-            s.stack,
-            snd !current ^ "    " ^ s.name ^ "\n      ports:\n      - " ^ string_of_int p ^ ":3000"
-          )
+        | Some(p) =>
+          current :=
+            (
+              s.stack,
+              snd(current^)
+              ++ (
+                "    " ++ (s.name ++ ("\n      ports:\n      - " ++ (string_of_int(p) ++ ":3000")))
+              )
+            )
         }
       }
     }
   );
-  !result
+  result^
 };
 /* let execFn = async (server, cmd, args, stdout = false, stderr = true) => {
      let env = await getEnv(server);

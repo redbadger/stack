@@ -1,58 +1,56 @@
-let dirname: option string = [%bs.node __dirname];
+let dirname: option(string) = [%bs.node __dirname];
 
 open Jest;
 
 let ymlFile =
-  Node.Path.resolve [|
+  Node.Path.resolve([|
     switch dirname {
     | None => "."
-    | Some x => x
+    | Some(x) => x
     },
     "../fixtures/_stacks.yml"
-  |];
+  |]);
 
-describe
-  "config"
-  (
-    fun () =>
-      Expect.(
-        test
-          "should load the config"
-          (
-            fun () => {
-              let expected: Config.config = {
-                stacks: [
+describe(
+  "config",
+  () =>
+    Expect.(
+      test(
+        "should load the config",
+        () => {
+          let expected: Config.config = {
+            stacks: [
+              {
+                name: "services",
+                files: ["services.yml"],
+                services: [
                   {
-                    name: "services",
-                    files: ["services.yml"],
-                    services: [
-                      {
-                        stack: "services",
-                        name: "visualizer",
-                        aliases: [],
-                        health: Some "/_health",
-                        port: None
-                      }
-                    ]
-                  },
-                  {
-                    name: "app",
-                    files: ["app.yml"],
-                    services: [
-                      {
-                        stack: "app",
-                        name: "rproxy",
-                        aliases: ["web"],
-                        health: Some "/haproxy?stats",
-                        port: None
-                      }
-                    ]
+                    stack: "services",
+                    name: "visualizer",
+                    aliases: [],
+                    health: Some("/_health"),
+                    port: None
                   }
                 ]
-              };
-              let actual = Config.load ymlFile;
-              expect actual |> toEqual expected
-            }
-          )
+              },
+              {
+                name: "app",
+                files: ["app.yml"],
+                services: [
+                  {
+                    stack: "app",
+                    name: "rproxy",
+                    aliases: ["web"],
+                    health: Some("/haproxy?stats"),
+                    port: None
+                  }
+                ]
+              }
+            ]
+          };
+          let actual = Config.load(ymlFile);
+          expect(actual) |> toEqual(expected)
+        }
       )
-  );
+    )
+);

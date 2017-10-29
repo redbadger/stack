@@ -2,15 +2,13 @@ open Jest;
 
 open Expect;
 
-describe
-  "services"
-  (
-    fun () => {
-      test
-        "should find public services"
-        (
-          fun () => {
-            let services = {|[
+describe(
+  "services",
+  () => {
+    test(
+      "should find public services",
+      () => {
+        let services = {|[
               {
                 "ID": "14grfo1mbeno4tsxspfmxy84p",
                 "Version": {"Index": 1037},
@@ -376,26 +374,25 @@ describe
                 }
               }
             ]|};
-            let expected: list Services.service = [
-              {stack: "services", name: "visualizer", aliases: [], health: None, port: Some 8000},
-              {stack: "app", name: "rproxy", aliases: [], health: None, port: Some 8001},
-              {
-                stack: "swarm",
-                name: "registry_ambassador",
-                aliases: [],
-                health: None,
-                port: Some 5000
-              }
-            ];
-            let actual = Services.findWithports services;
-            expect actual |> toEqual expected
+        let expected: list(Services.service) = [
+          {stack: "services", name: "visualizer", aliases: [], health: None, port: Some(8000)},
+          {stack: "app", name: "rproxy", aliases: [], health: None, port: Some(8001)},
+          {
+            stack: "swarm",
+            name: "registry_ambassador",
+            aliases: [],
+            health: None,
+            port: Some(5000)
           }
-        );
-      test
-        "should still work even if the stackname has an underscore"
-        (
-          fun _ => {
-            let services = {|[
+        ];
+        let actual = Services.findWithports(services);
+        expect(actual) |> toEqual(expected)
+      }
+    );
+    test(
+      "should still work even if the stackname has an underscore",
+      (_) => {
+        let services = {|[
               {
                 "Spec": {
                   "Name": "my_stack_my_service",
@@ -404,12 +401,12 @@ describe
                 "Endpoint": {"Ports": [{"port": 8000}]}
               }
             ]|};
-            let expected: list Services.service = [
-              {stack: "my_stack", name: "my_service", aliases: [], health: None, port: Some 8000}
-            ];
-            let actual = Services.findWithports services;
-            expect actual |> toEqual expected
-          }
-        )
-    }
-  );
+        let expected: list(Services.service) = [
+          {stack: "my_stack", name: "my_service", aliases: [], health: None, port: Some(8000)}
+        ];
+        let actual = Services.findWithports(services);
+        expect(actual) |> toEqual(expected)
+      }
+    )
+  }
+);
