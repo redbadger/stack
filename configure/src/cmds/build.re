@@ -1,7 +1,3 @@
-[@bs.module "../compose-file"]
-external execFn : (string, string, array(string), Js.boolean) => Js.Promise.t(unit) =
-  "";
-
 let command = "build <stacks...>";
 
 let desc = {|Builds and tags Docker images, described in the compose files for the specified stacks.
@@ -12,7 +8,9 @@ let builder = Js.Obj.empty();
 
 type argv = {. "stacks": array(string), "file": string};
 
-let handler = (argv: argv) : Js.Promise.t(unit) => {
+type thunk('a) = 'a => Js.Promise.t('a);
+
+let handler = (argv: argv) : Js.Promise.t(string) => {
   let stepper = Log.step(Array.length(argv##stacks));
   let nextStep = ref(0);
   let logStep = (msg) => {
@@ -29,14 +27,28 @@ let handler = (argv: argv) : Js.Promise.t(unit) => {
           (
             (_) => {
               logStep({j|Building $stackName|j});
-              execFn("local", "docker-compose", Array.of_list(args @ ["build"]), Js.true_)
+              ComposeFile.execFn(
+                "local",
+                "docker-compose",
+                args @ ["build"],
+                ~stdout=true,
+                ~stderr=false,
+                ()
+              )
             }
           )
         | exception Not_found =>
           Log.err({j|Stack $stackName was not found in stacks yaml file|j});
-          ((_) => Js.Promise.resolve())
+          ((_) => Js.Promise.resolve(""))
         },
       argv##stacks
     );
-  Js.Promise.(Array.fold_left((a, b, _) => a() |> then_(b), (_) => resolve(), promises))()
+  Js.Promise.(
+    Array.fold_left(
+      (a: thunk(string), b: thunk(string), _) => a("") |> then_(b),
+      resolve,
+      promises,
+      ""
+    )
+  )
 };

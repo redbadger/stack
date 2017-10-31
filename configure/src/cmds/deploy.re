@@ -1,7 +1,3 @@
-[@bs.module "../compose-file"]
-external mergeComposeFilesFn : (string, string, array(string), Js.boolean) => Js.Promise.t(unit) =
-  "execFn";
-
 [@bs.module "../docker-server"] external getEnv : string => Js.t({..}) = "";
 
 [@bs.module "../docker-server"]
@@ -81,7 +77,7 @@ type argv = {. "stacks": array(string), "file": string, "update": Js.boolean, "s
                        Array.map
                          (
                            fun stack _ =>
-                             execFn
+                             ComposeFile.execFn
                                argv##swarm
                                "docker-compose"
                                ["-f", {j|$stack-unresolved.yml|j}, "pull"]
@@ -103,7 +99,7 @@ type argv = {. "stacks": array(string), "file": string, "update": Js.boolean, "s
                              Js.true_;
                          writeComposeFiles writeFn resolved "resolved";
                          logStep "Deploying";
-                         deploy execFn argv##swarm validations##stacks
+                         deploy ComposeFile.execFn argv##swarm validations##stacks
                        }
                      )
                    }

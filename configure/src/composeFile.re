@@ -1,13 +1,23 @@
+type env = Js.Dict.t(string);
+
+type stream = Js.undefined(int);
+
+type childProcess = {. "stdout": stream};
+
+[@bs.val] external process_env : env = "process.env";
+
+[@bs.module "./docker-server"] external getEnv : string => Js.Promise.t(env) = "";
+
+[@bs.module "./docker-server"]
+external exec : (env, string, array(string), Js.boolean, Js.boolean) => Js.Promise.t(childProcess) =
+  "";
+
+[@bs.module "git-repo-info"] external getRepoInfo : unit => Js.t({..}) = "";
+
+[@bs.module "get-stream"] external getStream : stream => string = "";
+
 open Config;
 
-/* import fs from 'fs';
-   import getRepoInfo from 'git-repo-info';
-   import getStream from 'get-stream';
-   import path from 'path';
-   import { chain, forEach, fromPairs, groupBy, join, map, toPairs } from 'ramda';
-
-   import { log } from './log.re';
-   import { exec, getEnv } from './docker-server'; */
 let join = List.fold_left((a, x) => a ++ x, "");
 
 let group = (f, l) => {
@@ -64,17 +74,33 @@ let write = (writeFn, filesByStack, stage) =>
     ),
     filesByStack
   );
-/* let execFn = async (server, cmd, args, stdout = false, stderr = true) => {
-       let env = await getEnv(server);
-       env.tag = process.env.tag || getRepoInfo().abbreviatedSha;
-       let cp = exec(env, cmd, args, stdout, stderr);
-       return getStream(cp.stdout);
-     };
 
+let execFn =
+    (server: string, cmd: string, args: list(string), ~stdout=false, ~stderr=true, ())
+    : Js.Promise.t(string) =>
+  getEnv(server)
+  |> Js.Promise.then_(
+       (env) => {
+         Js.Dict.set(
+           env,
+           "tag",
+           switch (Js.Dict.get(process_env, "tag")) {
+           | None => getRepoInfo()##abbreviatedSha
+           | Some(tag) => tag
+           }
+         );
+         exec(
+           env,
+           cmd,
+           Array.of_list(args),
+           Js.Boolean.to_js_boolean(stdout),
+           Js.Boolean.to_js_boolean(stderr)
+         )
+       }
+     )
+  |> Js.Promise.then_((cp: childProcess) => Js.Promise.resolve(getStream(cp##stdout)));
 
-     let writeFn = (filePath, content) => {
-       log(`Writing ${filePath}`);
-       fs.writeFileSync(filePath, content);
-     };
-
-   */
+let writeFn = (filePath, content) => {
+  Log.log({j|Writing $filePath|j});
+  Node.Fs.writeFileSync(filePath, content)
+};
