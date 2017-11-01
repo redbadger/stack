@@ -9,12 +9,12 @@ type childProcess = {. "stdout": stream};
 [@bs.module "./docker-server"] external getEnv : string => Js.Promise.t(env) = "";
 
 [@bs.module "./docker-server"]
-external exec : (env, string, array(string), Js.boolean, Js.boolean) => Js.Promise.t(childProcess) =
+external exec : (env, string, array(string), Js.boolean, Js.boolean) => childProcess =
   "";
 
-[@bs.module "git-repo-info"] external getRepoInfo : unit => Js.t({..}) = "";
+[@bs.module] external getRepoInfo : unit => Js.t({..}) = "git-repo-info";
 
-[@bs.module "get-stream"] external getStream : stream => string = "";
+[@bs.module] external getStream : stream => string = "get-stream";
 
 open Config;
 
@@ -89,16 +89,17 @@ let execFn =
            | Some(tag) => tag
            }
          );
-         exec(
-           env,
-           cmd,
-           Array.of_list(args),
-           Js.Boolean.to_js_boolean(stdout),
-           Js.Boolean.to_js_boolean(stderr)
-         )
+         let cp: childProcess =
+           exec(
+             env,
+             cmd,
+             Array.of_list(args),
+             Js.Boolean.to_js_boolean(stdout),
+             Js.Boolean.to_js_boolean(stderr)
+           );
+         Js.Promise.resolve(getStream(cp##stdout))
        }
-     )
-  |> Js.Promise.then_((cp: childProcess) => Js.Promise.resolve(getStream(cp##stdout)));
+     );
 
 let writeFn = (filePath, content) => {
   Log.log({j|Writing $filePath|j});
