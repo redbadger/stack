@@ -10,5 +10,5 @@ RUN yarn install --pure-lockfile
 
 COPY . .
 
-# add sleep to try to avoid bs-loader corrupt files
-RUN sleep 1 && yarn test
+RUN yarn build && \
+  yarn test

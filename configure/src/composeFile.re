@@ -102,5 +102,5 @@ let execFn =
 
 let writeFn = (filePath, content) => {
   Log.log({j|Writing $filePath|j});
-  Node.Fs.writeFileSync(filePath, content)
+  Node.Fs.writeFileSync(~filename=filePath, ~text=content)
 };
