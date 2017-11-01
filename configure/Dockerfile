@@ -1,12 +1,14 @@
 FROM node:8.8.1-stretch
-USER root
 
-WORKDIR /app
+USER node
+WORKDIR /home/node
 
-RUN yarn global add https://github.com/reasonml/reason-cli/archive/3.0.0-bin-linux.tar.gz
+RUN yarn add https://github.com/reasonml/reason-cli/archive/3.0.0-bin-linux.tar.gz
 
 COPY package.json yarn.lock ./
 RUN yarn install --pure-lockfile
 
-COPY . ./
-RUN yarn test
+COPY . .
+
+# add sleep to try to avoid bs-loader corrupt files
+RUN sleep 1 && yarn test

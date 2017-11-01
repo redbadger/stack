@@ -55,11 +55,11 @@ services:
           "mgr1",
           "docker-compose",
           "-f",
-          {j|$cwd/a.yml|j},
+          Node.Path.resolve([|cwd, "a.yml"|]),
           "-f",
-          {j|$cwd/b.yml|j},
+          Node.Path.resolve([|cwd, "b.yml"|]),
           "-f",
-          {j|$cwd/c.yml|j},
+          Node.Path.resolve([|cwd, "c.yml"|]),
           "config"
         ];
         let actualCall = ref([]);
@@ -85,11 +85,11 @@ services:
           "mgr1",
           "docker-compose",
           "-f",
-          {j|$cwd/a.yml|j},
+          Node.Path.resolve([|cwd, "a.yml"|]),
           "-f",
-          {j|$cwd/b.yml|j},
+          Node.Path.resolve([|cwd, "b.yml"|]),
           "-f",
-          {j|$cwd/c.yml|j},
+          Node.Path.resolve([|cwd, "c.yml"|]),
           "--resolve-image-digests",
           "config"
         ];
@@ -122,8 +122,14 @@ services:
             filesByStack,
             "ports"
           );
-        let expectedContents = [({j|$cwd/a-ports.yml|j}, "a1"), ({j|$cwd/b-ports.yml|j}, "b1")];
-        let expectedPaths = [("a", {j|$cwd/a-ports.yml|j}), ("b", {j|$cwd/b-ports.yml|j})];
+        let expectedContents = [
+          (Node.Path.resolve([|cwd, "a-ports.yml"|]), "a1"),
+          (Node.Path.resolve([|cwd, "b-ports.yml"|]), "b1")
+        ];
+        let expectedPaths = [
+          ("a", Node.Path.resolve([|cwd, "a-ports.yml"|])),
+          ("b", Node.Path.resolve([|cwd, "b-ports.yml"|]))
+        ];
         expect((contents^, paths)) |> toEqual((expectedContents, expectedPaths))
       }
     )
