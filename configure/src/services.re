@@ -22,9 +22,8 @@ module Decode = {
   let services = Json.Decode.list(service);
 };
 
-let findWithports = (str) : list(service) =>
-  str
-  |> Js.Json.parseExn
+let findWithports = (json: Js.Json.t) : list(service) =>
+  json
   |> Decode.services
   |> List.filter(
        (s: service) =>

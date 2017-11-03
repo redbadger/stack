@@ -56,7 +56,7 @@ services:|},
   )
 };
 
-let merge = (execFn, server, filesByStack, resolve) =>
+let merge = (execFn, server, filesByStack, resolve) : list((string, Js.Promise.t(string))) =>
   List.map(
     ((stack, files)) => {
       let fileArgs = List.concat(List.map((f) => ["-f", Node.Path.resolve([|f|])], files));
@@ -66,18 +66,27 @@ let merge = (execFn, server, filesByStack, resolve) =>
     filesByStack
   );
 
-let write = (writeFn, filesByStack, stage) =>
+let write =
+    (writeFn, contentByStack: list((string, Js.Promise.t(string))), stage: string)
+    : list((string, Js.Promise.t(string))) =>
   List.map(
-    ((stack, content)) => (
+    ((stack, promiseOfContent)) => (
       stack,
-      writeFn(Node.Path.resolve([|{j|$stack-$stage.yml|j}|]), content)
+      {
+        let file = Node.Path.resolve([|{j|$stack-$stage.yml|j}|]);
+        promiseOfContent
+        |> Js.Promise.then_(
+             (content) => {
+               writeFn(file, content);
+               Js.Promise.resolve(file)
+             }
+           )
+      }
     ),
-    filesByStack
+    contentByStack
   );
 
-let execFn =
-    (server: string, cmd: string, args: list(string), ~stdout=false, ~stderr=true, ())
-    : Js.Promise.t(string) =>
+let execFn = (server: string, cmd: string, args: list(string)) : Js.Promise.t(string) =>
   getEnv(server)
   |> Js.Promise.then_(
        (env) => {
@@ -89,14 +98,7 @@ let execFn =
            | Some(tag) => tag
            }
          );
-         let cp: childProcess =
-           exec(
-             env,
-             cmd,
-             Array.of_list(args),
-             Js.Boolean.to_js_boolean(stdout),
-             Js.Boolean.to_js_boolean(stderr)
-           );
+         let cp: childProcess = exec(env, cmd, Array.of_list(args), Js.true_, Js.true_);
          Js.Promise.resolve(getStream(cp##stdout))
        }
      );

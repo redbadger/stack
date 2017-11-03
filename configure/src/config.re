@@ -42,3 +42,6 @@ module Decode = {
 };
 
 let load = (filename) => safeLoad(Node.Fs.readFileSync(filename, `utf8)) |> Decode.config;
+
+let filenamesByStack = (config: config) : list((string, list(string))) =>
+  List.map((stk) => (stk.name, stk.files), config.stacks);

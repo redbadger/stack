@@ -47,7 +47,7 @@ services:
         expect(actual) |> toEqual(expected)
       }
     );
-    test(
+    testPromise(
       "should merge the files correctly",
       () => {
         let filesByStack = [("a", ["a.yml", "b.yml", "c.yml"])];
@@ -63,21 +63,30 @@ services:
           "config"
         ];
         let actualCall = ref([]);
-        let actual = [("a", "merged")];
-        let expected =
+        let expected = [("a", "merged")];
+        let actual =
           ComposeFile.merge(
             (server, cmd, args) => {
               actualCall := [server, cmd, ...args];
-              "merged"
+              Js.Promise.resolve("merged")
             },
             "mgr1",
             filesByStack,
             false
           );
-        expect((actual, actualCall^)) |> toEqual((expected, expectedCall))
+        let (stacks, files) = List.split(actual);
+        Js.Promise.all(Array.of_list(files))
+        |> Js.Promise.then_(
+             (f) => {
+               let actual = List.combine(stacks, Array.to_list(f));
+               Js.Promise.resolve(
+                 expect((actual, actualCall^)) |> toEqual((expected, expectedCall))
+               )
+             }
+           )
       }
     );
-    test(
+    testPromise(
       "should merge and resolve the files correctly",
       () => {
         let filesByStack = [("a", ["a.yml", "b.yml", "c.yml"])];
@@ -94,43 +103,61 @@ services:
           "config"
         ];
         let actualCall = ref([]);
-        let actual = [("a", "merged")];
-        let expected =
+        let expected = [("a", "merged")];
+        let actual =
           ComposeFile.merge(
             (server, cmd, args) => {
               actualCall := [server, cmd, ...args];
-              "merged"
+              Js.Promise.resolve("merged")
             },
             "mgr1",
             filesByStack,
             true
           );
-        expect((actual, actualCall^)) |> toEqual((expected, expectedCall))
+        let (stacks, files) = List.split(actual);
+        Js.Promise.all(Array.of_list(files))
+        |> Js.Promise.then_(
+             (f) => {
+               let actual = List.combine(stacks, Array.to_list(f));
+               Js.Promise.resolve(
+                 expect((actual, actualCall^)) |> toEqual((expected, expectedCall))
+               )
+             }
+           )
       }
     );
-    test(
+    testPromise(
       "should write the files correctly",
       () => {
-        let filesByStack = [("a", "a1"), ("b", "b1")];
+        let contentByStack = [
+          ("a", Js.Promise.resolve("content for a")),
+          ("b", Js.Promise.resolve("content for b"))
+        ];
         let contents = ref([]);
-        let paths =
+        let actualPaths =
           ComposeFile.write(
-            (filePath, content) => {
-              contents := contents^ @ [(filePath, content)];
-              filePath
-            },
-            filesByStack,
+            (file, content) => contents := contents^ @ [(file, content)],
+            contentByStack,
             "ports"
           );
         let expectedContents = [
-          (Node.Path.resolve([|cwd, "a-ports.yml"|]), "a1"),
-          (Node.Path.resolve([|cwd, "b-ports.yml"|]), "b1")
+          (Node.Path.resolve([|cwd, "a-ports.yml"|]), "content for a"),
+          (Node.Path.resolve([|cwd, "b-ports.yml"|]), "content for b")
         ];
         let expectedPaths = [
           ("a", Node.Path.resolve([|cwd, "a-ports.yml"|])),
           ("b", Node.Path.resolve([|cwd, "b-ports.yml"|]))
         ];
-        expect((contents^, paths)) |> toEqual((expectedContents, expectedPaths))
+        let (stacks, paths) = List.split(actualPaths);
+        Js.Promise.all(Array.of_list(paths))
+        |> Js.Promise.then_(
+             (paths) => {
+               let actual = List.combine(stacks, Array.to_list(paths));
+               Js.Promise.resolve(
+                 expect((contents^, actual)) |> toEqual((expectedContents, expectedPaths))
+               )
+             }
+           )
       }
     )
   }

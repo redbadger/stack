@@ -385,7 +385,7 @@ describe(
             port: Some(5000)
           }
         ];
-        let actual = Services.findWithports(services);
+        let actual = Services.findWithports(Js.Json.parseExn(services));
         expect(actual) |> toEqual(expected)
       }
     );
@@ -404,7 +404,7 @@ describe(
         let expected: list(Services.service) = [
           {stack: "my_stack", name: "my_service", aliases: [], health: None, port: Some(8000)}
         ];
-        let actual = Services.findWithports(services);
+        let actual = Services.findWithports(Js.Json.parseExn(services));
         expect(actual) |> toEqual(expected)
       }
     )
