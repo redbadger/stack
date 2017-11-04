@@ -107,3 +107,22 @@ let writeFn = (filePath, content) => {
   Log.log({j|Writing $filePath|j});
   Node.Fs.writeFileSync(~filename=filePath, ~text=content)
 };
+/* let execFn = (mgr, cmd, args) => exec(getEnv(mgr), cmd, args, false, true);
+
+   let deploy = (execFn, mgr, stacks) =>
+     List.map(
+       (stack) =>
+         execFn(
+           mgr,
+           "docker",
+           [
+             "stack",
+             "deploy",
+             "--compose-file",
+             {j|$stack-resolved.yml|j},
+             "--with-registry-auth",
+             stack
+           ]
+         ),
+       stacks
+     ); */

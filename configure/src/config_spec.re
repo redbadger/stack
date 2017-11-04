@@ -54,6 +54,89 @@ describe(
         let expected = [("services", ["services.yml"]), ("app", ["app.yml"])];
         expect(actual) |> toEqual(expected)
       }
+    );
+    describe(
+      "parse and validate stack names",
+      () => {
+        test(
+          "when both valid",
+          () => {
+            let stacks = ["app", "services"];
+            let expected: Config.validation = {stacks: ["app", "services"], messages: []};
+            let actual = Config.validate(stacks, config);
+            expect(actual) |> toEqual(expected)
+          }
+        );
+        test(
+          "when one valid and one invalid",
+          () => {
+            let stacks = ["app", "service1"];
+            let expected: Config.validation = {
+              stacks: ["app"],
+              messages: [{|The stack called "service1" is not declared in the configuration|}]
+            };
+            let actual = Config.validate(stacks, config);
+            expect(actual) |> toEqual(expected)
+          }
+        );
+        test(
+          "when neither valid",
+          () => {
+            let stacks = ["app1", "service1"];
+            let expected: Config.validation = {
+              stacks: [],
+              messages: [
+                {|The stack called "app1" is not declared in the configuration|},
+                {|The stack called "service1" is not declared in the configuration|}
+              ]
+            };
+            let actual = Config.validate(stacks, config);
+            expect(actual) |> toEqual(expected)
+          }
+        )
+      }
     )
   }
+);
+
+describe(
+  "deploy",
+  () =>
+    test(
+      "calls deployment correctly",
+      () =>
+        /* let stacks = ["app", "services"];
+           let actual = [];
+           let execFn = (mgr, cmd, args) => actual.push({mgr, cmd, args});
+           deploy(execFn, "mgr1", stacks);
+           let expected = [
+             {
+               mgr: "mgr1",
+               cmd: "docker",
+               args: [
+                 "stack",
+                 "deploy",
+                 "--compose-file",
+                 "app-resolved.yml",
+                 "--with-registry-auth",
+                 "app"
+               ]
+             },
+             {
+               mgr: "mgr1",
+               cmd: "docker",
+               args: [
+                 "stack",
+                 "deploy",
+                 "--compose-file",
+                 "services-resolved.yml",
+                 "--with-registry-auth",
+                 "services"
+               ]
+             }
+           ];
+           expect(actual) |> toEqual(expected)
+            */
+        expect(1) |> toEqual(1)
+    )
 );

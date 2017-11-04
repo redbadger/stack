@@ -45,3 +45,23 @@ let load = (filename) => safeLoad(Node.Fs.readFileSync(filename, `utf8)) |> Deco
 
 let filenamesByStack = (config: config) : list((string, list(string))) =>
   List.map((stk) => (stk.name, stk.files), config.stacks);
+
+type validation = {
+  stacks: list(string),
+  messages: list(string)
+};
+
+let validate = (stacks: list(string), config: config) : validation =>
+  List.fold_left(
+    (acc, name) =>
+      switch (List.find((stack) => stack.name === name, config.stacks)) {
+      | _ => {...acc, stacks: acc.stacks @ [name]}
+      | exception Not_found => {
+          ...acc,
+          messages:
+            acc.messages @ [{j|The stack called "$name" is not declared in the configuration|j}]
+        }
+      },
+    {stacks: [], messages: []},
+    stacks
+  );

@@ -25,6 +25,7 @@ let handler = (argv: argv) : Js.Promise.t(string) => {
     stepper(nextStep^, msg)
   };
   let config = Config.load(Node.Path.resolve([|argv##file|]));
+  let requestedStacks = Array.to_list(argv##stacks);
   logStep("Scanning swarm and configuring ports");
   getEnv(argv##swarm)
   |> Js.Promise.then_(
@@ -33,11 +34,6 @@ let handler = (argv: argv) : Js.Promise.t(string) => {
          docker##listServices()
          |> Js.Promise.then_(
               (existing) => {
-                [%bs.raw
-                  {|
-                  console.log (JSON.stringify(existing))
-                |}
-                ];
                 let configured =
                   List.concat(List.map((stack: Config.stack) => stack.services, config.stacks));
                 let servicesWithPorts =
@@ -79,44 +75,46 @@ let handler = (argv: argv) : Js.Promise.t(string) => {
                            false
                          );
                        ComposeFile.write(ComposeFile.writeFn, unresolved, "unresolved");
-                       /* if (Array.length(argv##stacks) > 0) { */
-                       /* let validations = validate(argv##stacks, config);
-                          if (validations##messages##length > 0) {
-                            Log.err(String.concat(", ", Array.to_list(validations##messages)))
-                          } else { */
-                       logStep("Pulling images");
-                       let promises =
-                         List.map(
-                           (stack, _) =>
-                             ComposeFile.execFn(
-                               argv##swarm,
-                               "docker-compose",
-                               ["-f", {j|$stack-unresolved.yml|j}, "pull"]
-                             ),
-                           /* Array.to_list(validations.stacks) */
-                           stacks
-                         );
-                       Util.promisesInSeries("", promises)
-                       |> Js.Promise.then_(
-                            (x) => {
-                              logStep("Resolving images");
-                              let resolved =
-                                ComposeFile.merge(
-                                  ComposeFile.execFn,
-                                  argv##swarm,
-                                  allFilenamesByStack,
-                                  true
-                                );
-                              ComposeFile.write(ComposeFile.writeFn, resolved, "resolved");
-                              logStep("NOT Deploying");
-                              Js.Promise.resolve(x)
-                              /* deploy(ComposeFile.execFn, argv##swarm, validations##stacks) */
-                            }
-                          )
+                       if (List.length(requestedStacks) > 0) {
+                         let validation = Config.validate(requestedStacks, config);
+                         if (List.length(validation.messages) > 0) {
+                           Log.err(String.concat(", ", validation.messages));
+                           Js.Promise.resolve("")
+                         } else {
+                           logStep("Pulling images");
+                           let promises =
+                             List.map(
+                               (stack, _) =>
+                                 ComposeFile.execFn(
+                                   argv##swarm,
+                                   "docker-compose",
+                                   ["-f", {j|$stack-unresolved.yml|j}, "pull"]
+                                 ),
+                               validation.stacks
+                             );
+                           Util.promisesInSeries("", promises)
+                           |> Js.Promise.then_(
+                                (_) => {
+                                  logStep("Resolving images");
+                                  let resolved =
+                                    ComposeFile.merge(
+                                      ComposeFile.execFn,
+                                      argv##swarm,
+                                      allFilenamesByStack,
+                                      true
+                                    );
+                                  ComposeFile.write(ComposeFile.writeFn, resolved, "resolved");
+                                  logStep("NOT Deploying");
+                                  Js.Promise.resolve("")
+                                  /* deploy(ComposeFile.execFn, argv##swarm, validation.stacks) */
+                                }
+                              )
+                         }
+                       } else {
+                         Js.Promise.resolve("")
+                       }
                      }
                    )
-                /* } */
-                /* } */
               }
             )
        }
