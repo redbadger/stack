@@ -98,7 +98,7 @@ let execFn = (server: string, cmd: string, args: list(string)) : Js.Promise.t(st
            | Some(tag) => tag
            }
          );
-         let cp: childProcess = exec(env, cmd, Array.of_list(args), Js.true_, Js.true_);
+         let cp: childProcess = exec(env, cmd, Array.of_list(args), Js.false_, Js.true_);
          Js.Promise.resolve(getStream(cp##stdout))
        }
      );
@@ -107,22 +107,22 @@ let writeFn = (filePath, content) => {
   Log.log({j|Writing $filePath|j});
   Node.Fs.writeFileSync(~filename=filePath, ~text=content)
 };
-/* let execFn = (mgr, cmd, args) => exec(getEnv(mgr), cmd, args, false, true);
 
-   let deploy = (execFn, mgr, stacks) =>
-     List.map(
-       (stack) =>
-         execFn(
-           mgr,
-           "docker",
-           [
-             "stack",
-             "deploy",
-             "--compose-file",
-             {j|$stack-resolved.yml|j},
-             "--with-registry-auth",
-             stack
-           ]
-         ),
-       stacks
-     ); */
+let deploy = (execFn, server: string, stacks: list(string)) : list(Util.thunk(string)) =>
+  List.map(
+    (stack, a) =>
+      execFn(
+        server,
+        "docker",
+        [
+          "stack",
+          "deploy",
+          "--compose-file",
+          {j|$stack-resolved.yml|j},
+          "--with-registry-auth",
+          stack
+        ]
+      )
+      |> Js.Promise.then_((b) => Js.Promise.resolve(a ++ "\n" ++ b)),
+    stacks
+  );

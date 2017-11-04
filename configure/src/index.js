@@ -10,7 +10,7 @@ process.on('unhandledRejection', msg => {
 yargs
   .options(args)
   .command(require('./cmds/build.re'))
-  .command(require('./cmds/push'))
-  .command(require('./cmds/deploy'))
+  .command(require('./cmds/push.re'))
+  .command(require('./cmds/deploy.re'))
   .demandCommand()
   .parse();

@@ -162,3 +162,23 @@ services:
     )
   }
 );
+
+describe(
+  "deploy",
+  () =>
+    testPromise(
+      "calls deployment correctly",
+      () => {
+        let stacks = ["app", "services"];
+        let execFn = (mgr, cmd, args) => {
+          let args = List.fold_left((acc, a) => acc ++ " " ++ a, "", args);
+          Js.Promise.resolve({j|On $mgr: $cmd$args|j})
+        };
+        let expected = {|
+On mgr1: docker stack deploy --compose-file app-resolved.yml --with-registry-auth app
+On mgr1: docker stack deploy --compose-file services-resolved.yml --with-registry-auth services|};
+        Util.promisesInSeries("", ComposeFile.deploy(execFn, "mgr1", stacks))
+        |> Js.Promise.then_((actual) => Js.Promise.resolve(expect(actual) |> toEqual(expected)))
+      }
+    )
+);

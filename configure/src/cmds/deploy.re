@@ -26,8 +26,9 @@ let handler = (argv: argv) : Js.Promise.t(string) => {
   };
   let config = Config.load(Node.Path.resolve([|argv##file|]));
   let requestedStacks = Array.to_list(argv##stacks);
+  let server = argv##swarm;
   logStep("Scanning swarm and configuring ports");
-  getEnv(argv##swarm)
+  getEnv(server)
   |> Js.Promise.then_(
        (env) => {
          let docker = getDocker(env);
@@ -86,7 +87,7 @@ let handler = (argv: argv) : Js.Promise.t(string) => {
                              List.map(
                                (stack, _) =>
                                  ComposeFile.execFn(
-                                   argv##swarm,
+                                   server,
                                    "docker-compose",
                                    ["-f", {j|$stack-unresolved.yml|j}, "pull"]
                                  ),
@@ -99,14 +100,20 @@ let handler = (argv: argv) : Js.Promise.t(string) => {
                                   let resolved =
                                     ComposeFile.merge(
                                       ComposeFile.execFn,
-                                      argv##swarm,
+                                      server,
                                       allFilenamesByStack,
                                       true
                                     );
                                   ComposeFile.write(ComposeFile.writeFn, resolved, "resolved");
-                                  logStep("NOT Deploying");
-                                  Js.Promise.resolve("")
-                                  /* deploy(ComposeFile.execFn, argv##swarm, validation.stacks) */
+                                  logStep("Deploying");
+                                  Util.promisesInSeries(
+                                    "",
+                                    ComposeFile.deploy(
+                                      ComposeFile.execFn,
+                                      server,
+                                      validation.stacks
+                                    )
+                                  )
                                 }
                               )
                          }
