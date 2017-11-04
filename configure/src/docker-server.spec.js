@@ -3,7 +3,7 @@ import assert from 'power-assert';
 import { buildEnv } from './docker-server';
 
 describe('docker-server', () => {
-  it('should build the right env for local docker server', () => {
+  test('should build the right env for local docker server', () => {
     const processEnv = {
       x: 1,
       DOCKER_TLS_VERIFY: 'x',
@@ -21,7 +21,7 @@ describe('docker-server', () => {
     const actual = buildEnv(processEnv, dockerEnv);
     assert.deepEqual(actual, expected);
   });
-  it('should build the right env for remote docker server, when local', () => {
+  test('should build the right env for remote docker server, when local', () => {
     const processEnv = {
       x: 1,
     };
@@ -41,7 +41,7 @@ describe('docker-server', () => {
     const actual = buildEnv(processEnv, dockerEnv);
     assert.deepEqual(actual, expected);
   });
-  it('should build the right env for remote docker server, when remote', () => {
+  test('should build the right env for remote docker server, when remote', () => {
     const processEnv = {
       x: 1,
       DOCKER_TLS_VERIFY: 'x',

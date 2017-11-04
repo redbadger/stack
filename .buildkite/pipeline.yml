@@ -6,7 +6,9 @@ steps:
   - label: ":docker: Build"
     command: bash .buildkite/steps/build.sh
 
-  - label: ":node: configure cli tests"
+  - wait:
+
+  - label: ":node: 'configure' utility: unit tests"
     command: cd ./configure && docker build .
 
   - wait:

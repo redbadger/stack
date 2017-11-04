@@ -3,7 +3,7 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import { concat, head, join, map } from 'ramda';
 
-import { log, warn } from './log';
+import { log, warn } from './log.re';
 
 export const create = (services, domain) => `global
     maxconn 4096

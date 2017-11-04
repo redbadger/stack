@@ -5,7 +5,7 @@ import path from 'path';
 import { create } from './haproxy';
 
 describe('haproxy', () => {
-  it('should create the correct config', () => {
+  test('should create the correct config', () => {
     const services = [
       {
         stack: 'services',
@@ -26,7 +26,7 @@ describe('haproxy', () => {
     const actual = create(services, 'local');
     assert(actual === expected);
   });
-  it('should not add a health check if not specified', () => {
+  test('should not add a health check if not specified', () => {
     const services = [
       {
         stack: 'services',

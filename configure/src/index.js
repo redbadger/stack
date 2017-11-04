@@ -1,8 +1,7 @@
-#!/usr/bin/env node
 import yargs from 'yargs';
 
 import args from './args';
-import { err } from './log';
+import { err } from './log.re';
 
 process.on('unhandledRejection', msg => {
   err(msg);
@@ -10,6 +9,8 @@ process.on('unhandledRejection', msg => {
 
 yargs
   .options(args)
-  .commandDir('cmds')
+  .command(require('./cmds/build.re'))
+  .command(require('./cmds/push.re'))
+  .command(require('./cmds/deploy.re'))
   .demandCommand()
   .parse();

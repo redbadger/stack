@@ -1,9 +1,14 @@
-FROM node:8-alpine
+FROM node:8.8.1-stretch
 
-WORKDIR /home/node/app
+USER node
+WORKDIR /home/node
+
+RUN yarn add https://github.com/reasonml/reason-cli/archive/3.0.0-bin-linux.tar.gz
 
 COPY package.json yarn.lock ./
-RUN yarn
+RUN yarn install --pure-lockfile
 
-COPY . ./
-RUN yarn test
+COPY . .
+
+RUN yarn build && \
+  yarn test

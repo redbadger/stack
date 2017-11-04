@@ -4,38 +4,63 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "babel src -d lib",
-    "test": "yarn build && mocha \"lib/**/*.spec.js\""
+    "build": "bsb -make-world && yarn webpack",
+    "clean": "bsb -clean-world",
+    "lint": "eslint --cache .",
+    "start": "webpack -w",
+    "test": "jest",
+    "watch": "bsb -make-world -w"
   },
   "author": "Stuart Harris <stuart.harris@red-badger.com>",
   "license": "ISC",
   "dependencies": {
-    "bluebird": "^3.5.0",
-    "chalk": "^2.1.0",
+    "bluebird": "^3.5.1",
+    "bs-json": "buckletypes/bs-json",
+    "bs-node": "buckletypes/bs-node",
+    "chalk": "^2.3.0",
     "docker-machine": "^2.1.0",
-    "dockerode": "^2.5.1",
+    "dockerode": "^2.5.3",
     "execa": "^0.8.0",
     "get-stream": "^3.0.0",
     "git-repo-info": "^1.4.1",
     "js-yaml": "^3.10.0",
     "mkdirp": "^0.5.1",
-    "ramda": "^0.24.1",
+    "ramda": "^0.25.0",
     "split-ca": "^1.0.1",
-    "yargs": "^9.0.1"
+    "yargs": "^10.0.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-jest": "^21.2.0",
+    "babel-loader": "^7.1.2",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "babel-preset-power-assert": "^1.0.0",
-    "chai": "^4.1.2",
-    "eslint": "^4.7.2",
-    "eslint-config-airbnb": "^15.1.0",
-    "eslint-config-airbnb-base": "^12.0.0",
-    "eslint-plugin-import": "^2.7.0",
+    "bs-jest": "^0.2.0",
+    "bs-loader": "^1.8.2",
+    "bs-platform": "^2.0.0",
+    "eslint": "^4.10.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.4.0",
-    "mocha": "^3.5.3",
-    "power-assert": "^1.4.4"
+    "power-assert": "^1.4.4",
+    "webpack": "^3.8.1"
+  },
+  "jest": {
+    "testMatch": [
+      "<rootDir>/src/**/*spec.{ml,re,js}"
+    ],
+    "moduleFileExtensions": [
+      "re",
+      "js",
+      "ml"
+    ],
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest",
+      "^.+\\.(re|ml)$": "bs-loader"
+    }
   }
 }
