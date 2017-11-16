@@ -18,10 +18,18 @@ export default {
       } catch (e) {
         files = [];
       }
-      return files.map(async file => ({
-        name: file,
-        value: await readFile(Path.resolve(path, file), 'utf8'),
-      }));
+      // even though '.' and '..' are not included, K8s adds extra private files
+      // to mount point, so filter first
+      return files.filter(name => !name.startsWith('.')).map(async name => {
+        try {
+          return {
+            name,
+            value: await readFile(Path.resolve(path, name), 'utf8'),
+          };
+        } catch (e) {
+          return { name };
+        }
+      });
     },
     headers(_1, _2, req) {
       return JSON.stringify(req && req.headers);

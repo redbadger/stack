@@ -1,4 +1,14 @@
 apiVersion: v1
+kind: Secret
+metadata:
+  name: api-secret
+type: Opaque
+# the data here is base64 and would not normally be added like this!
+data:
+  a: aGVsbG8=
+  b: d29ybGQ=
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: api
@@ -27,13 +37,17 @@ spec:
     spec:
       containers:
       - name: api
-        image: docker.for.mac.localhost:5000/api@sha256:f073bc55d2c08cc4e62118c67396126f31add9ad1f1141c61a190dbba03774c0
+        image: docker.for.mac.localhost:5000/api@sha256:f0a34bc69902b4589d34ba8b687ed310c85f69c4875a2c44479a3d1c7b559612
         env:
         - name: PORT
           value: "3000"
         ports:
         - name: main-port
           containerPort: 3000
+        volumeMounts:
+        - name: api-secret-vol
+          mountPath: "/run/secrets"
+          readOnly: true
         livenessProbe:
           httpGet:
             path: /_health
@@ -46,3 +60,7 @@ spec:
             port: main-port
           initialDelaySeconds: 3
           periodSeconds: 3
+      volumes:
+      - name: api-secret-vol
+        secret:
+          secretName: api-secret
