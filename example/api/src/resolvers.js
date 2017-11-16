@@ -12,15 +12,16 @@ export default {
     },
     async secrets() {
       const path = '/run/secrets';
+      let files;
       try {
-        const files = await readdir(path);
-        return files.map(async file => ({
-          name: file,
-          value: await readFile(Path.resolve(path, file), 'utf8'),
-        }));
+        files = await readdir(path);
       } catch (e) {
-        return 'Secret not lodged';
+        files = [];
       }
+      return files.map(async file => ({
+        name: file,
+        value: await readFile(Path.resolve(path, file), 'utf8'),
+      }));
     },
     headers(_1, _2, req) {
       return JSON.stringify(req && req.headers);
