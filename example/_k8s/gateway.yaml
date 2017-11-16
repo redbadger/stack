@@ -16,6 +16,7 @@ metadata:
     component: gateway
 spec:
   replicas: 2
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       component: gateway
@@ -26,7 +27,7 @@ spec:
     spec:
       containers:
       - name: gateway
-        image: docker.for.mac.localhost:5000/gateway:71059d2ab2.5
+        image: docker.for.mac.localhost:5000/gateway@sha256:75035764b5ee55c35820aa38b4cf7b4d1742be8e7f47ef5379296978cff87eb5
         env:
         - name: API_HOST
           value: api:3000

@@ -16,6 +16,7 @@ metadata:
     component: api
 spec:
   replicas: 2
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       component: api
@@ -26,7 +27,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: docker.for.mac.localhost:5000/api:71059d2ab2.5
+        image: docker.for.mac.localhost:5000/api@sha256:f073bc55d2c08cc4e62118c67396126f31add9ad1f1141c61a190dbba03774c0
         env:
         - name: PORT
           value: "3000"

@@ -16,6 +16,7 @@ metadata:
     component: web
 spec:
   replicas: 2
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       component: web
@@ -26,7 +27,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: docker.for.mac.localhost:5000/web:71059d2ab2.5
+        image: docker.for.mac.localhost:5000/web@sha256:b494d80bba772b252d82864a4db0655de40ab6c909ecac0cf36d60950c2f7350
         env:
         - name: API_HOST
           value: gateway:3000

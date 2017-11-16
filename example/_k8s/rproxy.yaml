@@ -16,7 +16,8 @@ metadata:
   labels:
     component: rproxy
 spec:
-  replicas: 1
+  replicas: 2
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       component: rproxy
@@ -27,7 +28,7 @@ spec:
     spec:
       containers:
       - name: rproxy
-        image: docker.for.mac.localhost:5000/rproxy:71059d2ab2.5
+        image: docker.for.mac.localhost:5000/rproxy@sha256:065e00354fa2230fc74e3639910dbbd3692d32880c08e97b42564b141e5f1416
         env:
         - name: API_HOST
           value: gateway:3000
