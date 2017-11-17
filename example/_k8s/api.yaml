@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: docker.for.mac.localhost:5000/api@sha256:f0a34bc69902b4589d34ba8b687ed310c85f69c4875a2c44479a3d1c7b559612
+        image: ${registry}/api
         env:
         - name: PORT
           value: "3000"
