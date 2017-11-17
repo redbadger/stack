@@ -12,10 +12,7 @@ import (
 func getDigest(registry string, name string, tag string) string {
 	digestHeader := "Docker-Content-Digest"
 
-	// Construct URL
 	manifestURL := "http://" + registry + "/v2/" + name + "/manifests/" + tag
-
-	// Make HEAD request
 
 	client := &http.Client{}
 	req, _ := http.NewRequest("HEAD", manifestURL, nil)
@@ -38,9 +35,8 @@ func getDigest(registry string, name string, tag string) string {
 
 func main() {
 	registry := os.Getenv("registry")
-	tag := os.Getenv("tag") // TODO: default to current git commit sha
+	tag := os.Getenv("tag")
 
-	// Read files
 	files, err := ioutil.ReadDir(".")
 	if err != nil {
 		log.Fatal(err)
