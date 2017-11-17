@@ -16,7 +16,12 @@ func getDigest(registry string, name string, tag string) string {
 	manifestURL := "http://" + registry + "/v2/" + name + "/manifests/" + tag
 
 	// Make HEAD request
-	resp, err := http.Head(manifestURL)
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("HEAD", manifestURL, nil)
+	req.Header.Set("Accept", "application/vnd.docker.distribution.manifest.v2+json")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
