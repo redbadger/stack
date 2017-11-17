@@ -42,6 +42,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	re := regexp.MustCompile(`image: \${registry}/(.+)`)
+
 	for _, file := range files {
 		fileName := file.Name()
 
@@ -51,8 +53,6 @@ func main() {
 		}
 
 		text := string(content)
-
-		re := regexp.MustCompile(`image: \${registry}/(.+)`)
 
 		newText := re.ReplaceAllStringFunc(text, func(input string) string {
 			a := re.FindStringSubmatch(input)
