@@ -7,14 +7,13 @@ metadata:
     ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - http:
+  - host: app.cluster.local
+    http:
       paths:
       - path: /api
         backend:
           serviceName: gateway
           servicePort: 3000
-  - http:
-      paths:
       - path: /
         backend:
           serviceName: web
