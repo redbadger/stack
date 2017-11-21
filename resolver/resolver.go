@@ -19,15 +19,18 @@ func getDigest(registry string, name string, tag string) string {
 	req.Header.Set("Accept", "application/vnd.docker.distribution.manifest.v2+json")
 
 	resp, err := client.Do(req)
+	defer resp.Body.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer resp.Body.Close()
+	if resp.StatusCode == 404 {
+		log.Fatal("Image '" + name + "', with tag '" + tag + "' was not found at '" + registry + "'")
+	}
 
 	digest := resp.Header.Get(digestHeader)
 
 	if digest == "" {
-		log.Fatal("could not read " + digestHeader + " header from response")
+		log.Fatal("Could not read " + digestHeader + " header from response")
 	}
 
 	return digest
