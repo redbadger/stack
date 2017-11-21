@@ -2,7 +2,6 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: api-secret
-  namespace: app
 type: Opaque
 # the data here is base64 and would not normally be added like this!
 data:
@@ -13,7 +12,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: api
-  namespace: app
 spec:
   selector:
     component: api
@@ -24,7 +22,6 @@ apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
   name: api
-  namespace: app
   labels:
     component: api
 spec:

@@ -2,12 +2,11 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: ingress
-  namespace: app
   annotations:
     ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: app.cluster.local
+  - host: ${namespace}.cluster.local
     http:
       paths:
       - path: /api
