@@ -2,6 +2,16 @@
 
 1. Install [Minikube](https://github.com/kubernetes/minikube)
 
+   ```bash
+   brew cask install minikube
+   ```
+
+2. Start `minikube` (with an option to allow access to the registry - see below)
+
+   ```bash
+   minikube start --insecure-registry "docker.for.mac.localhost:5000"
+   ```
+
 ### Registry
 
 1. Enable the registry add-on
@@ -22,7 +32,11 @@
    preferences (`Daemon` tab).
 
 1. Add `127.0.0.1 docker.for.mac.localhost` to `/etc/hosts` on node (`minikube
-   ssh`)
+   ssh`):
+
+   ```bash
+   minikube ssh "sudo sh -c 'echo 127.0.0.1 docker.for.mac.localhost > /etc/hosts'"
+   ```
 
 1. Port forward to registry:
 
@@ -39,6 +53,9 @@
    to access our apps.
 
    ```bash
+   sudo mkdir -p /etc/resolver
+   sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/local'
+   sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/localhost'
    ../osx/dns.sh "$(minikube ip)"
    ```
 

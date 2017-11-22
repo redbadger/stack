@@ -80,6 +80,7 @@ http://web.app.local). See examples below.
    ```sh
    sudo mkdir -p /etc/resolver
    sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/local'
+   sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/localhost'
    ./provisioning/osx/dns.sh
    ```
 
