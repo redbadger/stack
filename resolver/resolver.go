@@ -20,10 +20,10 @@ func getDigest(registry string, name string, tag string) string {
 	req.Header.Set("Accept", "application/vnd.docker.distribution.manifest.v2+json")
 
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode == 404 {
 		log.Fatal("Image '" + name + "', with tag '" + tag + "' was not found at '" + registry + "'")
 	}
