@@ -2,15 +2,21 @@
 
 1. Install [Minikube](https://github.com/kubernetes/minikube)
 
+### Registry
+
 1. Enable the registry add-on
    (https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/registry)
 
-   `minikube addons enable registry`
+   ```bash
+   minikube addons enable registry
+   ```
 
 1. Install the `kube-registry-proxy` DaemonSet:
 
-   `kubectl apply -f
-   https://github.com/Faithlife/minikube-registry-proxy/raw/master/kube-registry-proxy.yml`
+   ```bash
+   kubectl apply -f
+   https://github.com/Faithlife/minikube-registry-proxy/raw/master/kube-registry-proxy.yml
+   ```
 
 1. Add `docker.for.mac.localhost:5000` to insecure registries in docker for mac
    preferences (`Daemon` tab).
@@ -27,8 +33,21 @@
    You can now push images with a `docker.for.mac.localhost:5000/` tag prefix
    and pull them into Minikube.
 
+### DNS
+
+1. Start a local DNS server that will allow us to use `namespace.cluster.local`
+   to access our apps.
+
+   ```bash
+   ../osx/dns.sh "$(minikube ip)"
+   ```
+
+### Load Balancing
+
 1. Enable the ingress add-on:
 
-   `minikube addons enable ingress`
+   ```bash
+   minikube addons enable ingress
+   ```
 
    You can now deploy the [example](../../../example) application.
