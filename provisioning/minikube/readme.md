@@ -24,8 +24,7 @@
 1. Install the `kube-registry-proxy` DaemonSet:
 
    ```bash
-   kubectl apply -f
-   https://github.com/Faithlife/minikube-registry-proxy/raw/master/kube-registry-proxy.yml
+   kubectl apply -f https://github.com/Faithlife/minikube-registry-proxy/raw/master/kube-registry-proxy.yml
    ```
 
 1. Add `docker.for.mac.localhost:5000` to insecure registries in docker for mac
@@ -35,7 +34,7 @@
    ssh`):
 
    ```bash
-   minikube ssh "sudo sh -c 'echo 127.0.0.1 docker.for.mac.localhost > /etc/hosts'"
+   minikube ssh "sudo sh -c 'echo 127.0.0.1 docker.for.mac.localhost >> /etc/hosts'"
    ```
 
 1. Port forward to registry:
@@ -68,3 +67,18 @@
    ```
 
    You can now deploy the [example](../../../example) application.
+
+### Monitoring
+
+1. One option is to
+   [Install Weave Scope](https://www.weave.works/docs/scope/latest/installing/)
+
+   ```bash
+   kubectl apply --namespace kube-system -f "https://cloud.weave.works/k8s/scope.yaml?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+   # after pods are available
+   kubectl port-forward -n kube-system "$(kubectl get -n kube-system pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')" 4040 &
+
+   # open in browser
+   open http://localhost:4040
+   ```
