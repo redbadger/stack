@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 )
 
 func getDigest(registry string, name string, tag string) string {
@@ -50,20 +51,23 @@ func main() {
 	for _, file := range files {
 		fileName := file.Name()
 
-		content, err := ioutil.ReadFile(fileName)
-		if err != nil {
-			log.Fatal(err)
+		if strings.HasSuffix(fileName, ".yml") || strings.HasSuffix(fileName, ".yaml") {
+			content, err := ioutil.ReadFile(fileName)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			text := string(content)
+
+			newText := re.ReplaceAllStringFunc(text, func(input string) string {
+				a := re.FindStringSubmatch(input)
+				name := a[1]
+				digest := getDigest(registry, name, tag)
+				return "image: " + registry + "/" + name + "@" + digest
+			})
+
+			fmt.Println(newText + "---\n")
 		}
 
-		text := string(content)
-
-		newText := re.ReplaceAllStringFunc(text, func(input string) string {
-			a := re.FindStringSubmatch(input)
-			name := a[1]
-			digest := getDigest(registry, name, tag)
-			return "image: " + registry + "/" + name + "@" + digest
-		})
-
-		fmt.Println(newText + "---\n")
 	}
 }
