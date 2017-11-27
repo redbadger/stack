@@ -8,6 +8,10 @@ import schema from './schema';
 const port = process.env.PORT;
 const app = express();
 
+process.on('SIGTERM', () => {
+  process.exit(0);
+});
+
 app.use(
   expressWinston.logger({
     transports: [

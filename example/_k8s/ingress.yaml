@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: ${namespace}.cluster.local
+    http:
+      paths:
+      - path: /api
+        backend:
+          serviceName: gateway
+          servicePort: 3000
+      - path: /
+        backend:
+          serviceName: web
+          servicePort: 3000

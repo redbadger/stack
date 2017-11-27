@@ -1,102 +1,162 @@
 [![Build status](https://badge.buildkite.com/5d85736c5c70e3acecf5dc048195b85754df59febb84ddd824.svg?branch=master)](https://buildkite.com/red-badger-1/stack)
 
-This repository contains automation for provisioning 'Docker in Swarm Mode' clusters on your Mac (OSX), Amazon Web Services and Google Cloud Platform. It also has an example proxied web ui, gateway and api (on segregated networks) that you can use to test your deployments.
+This repository contains:
 
-For local use, there are a number of supporting services that can be used to simulate cloud-native infrastructure such as Docker registries, DNS, load balancers etc:
-  1. private Docker registry (for pushing local images)
-  1. registry mirror (for caching public images)
-  1. `haproxy` load balancer (for hostname to published port mapping)
-  1. `dnsmasq` dns server (for `.local` tld resolution)
+1. automation for provisioning Docker in Swarm Mode clusters on your Mac (OSX),
+   Amazon Web Services and Google Cloud Platform.
+1. an example application (web ui, gateway and api) on segregated networks, that
+   you can use to test your deployments.
+1. tooling to build, tag and push the whole application at once
+1. tooling to idempotently deploy the whole application to a **Docker in Swarm
+   mode** cluster
+1. tooling to idempotently deploy the whole application to a **Kubernetes**
+   cluster
+
+## For Kubernetes...
+
+The example application includes Kubernetes resource [files](./example/_k8s),
+and there is additional tooling around this to support deploying a complete
+orchestration of microservices (an application) in an idempotent way (i.e only
+the services that have changed are updated). Specifically this consists of a
+`resolver` that resolves the image tags into image digests
+([see the readme](./resolver/readme.md) for more information).
+
+You can install a local Kubernetes single-node cluster with minikube
+[see here](./provisioning/minikube/readme.md).
+
+## For Docker in Swarm Mode...
+
+For local use, there are a number of supporting services that can be used to
+simulate cloud-native infrastructure such as Docker registries, DNS, load
+balancers etc:
+
+1. private Docker registry (for pushing local images)
+1. registry mirror (for caching public images)
+1. `haproxy` load balancer (for hostname to published port mapping)
+1. `dnsmasq` dns server (for `.local` tld resolution)
 
 The example application has 3 stacks running inside the cluster:
-  1. the swarm visualizer (`services` stack, deployed using `configure` utility from the `example` directory)
-  1. the registry ambassador (`swarm` stack, deployed by `./provisioning/osx/registry.sh`)
-  1. the web and the api, and their associated reverse proxy and gateway (`app` stack, also deployed using `configure` utility from the `example` directory)
+
+1. the swarm visualizer (`services` stack, deployed using `configure` utility
+   from the `example` directory)
+1. the registry ambassador (`swarm` stack, deployed by
+   `./provisioning/osx/registry.sh`)
+1. the web and the api, and their associated reverse proxy and gateway (`app`
+   stack, also deployed using `configure` utility from the `example` directory)
 
 ![Swarm Visualizer](doc/visualizer.png)
 
-Incoming requests can hit any node of the swarm and will be routed to an instance of the service (that has published the port) by the swarm's mesh routing.
+Incoming requests can hit any node of the swarm and will be routed to an
+instance of the service (that has published the port) by the swarm's mesh
+routing.
 
-You can describe stack configurations (published services) in a `yaml` file which is called `_stacks.yml` by default, and then use the configuration utility (`configure/lib/index.js --help`) to write deployable compose-files created by merging multiple compose files (including one for automatic port assignment). Combined with the local `dns` server and `haproxy` load balancer, this allows you to access published services by FQDNs in the form `http://service.stack.local` (in this case http://visualizer.services.local and http://web.app.local). See examples below.
+You can describe stack configurations (published services) in a `yaml` file
+which is called `_stacks.yml` by default, and then use the configuration utility
+(`configure/lib/index.js --help`) to write deployable compose-files created by
+merging multiple compose files (including one for automatic port assignment).
+Combined with the local `dns` server and `haproxy` load balancer, this allows
+you to access published services by FQDNs in the form
+`http://service.stack.local` (in this case http://visualizer.services.local and
+http://web.app.local). See examples below.
 
 ## To set up the cluster locally
-1.  Install the latest VirtualBox and Docker for Mac.
 
-1.  There is a script to create a swarm, which provisions 4 local VMs and joins them into a cluster. Take a look at the script to see how straight forward it is. NOTE: this script starts by removing any VMs with the names `mgr1,wkr1,wkr2,wkr3`.
+1. Install the latest VirtualBox and Docker for Mac.
 
-    ```bash
-    ./provisioning/osx/swarm.sh
-    ```
+1. There is a script to create a swarm, which provisions 4 local VMs and joins
+   them into a cluster. Take a look at the script to see how straight forward it
+   is. NOTE: this script starts by removing any VMs with the names
+   `mgr1,wkr1,wkr2,wkr3`.
 
-1.  There is a script to run a container with a local dns server (outside the swarm). This is an instance of `dnsmasq` and it used to resolve the tld `.local` to `localhost`. Unfortunately you will need `sudo` to add a resolver for the `local` tld.
+   ```bash
+   ./provisioning/osx/swarm.sh
+   ```
 
-    ```sh
-    sudo mkdir -p /etc/resolver
-    sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/local'
-    ./provisioning/osx/dns.sh
-    ```
+1. There is a script to run a container with a local dns server (outside the
+   swarm). This is an instance of `dnsmasq` and it used to resolve the tld
+   `.local` to `localhost`. Unfortunately you will need `sudo` to add a resolver
+   for the `local` tld.
 
-1.  There is a script to create containers for a local private Docker registry and a local mirror of Docker hub. It also deploys a registry ambassador inside the swarm to route requests to the registry on the host (`localhost:5000`).
+   ```sh
+   sudo mkdir -p /etc/resolver
+   sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/local'
+   sudo sh -c 'echo "nameserver 127.0.0.1" > /etc/resolver/localhost'
+   ./provisioning/osx/dns.sh
+   ```
 
-    ```sh
-    ./provisioning/osx/registry.sh
-    ```
+1. There is a script to create containers for a local private Docker registry
+   and a local mirror of Docker hub. It also deploys a registry ambassador
+   inside the swarm to route requests to the registry on the host
+   (`localhost:5000`).
 
-1.  There is a script to run a container with a load balancer (outside the swarm). Note that if the IP addresses of your VMs change, you'll need to run this script again, so that the load balancer points to the correct nodes. (The first time you run this it will use a default config which will be updated when we use the `configure -u` utility below).
+   ```sh
+   ./provisioning/osx/registry.sh
+   ```
 
-    ```sh
-    ./provisioning/osx/load-balancer.sh
-    ```
+1. There is a script to run a container with a load balancer (outside the
+   swarm). Note that if the IP addresses of your VMs change, you'll need to run
+   this script again, so that the load balancer points to the correct nodes.
+   (The first time you run this it will use a default config which will be
+   updated when we use the `configure -u` utility below).
 
-1.  Run the `configure` utility to generate deployable compose-files with correct ports. This also updates the load balancer in case the ports have changed. It deploys the `visualizer`, so that we can see what's going on.
+   ```sh
+   ./provisioning/osx/load-balancer.sh
+   ```
 
-    Note: you will need to build it (and run tests) before you use it for the first time:
+1. Run the `configure` utility to generate deployable compose-files with correct
+   ports. This also updates the load balancer in case the ports have changed. It
+   deploys the `visualizer`, so that we can see what's going on.
 
-    ```sh
-    cd configure
-    yarn
-    yarn test
-    cd ..
-    ```
+   Note: you will need to build it (and run tests) before you use it for the
+   first time:
 
-    ```sh
-    cd example
-    ../configure/lib/index.js deploy --update services
-    cd ..
-    ```
+   ```sh
+   cd configure
+   yarn
+   yarn test
+   cd ..
+   ```
 
-1.  Build and push the app stack.
+   ```sh
+   cd example
+   ../configure/lib/index.js deploy --update services
+   cd ..
+   ```
 
-    ```sh
-    cd example
-    export registry=localhost:5000
-    ../configure/lib/index.js build app
-    ../configure/lib/index.js push app
-    cd ..
-    ```
+1. Build and push the app stack.
 
-1.  Create a secret that the `api` service will use (note we use `printf` instead of `echo` to prevent a new-line being added).
+   ```sh
+   cd example
+   export registry=localhost:5000
+   ../configure/lib/index.js build app
+   ../configure/lib/index.js push app
+   cd ..
+   ```
 
-    ```sh
-    printf 'sssshhhh!' | on-swarm docker secret create my_secret -
-    ```
+1. Create a secret that the `api` service will use (note we use `printf` instead
+   of `echo` to prevent a new-line being added).
 
-1.  Run the `configure` utility to deploy the `app` stack.
+   ```sh
+   printf 'sssshhhh!' | on-swarm docker secret create my_secret -
+   ```
 
-    ```sh
-    cd example
-    ../configure/lib/index.js deploy --update app
-    cd ..
-    ```
+1. Run the `configure` utility to deploy the `app` stack.
 
-1. The following steps use aliases to make it easier to work with local and swarm docker servers (you might want to add them to your `.bash_profile`):
+   ```sh
+   cd example
+   ../configure/lib/index.js deploy --update app
+   cd ..
+   ```
 
-    ```sh
-    alias on-local="/path/to/provisioning/osx/on-local.sh"
-    alias on-swarm="/path/to/provisioning/osx/on-swarm.sh"
-    alias to-local="source /path/to/provisioning/osx/point-to-local.sh"
-    alias to-swarm="source /path/to/provisioning/osx/point-to-swarm.sh"
-    ```
+1. The following steps use aliases to make it easier to work with local and
+   swarm docker servers (you might want to add them to your `.bash_profile`):
+
+   ```sh
+   alias on-local="/path/to/provisioning/osx/on-local.sh"
+   alias on-swarm="/path/to/provisioning/osx/on-swarm.sh"
+   alias to-local="source /path/to/provisioning/osx/point-to-local.sh"
+   alias to-swarm="source /path/to/provisioning/osx/point-to-swarm.sh"
+   ```
 
 You should wait until all the services in the swarm are running:
 
@@ -124,9 +184,12 @@ fbff0358c773        andyshinn/dnsmasq      "dnsmasq -k -d -A ..."   2 days ago  
 a578c7c8703c        registry:2             "/entrypoint.sh /e..."   3 days ago          Up 3 days           0.0.0.0:5000->5000/tcp                   registry_registry_1
 ```
 
-When all the services have started, the app should be available at http://web.app.local and the visualizer at http://visualizer.services.local
+When all the services have started, the app should be available at
+http://web.app.local and the visualizer at http://visualizer.services.local
 
-Note: If you get a 503 Service Unavailable from `app_web`, you may need to restart `app_rproxy` (this is probably due to the startup order and it _should_ recover on its own, this needs fixing):
+Note: If you get a 503 Service Unavailable from `app_web`, you may need to
+restart `app_rproxy` (this is probably due to the startup order and it _should_
+recover on its own, this needs fixing):
 
 ```sh
 on-swarm docker service update --force app_rproxy
@@ -139,10 +202,9 @@ on-swarm docker service update --force app_rproxy
 ./provisioning/osx/swarm-cleanup.sh
 ```
 
-A note about overlay networks
------
+## A note about overlay networks
 
-Be careful of clashes between `Boot2Docker`'s networking and `docker swarm`'s overlay networks
-(they both use `10.0.n/24`). This is why we change the subnet for the `private` overlay network in
-[the compose file](./app.yml) (as we ended up looking for a DNS server on the
-`private` network rather than on the host)
+Be careful of clashes between `Boot2Docker`'s networking and `docker swarm`'s
+overlay networks (they both use `10.0.n/24`). This is why we change the subnet
+for the `private` overlay network in [the compose file](./app.yml) (as we ended
+up looking for a DNS server on the `private` network rather than on the host)

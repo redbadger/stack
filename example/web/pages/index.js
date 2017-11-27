@@ -3,15 +3,9 @@ import Layout from '../components/layout';
 
 const Page = ({ host, data }) => (
   <Layout title="home" host={host}>
-    <p>
-      Welcome!
-    </p>
-    <p>
-      from api:
-    </p>
-    <p>
-      {JSON.stringify(data)}
-    </p>
+    <p>Welcome!</p>
+    <p>from api:</p>
+    <p>{JSON.stringify(data)}</p>
   </Layout>
 );
 
@@ -26,7 +20,13 @@ Page.getInitialProps = async ({ req }) => {
     }),
     headers: { 'Content-Type': 'application/json' },
   });
-  const data = await response.json();
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    data = response.text();
+  }
   return {
     host: process.env['HOSTNAME'] || (req ? 'localhost' : 'client'),
     data,
